@@ -19,10 +19,16 @@ export let browserEntryPoint = function() {
     // matrices
     let mvMatrix = new MatrixStack();
     let pMatrix = new MatrixStack();
+    let perspective = false;
+
+    if (perspective) {
+        mat4.perspective(pMatrix.get(), 45.0, glContext.viewportWidth / glContext.viewportHeight, 0.1, 100.0);
+    } else { // orthographic
+        pMatrix.loadIdentity();
+    }
+    mvMatrix.loadIdentity();
 
 
-    //let mvMatrix : mat4 = mat4.create();
-    //let pMatrix : mat4 = mat4.create();
 
     // buffers
     let triangleVertices = [
@@ -47,28 +53,23 @@ export let browserEntryPoint = function() {
     gl.viewport(0, 0, glContext.viewportWidth, glContext.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // uncomment to enable perspective
-    //mat4.perspective(pMatrix.get(), 45.0, glContext.viewportWidth / glContext.viewportHeight, -0.1, 100.0);
-    // orthographic
-    pMatrix.loadIdentity();
-    mvMatrix.loadIdentity();
-
     let scale = Math.random() * 0.2 + 0.2;
 
     // triangle
     mvMatrix.push();
-    mvMatrix.translate3f(-0.5, 0.5, 0.0);
+    mvMatrix.translate3fp(perspective ? [-1.5, 0.0, -5.4] : [-0.5, 0.5, 0.0]);
     mvMatrix.scale3f(scale, scale, scale);
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleBuffer.buffer);
     gl.vertexAttribPointer(glContext.vertexPositionAttribute, triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
     glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
     //gl.drawArrays(gl.TRIANGLES, 0, triangleBuffer.numItems);
     gl.drawArrays(gl.POINTS, 0, triangleBuffer.numItems);
+    gl.drawArrays(gl.LINE_LOOP, 0, triangleBuffer.numItems);
     mvMatrix.pop();
 
     // quad
     mvMatrix.push();
-    mvMatrix.translate3f(0.5, -0.5, 0.0);
+    mvMatrix.translate3fp(perspective ? [1.5, 0.0, -5.0] : [0.5, -0.5, 0.0]);
     mvMatrix.scale3f(scale, scale, scale);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer.buffer);
     gl.vertexAttribPointer(glContext.vertexPositionAttribute, quadBuffer.itemSize, gl.FLOAT, false, 0, 0);
