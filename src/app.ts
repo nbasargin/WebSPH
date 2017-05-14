@@ -1,8 +1,7 @@
 import {ShaderLoader} from "./util/shader-loader";
 import {GLBuffer} from "./util/gl-buffer";
 import {GLContext} from "./util/gl-context";
-
-let glMatrix = require('../js-lib/gl-matrix-2.2.1.js');
+import {mat4} from "gl-matrix";
 
 
 export let browserEntryPoint = function() {
@@ -17,8 +16,8 @@ export let browserEntryPoint = function() {
     glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
     // matrices
-    let mvMatrix = glMatrix.mat4.create();
-    let pMatrix = glMatrix.mat4.create();
+    let mvMatrix : mat4 = mat4.create();
+    let pMatrix : mat4 = mat4.create();
 
     // buffers
     let triangleVertices = [
@@ -46,21 +45,23 @@ export let browserEntryPoint = function() {
     // uncomment to enable perspective
     //glMatrix.mat4.perspective (pMatrix, 45.0, glContext.viewportWidth / glContext.viewportHeight, 0.1, 100.0);
     // orthographic
-    glMatrix.mat4.identity(pMatrix);
+    mat4.identity(pMatrix);
+
+    let scale = Math.random() * 0.2 + 0.2;
 
     // triangle
-    glMatrix.mat4.identity(mvMatrix);
-    glMatrix.mat4.translate(mvMatrix, mvMatrix, [-0.5, 0.5, 0.0]);
-    glMatrix.mat4.scale(mvMatrix, mvMatrix, [0.4, 0.4, 0.4]);
+    mat4.identity(mvMatrix);
+    mat4.translate(mvMatrix, mvMatrix, [-0.5, 0.5, 0.0]);
+    mat4.scale(mvMatrix, mvMatrix, [scale, scale, scale]);
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleBuffer.buffer);
     gl.vertexAttribPointer(glContext.vertexPositionAttribute, triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
     glContext.setMatrixUniforms(pMatrix, mvMatrix);
     gl.drawArrays(gl.TRIANGLES, 0, triangleBuffer.numItems);
 
     // quad
-    glMatrix.mat4.identity(mvMatrix);
-    glMatrix.mat4.translate(mvMatrix, mvMatrix, [0.5, -0.5, 0.0]);
-    glMatrix.mat4.scale(mvMatrix, mvMatrix, [0.4, 0.4, 0.4]);
+    mat4.identity(mvMatrix);
+    mat4.translate(mvMatrix, mvMatrix, [0.5, -0.5, 0.0]);
+    mat4.scale(mvMatrix, mvMatrix, [scale, scale, scale]);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer.buffer);
     gl.vertexAttribPointer(glContext.vertexPositionAttribute, quadBuffer.itemSize, gl.FLOAT, false, 0, 0);
     glContext.setMatrixUniforms(pMatrix, mvMatrix);

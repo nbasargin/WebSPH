@@ -1,3 +1,5 @@
+import {mat4} from "gl-matrix";
+
 export class GLContext {
 
     public viewportWidth : number;
@@ -9,8 +11,6 @@ export class GLContext {
     public vertexPositionAttribute : number;
     public pMatrixUniform : WebGLUniformLocation;
     public mvMatrixUniform : WebGLUniformLocation;
-
-
 
     public constructor(canvas : HTMLCanvasElement) {
         this.canvas = canvas;
@@ -56,7 +56,7 @@ export class GLContext {
 
     }
 
-    public setMatrixUniforms(pMatrix, mvMatrix) {
+    public setMatrixUniforms(pMatrix : mat4, mvMatrix : mat4) {
         this.gl.uniformMatrix4fv(this.pMatrixUniform, false, pMatrix);
         this.gl.uniformMatrix4fv(this.mvMatrixUniform, false, mvMatrix);
     }
