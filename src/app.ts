@@ -37,6 +37,9 @@ export let browserEntryPoint = function() {
 
 
     // draw scene!
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+
     gl.viewport(0, 0, glContext.viewportWidth, glContext.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     glMatrix.mat4.perspective (pMatrix, 45.0, glContext.viewportWidth / glContext.viewportHeight, 0.1, 100.0);
@@ -54,5 +57,6 @@ export let browserEntryPoint = function() {
     glContext.setMatrixUniforms(pMatrix, mvMatrix);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, quadBuffer.numItems);
 
+    console.log("done!");
 
 };

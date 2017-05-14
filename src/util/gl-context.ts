@@ -26,6 +26,7 @@ export class GLContext {
         function compileShader(src : string, type) {
             let shader : WebGLShader = gl.createShader(type);
             gl.shaderSource(shader, src);
+            gl.compileShader(shader);
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
                 throw new Error("Couldn't compile " +
                     (type == gl.VERTEX_SHADER ? "vertex" : "fragment")  + " shader)!\n" +
