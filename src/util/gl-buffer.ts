@@ -10,6 +10,7 @@ export class GLBuffer {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         this.itemSize = itemSize;
         this.numItems = Math.floor(vertices.length / itemSize);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null); // unbind the buffer
     }
 
 
