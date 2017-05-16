@@ -22,27 +22,9 @@ export class DummyScene extends Scene {
         let vertShaderSrc = ShaderLoader.getDummyVertShader();
         this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
-        // matrix setup
-        let w = glContext.viewportWidth;
-        let h = glContext.viewportHeight;
-        if (this.perspective) {
-            if (h != 0) {
-                mat4.perspective(this.pMatrix.get(), 45.0, w / h, 0.1, 100.0);
-            } else {
-                mat4.perspective(this.pMatrix.get(), 45.0, 1, 0.1, 100.0);
-            }
-        } else { // orthographic
-            if (h != 0 && w > h) {
-                let ratio = w / h;
-                mat4.ortho(this.pMatrix.get(), -ratio, ratio, -1, 1, 0.1, 100);
-            }else if (w != 0 && h > w) {
-                let ratio = h / w;
-                mat4.ortho(this.pMatrix.get(), -1, 1, -ratio, ratio, 0.1, 100);
-            } else {
-                mat4.ortho(this.pMatrix.get(), -1, 1, -1, 1, 0.1, 100);
-            }
-        }
+        // matrices
         this.mvMatrix.loadIdentity();
+        this.setOrthographicProjection(0.1, 100);
 
         // buffers
         let triangleVertices = [
