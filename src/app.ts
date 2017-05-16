@@ -9,9 +9,13 @@ export let browserEntryPoint = function() {
     let glContext = new GLContext(canvas);
 
     let scene = new DummyScene(glContext);
-    scene.update();
-    scene.render();
 
-    console.log("done!");
+    function renderLoop() {
+        scene.update();
+        scene.render();
+        window.requestAnimationFrame(renderLoop);
+    }
+
+    renderLoop();
 
 };

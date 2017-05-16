@@ -65,7 +65,7 @@ export class DummyScene extends Scene {
 
         // triangle
         mvMatrix.push();
-        mvMatrix.translate3fp(this.perspective ? [-1.5, 0.0, -5.4] : [-0.5, 0.5, 0.0]);
+        mvMatrix.translate3fp(this.perspective ? [-1.0, 0.0, -3.0] : [-0.5, 0.5, 0.0]);
         mvMatrix.scale3f(this.scale, this.scale, this.scale);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.triangleBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -76,7 +76,7 @@ export class DummyScene extends Scene {
 
         // quad
         mvMatrix.push();
-        mvMatrix.translate3fp(this.perspective ? [1.5, 0.0, -5.0] : [0.5, -0.5, 0.0]);
+        mvMatrix.translate3fp(this.perspective ? [1.0, 0.0, -3.0] : [0.5, -0.5, 0.0]);
         mvMatrix.scale3f(this.scale, this.scale, this.scale);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.quadBuffer.itemSize, gl.FLOAT, false, 0, 0);
