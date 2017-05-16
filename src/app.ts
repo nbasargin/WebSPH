@@ -3,7 +3,7 @@ import {mat4} from "gl-matrix";
 import {DummyScene} from "./scenes/DummyScene";
 
 
-export let browserEntryPoint = function() {
+export let main = function() {
 
     let canvas : HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("web-gl-canvas");
     let glContext = new GLContext(canvas);

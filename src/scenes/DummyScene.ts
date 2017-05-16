@@ -23,10 +23,24 @@ export class DummyScene extends Scene {
         this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
         // matrix setup
+        let w = glContext.viewportWidth;
+        let h = glContext.viewportHeight;
         if (this.perspective) {
-            mat4.perspective(this.pMatrix.get(), 45.0, glContext.viewportWidth / glContext.viewportHeight, 0.1, 100.0);
+            if (h != 0) {
+                mat4.perspective(this.pMatrix.get(), 45.0, w / h, 0.1, 100.0);
+            } else {
+                mat4.perspective(this.pMatrix.get(), 45.0, 1, 0.1, 100.0);
+            }
         } else { // orthographic
-            this.pMatrix.loadIdentity();
+            if (h != 0 && w > h) {
+                let ratio = w / h;
+                mat4.ortho(this.pMatrix.get(), -ratio, ratio, -1, 1, 0.1, 100);
+            }else if (w != 0 && h > w) {
+                let ratio = h / w;
+                mat4.ortho(this.pMatrix.get(), -1, 1, -ratio, ratio, 0.1, 100);
+            } else {
+                mat4.ortho(this.pMatrix.get(), -1, 1, -1, 1, 0.1, 100);
+            }
         }
         this.mvMatrix.loadIdentity();
 
@@ -65,7 +79,7 @@ export class DummyScene extends Scene {
 
         // triangle
         mvMatrix.push();
-        mvMatrix.translate3fp(this.perspective ? [-1.0, 0.0, -3.0] : [-0.5, 0.5, 0.0]);
+        mvMatrix.translate3fp(this.perspective ? [-1.0, 0.0, -3.0] : [-0.5, 0.5, -3.0]);
         mvMatrix.scale3f(this.scale, this.scale, this.scale);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.triangleBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -76,7 +90,7 @@ export class DummyScene extends Scene {
 
         // quad
         mvMatrix.push();
-        mvMatrix.translate3fp(this.perspective ? [1.0, 0.0, -3.0] : [0.5, -0.5, 0.0]);
+        mvMatrix.translate3fp(this.perspective ? [1.0, 0.0, -3.0] : [0.5, -0.5, -3.0]);
         mvMatrix.scale3f(this.scale, this.scale, this.scale);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.quadBuffer.itemSize, gl.FLOAT, false, 0, 0);
