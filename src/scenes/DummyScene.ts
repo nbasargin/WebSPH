@@ -1,7 +1,6 @@
 import {Scene} from "./Scene";
 import {GLContext} from "../util/GLContext";
 import {ShaderLoader} from "../util/ShaderLoader";
-import {mat4} from "gl-matrix";
 import {GLBuffer} from "../util/GLBuffer";
 
 /**
@@ -10,7 +9,7 @@ import {GLBuffer} from "../util/GLBuffer";
  */
 export class DummyScene extends Scene {
 
-    private perspective = false;
+    private perspectiveProjection = false;
     private scale : number = 1;
 
     private triangleBuffer : GLBuffer;
@@ -51,12 +50,6 @@ export class DummyScene extends Scene {
      */
     public update(dt: number = 0): void {
         this.scale = (Math.sin(Date.now() * 1E-3)) * 0.4;
-
-        if (this.perspective) {
-            this.setPerspectiveProjection(45, 0.1, 100);
-        } else {
-            this.setOrthographicProjection(0.1, 100);
-        }
     }
 
     /**
@@ -68,6 +61,11 @@ export class DummyScene extends Scene {
         let pMatrix = this.pMatrix;
 
         // setup
+        if (this.perspectiveProjection) {
+            this.setPerspectiveProjection(45, 0.1, 100);
+        } else {
+            this.setOrthographicProjection(0.1, 100);
+        }
         gl.clearColor(0.0, 0.5, 0.2, 1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.viewport(0, 0, this.glContext.viewWidth(), this.glContext.viewHeight());
@@ -75,7 +73,7 @@ export class DummyScene extends Scene {
 
         // triangle
         mvMatrix.push();
-        mvMatrix.translate3fp(this.perspective ? [-1.0, 0.0, -3.0] : [-0.5, 0.5, -3.0]);
+        mvMatrix.translate3fp(this.perspectiveProjection ? [-1.0, 0.0, -3.0] : [-0.5, 0.5, -3.0]);
         mvMatrix.scale3f(this.scale, this.scale, this.scale);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.triangleBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -86,7 +84,7 @@ export class DummyScene extends Scene {
 
         // quad
         mvMatrix.push();
-        mvMatrix.translate3fp(this.perspective ? [1.0, 0.0, -3.0] : [0.5, -0.5, -3.0]);
+        mvMatrix.translate3fp(this.perspectiveProjection ? [1.0, 0.0, -3.0] : [0.5, -0.5, -3.0]);
         mvMatrix.scale3f(this.scale, this.scale, this.scale);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.quadBuffer.itemSize, gl.FLOAT, false, 0, 0);
