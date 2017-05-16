@@ -1,9 +1,11 @@
 import {mat4} from "gl-matrix";
 
+/**
+ * Wrapper for the WebGLRenderingContext.
+ * Contains some utility functions.
+ */
 export class GLContext {
 
-    public viewportWidth : number;
-    public viewportHeight : number;
     public gl : WebGLRenderingContext;
     public canvas : HTMLCanvasElement;
 
@@ -15,10 +17,29 @@ export class GLContext {
     public constructor(canvas : HTMLCanvasElement) {
         this.canvas = canvas;
         this.gl = canvas.getContext("webgl");
-        this.viewportWidth = canvas.width;
-        this.viewportHeight = canvas.height;
     }
 
+    /**
+     * Returns the actual width of the canvas.
+     * @returns {number}
+     */
+    public viewWidth() {
+        return this.canvas.width;
+    }
+
+    /**
+     * Returns the actual height of the canvas.
+     * @returns {number}
+     */
+    public viewHeight() {
+        return this.canvas.height;
+    }
+
+    /**
+     * Create a shaderProgram from vertex and fragment shader codes.
+     * @param vertShaderSrc     vertex shader source code
+     * @param fragShaderSrc     fragment shader source code
+     */
     public initShaders(vertShaderSrc : string, fragShaderSrc : string) {
         let gl = this.gl;
 
@@ -56,6 +77,11 @@ export class GLContext {
 
     }
 
+    /**
+     * Push projection and modelview matrices to the GPU.
+     * @param pMatrix       projection matrix
+     * @param mvMatrix      modelview matrix
+     */
     public setMatrixUniforms(pMatrix : mat4, mvMatrix : mat4) {
         this.gl.uniformMatrix4fv(this.pMatrixUniform, false, pMatrix);
         this.gl.uniformMatrix4fv(this.mvMatrixUniform, false, mvMatrix);

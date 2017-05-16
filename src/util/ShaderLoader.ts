@@ -1,3 +1,6 @@
+/**
+ * Loads shaders from separate files.
+ */
 export class ShaderLoader {
 
     private static dummy_frag_shader = require("../../shader/dummy_frag_shader.frag");

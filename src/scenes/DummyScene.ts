@@ -4,7 +4,10 @@ import {ShaderLoader} from "../util/ShaderLoader";
 import {mat4} from "gl-matrix";
 import {GLBuffer} from "../util/GLBuffer";
 
-
+/**
+ * Draws a triangle and a square on the screen.
+ * Size depends on the actual time.
+ */
 export class DummyScene extends Scene {
 
     private perspective = false;
@@ -23,8 +26,7 @@ export class DummyScene extends Scene {
         this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
         // matrices
-        this.mvMatrix.loadIdentity();
-        this.setOrthographicProjection(0.1, 100);
+        //this.setOrthographicProjection(0.1, 100); // moved to update
 
         // buffers
         let triangleVertices = [
@@ -43,11 +45,23 @@ export class DummyScene extends Scene {
 
     }
 
+    /**
+     * Update scale based on time, update projection (if canvas size has changed)
+     * @param dt not used
+     */
     public update(dt: number = 0): void {
         this.scale = (Math.sin(Date.now() * 1E-3)) * 0.4;
 
+        if (this.perspective) {
+            this.setPerspectiveProjection(45, 0.1, 100);
+        } else {
+            this.setOrthographicProjection(0.1, 100);
+        }
     }
 
+    /**
+     * Renders a triangle and a square
+     */
     public render(): void {
         let gl = this.glContext.gl;
         let mvMatrix = this.mvMatrix;
@@ -56,7 +70,7 @@ export class DummyScene extends Scene {
         // setup
         gl.clearColor(0.0, 0.5, 0.2, 1.0);
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, this.glContext.viewportWidth, this.glContext.viewportHeight);
+        gl.viewport(0, 0, this.glContext.viewWidth(), this.glContext.viewHeight());
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // triangle

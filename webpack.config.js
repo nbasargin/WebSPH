@@ -1,5 +1,5 @@
 module.exports = {
-	entry: './src/app.ts',
+	entry: './src/WebSPH.ts',
 	output: {
 		path: __dirname +'/js',  
 		filename: 'web-sph.js',
@@ -15,7 +15,7 @@ module.exports = {
 		loaders: [
 			// all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
 			{ test: /\.tsx?$/, loader: 'ts-loader' },
-			{ test: /\.(glsl|vs|fs|vert|frag)$/, loader: 'shader-loader' },
+			{ test: /\.(glsl|vs|fs|vert|frag)$/, loader: 'shader-loader' }
 		]
 	}
-}
+};

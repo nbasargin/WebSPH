@@ -1,3 +1,7 @@
+/**
+ * Wrapper for WebGLBuffer.
+ * Contains information about item size and number of items.
+ */
 export class GLBuffer {
 
     public buffer : WebGLBuffer;
