@@ -11,6 +11,7 @@ export class GLContext {
 
     public shaderProgram : WebGLProgram;
     public vertexPositionAttribute : number;
+    public vertexColorAttribute : number;
     public pMatrixUniform : WebGLUniformLocation;
     public mvMatrixUniform : WebGLUniformLocation;
 
@@ -71,7 +72,9 @@ export class GLContext {
 
         // save addition properties
         this.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-        gl.enableVertexAttribArray(this.vertexPositionAttribute);
+        if (this.vertexPositionAttribute != -1)  gl.enableVertexAttribArray(this.vertexPositionAttribute);
+        this.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+        if (this.vertexColorAttribute != -1) gl.enableVertexAttribArray(this.vertexColorAttribute);
         this.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         this.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 

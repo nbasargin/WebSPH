@@ -1,8 +1,6 @@
 import {GLContext} from "./util/GLContext";
 import {mat4} from "gl-matrix";
-import {DummyScene} from "./scenes/DummyScene";
 import {MovingParticles} from "./scenes/MovingParticles";
-import {RingBuffer} from "./util/RingBuffer";
 import {Timing} from "./util/Timing";
 
 /**
@@ -19,7 +17,6 @@ export let main = function() {
     let scene = new MovingParticles(glContext);
 
     let timing = new Timing(10);
-
 
     // start render loop
     function renderLoop() {
