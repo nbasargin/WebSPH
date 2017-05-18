@@ -33,14 +33,14 @@ export class DummyScene extends Scene {
             -1.0, -1.0,  //0.0,
             1.0, -1.0,  //0.0
         ];
-        this.triangleBuffer = new GLBuffer(this.glContext.gl, triangleVertices, 2);
+        this.triangleBuffer = new GLBuffer(this.glContext.gl, new Float32Array(triangleVertices), 2);
         let quadVertices = [
             1.0,  1.0,  //0.0,
             -1.0,  1.0,  //0.0,
             1.0, -1.0,  //0.0,
             -1.0, -1.0,  //0.0
         ];
-        this.quadBuffer = new GLBuffer(this.glContext.gl, quadVertices, 2);
+        this.quadBuffer = new GLBuffer(this.glContext.gl, new Float32Array(quadVertices), 2);
 
     }
 
