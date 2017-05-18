@@ -43,10 +43,12 @@ export class MovingParticles extends Scene {
     }
 
     public update(dt: number): void {
+        dt = Math.min(20, dt); // dt will be at most 20 ms
+
         let bounds = this.getOrthographicBounds();
 
-        let xSpeed = 0.000;
-        let ySpeed = 0.001;
+        let xSpeed = 0.00003;
+        let ySpeed = 0.0001;
 
         // update positions
         for (let i = 0; i < this.numParticles; i++) {
@@ -56,8 +58,8 @@ export class MovingParticles extends Scene {
             x += xSpeed * dt;
             y += ySpeed * dt;
 
-            if (x > bounds.xMax) x = bounds.xMin;
-            if (y > bounds.yMax) y = bounds.yMin;
+            if (x > bounds.xMax) x = bounds.xMin + (x-bounds.xMax);
+            if (y > bounds.yMax) y = bounds.yMin + (y-bounds.yMax);
 
             this.particlePosXY[i*2] = x;
             this.particlePosXY[i*2 + 1] = y;
