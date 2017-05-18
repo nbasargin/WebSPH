@@ -1,6 +1,6 @@
 {
 	"name": "WebSPH",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"dependencies": {},
 	"devDependencies": {
 		"typescript": "^2.2.0",
