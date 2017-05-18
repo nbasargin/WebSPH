@@ -68,7 +68,7 @@ export class DummyScene extends Scene {
         }
         gl.clearColor(0.0, 0.5, 0.2, 1.0);
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, this.glContext.viewWidth(), this.glContext.viewHeight());
+        gl.viewport(0, 0, this.glContext.viewWidthPx(), this.glContext.viewHeightPx());
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // triangle

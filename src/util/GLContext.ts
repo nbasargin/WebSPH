@@ -20,18 +20,18 @@ export class GLContext {
     }
 
     /**
-     * Returns the actual width of the canvas.
+     * Returns the width of the canvas in pixels.
      * @returns {number}
      */
-    public viewWidth() {
+    public viewWidthPx() {
         return this.canvas.width;
     }
 
     /**
-     * Returns the actual height of the canvas.
+     * Returns the height of the canvas in pixels.
      * @returns {number}
      */
-    public viewHeight() {
+    public viewHeightPx() {
         return this.canvas.height;
     }
 

@@ -25,8 +25,8 @@ export abstract class Scene {
      * @param far       far clipping distance
      */
     public setPerspectiveProjection(fovy : number, near : number, far : number) {
-        let w = this.glContext.viewWidth();
-        let h = this.glContext.viewHeight();
+        let w = this.glContext.viewWidthPx();
+        let h = this.glContext.viewHeightPx();
         if (h != 0) {
             mat4.perspective(this.pMatrix.get(), fovy, w / h, near, far);
         } else {
@@ -40,16 +40,25 @@ export abstract class Scene {
      * @param far       far clipping distance
      */
     public setOrthographicProjection(near : number, far : number) {
-        let w = this.glContext.viewWidth();
-        let h = this.glContext.viewHeight();
+        let b = this.getOrthographicBounds();
+        mat4.ortho(this.pMatrix.get(), b.xMin, b.xMax, b.yMin, b.yMax, near, far);
+    }
+
+    /**
+     * Returns bounds for orthographic projection based on the canvas size.
+     * The original square (x -1 to 1; y -1 to 1) is always inside that bounds.
+     */
+    public getOrthographicBounds() : {xMin : number, xMax : number, yMin : number, yMax : number} {
+        let w = this.glContext.viewWidthPx();
+        let h = this.glContext.viewHeightPx();
         if (h != 0 && w > h) {
             let ratio = w / h;
-            mat4.ortho(this.pMatrix.get(), -ratio, ratio, -1, 1, near, far);
+            return { xMin : -ratio, xMax : ratio, yMin : -1, yMax : 1};
         }else if (w != 0 && h > w) {
             let ratio = h / w;
-            mat4.ortho(this.pMatrix.get(), -1, 1, -ratio, ratio, near, far);
+            return { xMin : -1, xMax : 1, yMin : -ratio, yMax : ratio};
         } else {
-            mat4.ortho(this.pMatrix.get(), -1, 1, -1, 1, near, far);
+            return { xMin : -1, xMax : 1, yMin : -1, yMax : 1};
         }
     }
 
