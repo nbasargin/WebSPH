@@ -2,6 +2,8 @@ import {GLContext} from "./util/GLContext";
 import {mat4} from "gl-matrix";
 import {MovingParticles} from "./scenes/MovingParticles";
 import {Timing} from "./util/Timing";
+import {InteractingParticles} from "./scenes/InteractingParticles";
+import {DummyScene} from "./scenes/DummyScene";
 
 /**
  * Main browser entry point.
@@ -14,7 +16,8 @@ export let main = function() {
 
     // set up scene
     //let scene = new DummyScene(glContext);
-    let scene = new MovingParticles(glContext);
+    //let scene = new MovingParticles(glContext);
+    let scene = new InteractingParticles(glContext);
 
     let timing = new Timing(10);
 

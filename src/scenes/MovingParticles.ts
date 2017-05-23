@@ -94,14 +94,15 @@ export class MovingParticles extends Scene {
         gl.viewport(0, 0, this.glContext.viewWidthPx(), this.glContext.viewHeightPx());
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // particles
+        // draw particles
         mvMatrix.push();
+        // positions
         gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticlePosBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glParticlePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
+        // colors
         gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticleColBuffer.buffer);
         gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glParticleColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
+        // matrix setup + draw
         this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
         gl.drawArrays(gl.POINTS, 0, this.glParticlePosBuffer.numItems);
         mvMatrix.pop();
