@@ -9,7 +9,7 @@ import {GLBuffer} from "../util/GLBuffer";
  */
 export class InteractingParticles extends Scene {
 
-    private numParticles = 1000;
+    private numParticles = 500;
     private particles : Array<Particle>;
 
     private particlePosXY : Float32Array;
@@ -47,8 +47,8 @@ export class InteractingParticles extends Scene {
             let p = new Particle();
 
             // pos
-            let x = bounds.xMax * (Math.random() * 2 - 1);
-            let y = bounds.yMax * (Math.random() * 2 - 1);
+            let x = bounds.xMax * (Math.random() * 2 - 1) / 2;
+            let y = bounds.yMax * (Math.random() * 2 - 1) / 2;
             let z = 0;
             p.pos = [x, y, z];
 
@@ -90,10 +90,11 @@ export class InteractingParticles extends Scene {
         let bounds = this.getOrthographicBounds();
 
         // update SPEED of each particle
-        // todo: add max distance cap & cyclic field handling
         for (let i = 0; i < this.numParticles; i++) {
             let xi = this.particles[i].pos[0];
             let yi = this.particles[i].pos[1];
+
+            this.particles[i].speed[1] -= 1; // gravity
 
             for (let j = i + 1; j < this.numParticles; j++) {
                 let xj = this.particles[j].pos[0];
@@ -102,6 +103,8 @@ export class InteractingParticles extends Scene {
                 let distx = xi - xj;
                 let disty = yi - yj;
                 let dist2 = distx * distx + disty * disty;
+
+                if (dist2 == 0) dist2 = 1E-20; // prevent division by 0
 
                 // speed of particle i
                 this.particles[i].speed[0] += 0.001 * Math.sign(distx) / dist2;
@@ -128,10 +131,10 @@ export class InteractingParticles extends Scene {
             xi += this.particles[i].speed[0] * dt * 0.00001;
             yi += this.particles[i].speed[1] * dt * 0.00001;
 
-            if (xi > bounds.xMax) xi = bounds.xMin + (xi-bounds.xMax);
-            if (yi > bounds.yMax) yi = bounds.yMin + (yi-bounds.yMax);
-            if (xi < bounds.xMin) xi = bounds.xMax - (bounds.xMin - xi);
-            if (yi < bounds.yMin) yi = bounds.yMax - (bounds.yMin - yi);
+            if (xi > bounds.xMax) xi = bounds.xMax; //bounds.xMin + (xi-bounds.xMax);
+            if (yi > bounds.yMax) yi = bounds.yMax; //bounds.yMin + (yi-bounds.yMax);
+            if (xi < bounds.xMin) xi = bounds.xMin; //bounds.xMax - (bounds.xMin - xi);
+            if (yi < bounds.yMin) yi = bounds.yMin; //bounds.yMax - (bounds.yMin - yi);
 
             this.particles[i].pos[0] = xi;
             this.particles[i].pos[1] = yi;
