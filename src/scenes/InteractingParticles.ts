@@ -1,7 +1,7 @@
 import {Scene} from "./Scene";
 import {GLContext} from "../util/GLContext";
 import {ShaderLoader} from "../util/ShaderLoader";
-import {Particle} from "../Particle";
+import {Particle} from "../sph/Particle";
 import {GLBuffer} from "../util/GLBuffer";
 
 /**

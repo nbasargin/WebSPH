@@ -1,10 +1,6 @@
 import {GLContext} from "./util/GLContext";
-import {mat4} from "gl-matrix";
-import {MovingParticles} from "./scenes/MovingParticles";
 import {Timing} from "./util/Timing";
-import {InteractingParticles} from "./scenes/InteractingParticles";
-import {DummyScene} from "./scenes/DummyScene";
-
+import {Speed1D} from "./scenes/Speed1D";
 /**
  * Main browser entry point.
  */
@@ -17,7 +13,8 @@ export let main = function() {
     // set up scene
     //let scene = new DummyScene(glContext);
     //let scene = new MovingParticles(glContext);
-    let scene = new InteractingParticles(glContext);
+    //let scene = new InteractingParticles(glContext);
+    let scene = new Speed1D(glContext);
 
     let timing = new Timing(10);
 
@@ -32,6 +29,16 @@ export let main = function() {
         scene.render();
         window.requestAnimationFrame(renderLoop);
     }
-    renderLoop();
+    //renderLoop();
+
+
+    function oneFrame() {
+        scene.update(0);
+        scene.render();
+    }
+    document.onkeypress = function (ke : KeyboardEvent) {
+        if (ke.code == "ArrowRight") oneFrame();
+    };
+    oneFrame();
 
 };
