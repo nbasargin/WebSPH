@@ -7,7 +7,7 @@ import {SmoothingKernel} from "../sph/SmoothingKernel";
 
 export class Speed1D extends Scene {
 
-    private numParticles = 50;
+    private numParticles = 150;
     private particles : Array<Particle>;
 
     private particlePosXY : Float32Array;
@@ -25,10 +25,10 @@ export class Speed1D extends Scene {
         this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
         this.genParticles(this.numParticles);
+        // some initial speed
         for (let i = 10; i < 30; i++) {
-            this.particles[i].speed[0] = 1;
+            this.particles[i].speed[0] = 0.2;
         }
-
 
         // (empty) buffers
         this.particlePosXY = new Float32Array(this.numParticles * 2);
@@ -38,6 +38,10 @@ export class Speed1D extends Scene {
 
     }
 
+    /**
+     * Generates particles: x pos is evenly spread over the domain; y pos forms a sin curve.
+     * @param numParticles
+     */
     private genParticles(numParticles : number) {
         let bounds = this.getOrthographicBounds();
         this.particles = [];
@@ -47,7 +51,7 @@ export class Speed1D extends Scene {
 
             // x = min + width * ratio
             let x = bounds.xMin + (bounds.xMax - bounds.xMin) * ((i+0.5) / numParticles);
-            let y = 0;// 0.2 * ((i+0.5) / numParticles - 0.5);
+            let y =  0.5 * Math.sin(2*Math.PI * (i+0.5) / numParticles - 0.5);
             p.pos = [x, y, 0];
 
             // color
@@ -121,7 +125,7 @@ export class Speed1D extends Scene {
 
                 let V = pj.mass / pj.density; // volume = mass/density
 
-                // speed
+                // absSpeed
                 pi.speedNew[0] += pj.speed[0] * W * V;
 
                 // density
@@ -139,16 +143,17 @@ export class Speed1D extends Scene {
             this.particles[i].density = this.particles[i].densityNew;
             this.particles[i].densityNew = 0;
 
-            maxSpeed = Math.max(maxSpeed, this.particles[i].speed[0]);
-            minSpeed = Math.min(minSpeed, this.particles[i].speed[0]);
+            let absSpeed = Math.abs(this.particles[i].speed[0]);
+            maxSpeed = Math.max(maxSpeed, absSpeed);
+            minSpeed = Math.min(minSpeed, absSpeed);
         }
 
-        // update COLOR
+        // update COLOR based on speed
         let speedDiff = maxSpeed - minSpeed;
         if (speedDiff > 0) {
             for (let i = 0; i < this.numParticles; i++) {
-                let speed = this.particles[i].speed[0];
-                let col = (speed - minSpeed) / speedDiff;
+                let absSpeed = Math.abs(this.particles[i].speed[0]);
+                let col = (absSpeed - minSpeed) / speedDiff;
                 this.particles[i].color = [col,col,col,1];
             }
         } else {
