@@ -29,9 +29,9 @@ export let main = function() {
         scene.render();
         window.requestAnimationFrame(renderLoop);
     }
-    //renderLoop();
+    renderLoop();
 
-
+/*
     function oneFrame() {
         scene.update(0);
         scene.render();
@@ -40,5 +40,5 @@ export let main = function() {
         if (ke.code == "ArrowRight") oneFrame();
     };
     oneFrame();
-
+*/
 };

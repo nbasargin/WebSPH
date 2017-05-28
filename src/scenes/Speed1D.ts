@@ -7,7 +7,7 @@ import {SmoothingKernel} from "../sph/SmoothingKernel";
 
 export class Speed1D extends Scene {
 
-    private numParticles = 100;
+    private numParticles = 50;
     private particles : Array<Particle>;
 
     private particlePosXY : Float32Array;
@@ -25,7 +25,9 @@ export class Speed1D extends Scene {
         this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
         this.genParticles(this.numParticles);
-        this.particles[0].speed[0] = 0.03;
+        for (let i = 10; i < 30; i++) {
+            this.particles[i].speed[0] = 1;
+        }
 
 
         // (empty) buffers
@@ -102,32 +104,40 @@ export class Speed1D extends Scene {
 
     public update(dt: number): void {
         //dt = Math.min(20, dt); // dt will be at most 20 ms
-        dt = 0.001; // use fixed timestep
+        dt = 0.01; // use fixed timestep
 
-        // update SPEED
+        // update SPEED & density
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
 
-            for (let j = i+1; j < this.numParticles; j++) {
+            for (let j = 0; j < this.numParticles; j++) {
+                if (i == j) continue; // can be optimized with j = i+1; however we keep the code simple
+
                 let pj = this.particles[j];
 
                 let dist = this.distBetweenParticles(i, j);
 
                 let W = SmoothingKernel.cubic(dist, 0.1);
 
-                let V = 0.4; // volume = mass/density
+                let V = pj.mass / pj.density; // volume = mass/density
 
+                // speed
                 pi.speedNew[0] += pj.speed[0] * W * V;
-                pj.speedNew[0] += pi.speed[0] * W * V;
+
+                // density
+                pi.densityNew += pj.mass * W;
 
             }
         }
-        // set new speed as speed
+        // set new speed/density as speed/density
         let maxSpeed = Number.MIN_VALUE;
         let minSpeed = Number.MAX_VALUE;
         for (let i = 0; i < this.numParticles; i++) {
             this.particles[i].speed[0] = this.particles[i].speedNew[0];
             this.particles[i].speedNew[0] = 0;
+
+            this.particles[i].density = this.particles[i].densityNew;
+            this.particles[i].densityNew = 0;
 
             maxSpeed = Math.max(maxSpeed, this.particles[i].speed[0]);
             minSpeed = Math.min(minSpeed, this.particles[i].speed[0]);
@@ -150,14 +160,14 @@ export class Speed1D extends Scene {
         // update POSITION
         let bounds = this.getOrthographicBounds();
         for (let i = 0; i < this.numParticles; i++) {
+
+            if (isNaN(this.particles[i].speed[0])) continue;
+
             let newPos = this.particles[i].pos[0] + this.particles[i].speed[0] * dt;
             if (newPos > bounds.xMax) newPos -= bounds.xMax - bounds.xMin;
             if (newPos < bounds.xMin) newPos += bounds.xMax - bounds.xMin;
             this.particles[i].pos[0] = newPos;
         }
-
-
-
 
         this.updateBuffers();
     }
