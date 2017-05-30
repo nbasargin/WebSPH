@@ -1,6 +1,7 @@
 import {GLContext} from "./util/GLContext";
 import {Timing} from "./util/Timing";
 import {Speed1D} from "./scenes/Speed1D";
+import {ShallowWater1D} from "./scenes/ShallowWater1D";
 /**
  * Main browser entry point.
  */
@@ -14,7 +15,8 @@ export let main = function() {
     //let scene = new DummyScene(glContext);
     //let scene = new MovingParticles(glContext);
     //let scene = new InteractingParticles(glContext);
-    let scene = new Speed1D(glContext);
+    //let scene = new Speed1D(glContext);
+    let scene = new ShallowWater1D(glContext);
 
     let timing = new Timing(10);
 
