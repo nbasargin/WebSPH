@@ -7,7 +7,7 @@ import {SmoothingKernel} from "../sph/SmoothingKernel";
 
 export class Speed1D extends Scene {
 
-    private numParticles = 150;
+    private numParticles = 250;
     private particles : Array<Particle>;
 
     private particlePosXY : Float32Array;
@@ -108,7 +108,7 @@ export class Speed1D extends Scene {
 
     public update(dt: number): void {
         //dt = Math.min(20, dt); // dt will be at most 20 ms
-        dt = 0.01; // use fixed timestep
+        dt = 0.001; // use fixed timestep
 
         // update SPEED & density
         for (let i = 0; i < this.numParticles; i++) {
@@ -125,7 +125,7 @@ export class Speed1D extends Scene {
 
                 let V = pj.mass / pj.density; // volume = mass/density
 
-                // absSpeed
+                // speed
                 pi.speedNew[0] += pj.speed[0] * W * V;
 
                 // density
