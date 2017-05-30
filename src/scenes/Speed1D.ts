@@ -121,7 +121,7 @@ export class Speed1D extends Scene {
 
                 let dist = this.distBetweenParticles(i, j);
 
-                let W = SmoothingKernel.cubic(dist, 0.1);
+                let W = SmoothingKernel.cubic1D(dist, 0.1);
 
                 let V = pj.mass / pj.density; // volume = mass/density
 
