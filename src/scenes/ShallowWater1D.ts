@@ -72,10 +72,14 @@ export class ShallowWater1D extends Scene {
         let squeezeAreaSize = 20;
         let normalSpacing = (bounds.xMax - bounds.xMin) / numParticles;
         for (let i = 0; i < squeezeAreaSize; i++) {
-            this.particles[numParticles/2 - squeezeAreaSize + i].pos[0] += i / (squeezeAreaSize) * normalSpacing;
-            this.particles[numParticles/2 + squeezeAreaSize - i].pos[0] -= i / (squeezeAreaSize) * normalSpacing;
+            this.particles[numParticles/2 - squeezeAreaSize + i - 30].pos[0] += i / (squeezeAreaSize * 0.5) * normalSpacing;
+            this.particles[numParticles/2 + squeezeAreaSize - i - 30].pos[0] -= i / (squeezeAreaSize * 0.5) * normalSpacing;
         }
 
+        // give some speed
+        for (let i = 0; i < 10; i++) {
+            this.particles[numParticles/2 + 30 + i].speed[0] = 1;
+        }
 
     }
 
@@ -107,31 +111,32 @@ export class ShallowWater1D extends Scene {
      * @param j  id of the second particle
      * @returns {number}
      */
-    private distBetweenParticles(i : number, j : number) : number {
-        let pi = this.particles[i];
-        let pj = this.particles[j];
+    private xDistBetween(i : number, j : number) : number {
+        let pix = this.particles[i].pos[0];
+        let pjx = this.particles[j].pos[0];
 
         let bounds = this.getOrthographicBounds();
         let fieldWidth = bounds.xMax - bounds.xMin;
 
-        let distAbs = Math.abs(pi.pos[0] - pj.pos[0]);
-        let distCyc;
-        if (pi.pos[0] < pj.pos[0]) {
-            distCyc = Math.abs(pi.pos[0] + fieldWidth - pj.pos[0]);
+        let distNormal = pix - pjx;
+        let distCyclic;
+        if (pix < pjx) {
+            distCyclic = (pix + fieldWidth) - pjx;
         } else {
-            distCyc = Math.abs(pj.pos[0] + fieldWidth - pi.pos[0]);
+            distCyclic = (pix - fieldWidth) - pjx;
         }
 
-        return Math.min(distAbs, distCyc);
+        if (Math.abs(distNormal) < Math.abs(distCyclic)) {
+            return distNormal;
+        }
+        return distCyclic;
     }
 
-    private speedColoring(useAbsSpeed : boolean) {
-        // set new speed/density as speed/density
+    private speedColoring() {
         let maxSpeed = Number.MIN_VALUE;
         let minSpeed = Number.MAX_VALUE;
         for (let i = 0; i < this.numParticles; i++) {
-            let speed = this.particles[i].speed[0];
-            if (useAbsSpeed) speed = Math.abs(speed);
+            let speed = Math.abs(this.particles[i].speed[0]);
 
             maxSpeed = Math.max(maxSpeed, speed);
             minSpeed = Math.min(minSpeed, speed);
@@ -141,31 +146,22 @@ export class ShallowWater1D extends Scene {
         let speedDiff = maxSpeed - minSpeed;
         if (speedDiff > 0) {
             for (let i = 0; i < this.numParticles; i++) {
-                let speed = this.particles[i].speed[0];
-                if (useAbsSpeed) {
-                    speed = Math.abs(speed);
-                }
-
+                let speed = Math.abs(this.particles[i].speed[0]);
                 let col = (speed - minSpeed) / speedDiff;
 
-                if (useAbsSpeed) {
-                    // distinguish direction
-                    if (this.particles[i].speed[0] > 0) {
-                        this.particles[i].color = [col,0,0,1];
-                    } else {
-                        this.particles[i].color = [0,col,0,1];
-                    }
-
+                // distinguish direction
+                if (this.particles[i].speed[0] > 0) {
+                    this.particles[i].color = [col,0,0,1];
                 } else {
-                    this.particles[i].color = [col,col,col,1];
+                    this.particles[i].color = [0,col,0,1];
                 }
+
             }
         } else {
             for (let i = 0; i < this.numParticles; i++) {
                 this.particles[i].color = [0,0,0,1];
             }
         }
-
     }
 
 
@@ -202,7 +198,7 @@ export class ShallowWater1D extends Scene {
             for (let j = 0; j < this.numParticles; j++) {
                 if (i==j) continue;
 
-                let dist = this.distBetweenParticles(i, j);
+                let dist = this.xDistBetween(i, j);
                 let W = SmoothingKernel.cubic1D(dist, smoothingLength);
                 pi.pos[1] += VOLUME * W;
             }
@@ -232,36 +228,25 @@ export class ShallowWater1D extends Scene {
 
                 let pj = this.particles[j];
 
-                let dist = this.distBetweenParticles(i, j);
+                let dist = this.xDistBetween(i, j);
                 let W = SmoothingKernel.dCubic1D(dist, smoothingLength);
 
-                let acc =  g * VOLUME * W;
+                let acc = g * VOLUME * W;
 
                 // determine acceleration direction (cyclic field)!!
-
-                if (Math.abs(pi.pos[0] - pj.pos[0]) < 5 * smoothingLength) {
-                    if (pi.pos[0] < pj.pos[0]) {
-                        acc *= -1;
-                    }
-                } else {
-                    // wrapping around
-                    if (pi.pos[0] < pj.pos[0]) {
-                        acc *= -1;
-                    }
-                }
-
-
                 pi.speed[0] += acc * dt;
-                pi.speed[0] *= 0.99; // stabilize
             }
+
+            //pi.speed[0] *= 0.99; // stabilize
         }
 
-        this.speedColoring(true);
-
+        this.speedColoring();
 
 
         //Integration
         /*
+         Velocity updated above
+
          Integration updates the particle’s velocity and position,
          and moves the particle on the x line. The velocity is updated
          with the pressure and viscous force computed at the
@@ -270,10 +255,16 @@ export class ShallowWater1D extends Scene {
         */
 
 
+        let bounds = this.getOrthographicBounds();
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
-            pi.pos[0] += pi.speed[0] * dt;
+
+            let newPos = pi.pos[0] + pi.speed[0] * dt;
+            if (newPos > bounds.xMax) newPos -= bounds.xMax - bounds.xMin;
+            if (newPos < bounds.xMin) newPos += bounds.xMax - bounds.xMin;
+            this.particles[i].pos[0] = newPos;
         }
+
 
         this.updateBuffers();
     }

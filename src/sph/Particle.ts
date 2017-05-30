@@ -7,6 +7,7 @@ export class Particle {
     public density : number;
     public densityNew : number;
     public color : Array<number>;
+    public acceleration : number;
 
     public constructor() {
         this.pos = [0, 0, 0];
@@ -16,6 +17,7 @@ export class Particle {
         this.density = 1;
         this.densityNew = 1;
         this.color = [0, 0, 0, 0];
+        this.acceleration = 0;
     }
 
 
