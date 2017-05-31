@@ -9,5 +9,5 @@ varying vec4 vColor;
 void main(void) {
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
     vColor = aVertexColor;
-	gl_PointSize = 5.0;
+	gl_PointSize = 2.0;
 }

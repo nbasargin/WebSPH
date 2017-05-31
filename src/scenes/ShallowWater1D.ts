@@ -4,11 +4,12 @@ import {Particle} from "../sph/Particle";
 import {GLBuffer} from "../util/GLBuffer";
 import {ShaderLoader} from "../util/ShaderLoader";
 import {SmoothingKernel} from "../sph/SmoothingKernel";
+import {Coloring} from "../util/Coloring";
 
 export class ShallowWater1D extends Scene {
 
 
-    private numParticles = 100;
+    private numParticles = 300;
     private particles : Array<Particle>;
 
     private particlePosXY : Float32Array;
@@ -69,16 +70,16 @@ export class ShallowWater1D extends Scene {
 
         // squeeze some particles
 
-        let squeezeAreaSize = 20;
+        let squeezeAreaSize = 70;
         let normalSpacing = (bounds.xMax - bounds.xMin) / numParticles;
         for (let i = 0; i < squeezeAreaSize; i++) {
-            this.particles[numParticles/2 - squeezeAreaSize + i - 30].pos[0] += i / (squeezeAreaSize * 0.5) * normalSpacing;
-            this.particles[numParticles/2 + squeezeAreaSize - i - 30].pos[0] -= i / (squeezeAreaSize * 0.5) * normalSpacing;
+            this.particles[numParticles/2 - squeezeAreaSize + i - 30].pos[0] += i / (squeezeAreaSize * 0.1) * normalSpacing;
+            this.particles[numParticles/2 + squeezeAreaSize - i - 30].pos[0] -= i / (squeezeAreaSize * 0.1) * normalSpacing;
         }
 
         // give some speed
         for (let i = 0; i < 10; i++) {
-            this.particles[numParticles/2 + 30 + i].speed[0] = 1;
+            //this.particles[numParticles/2 + 30 + i].speed[0] = 1;
         }
 
     }
@@ -132,53 +133,20 @@ export class ShallowWater1D extends Scene {
         return distCyclic;
     }
 
-    private speedColoring() {
-        let maxSpeed = Number.MIN_VALUE;
-        let minSpeed = Number.MAX_VALUE;
-        for (let i = 0; i < this.numParticles; i++) {
-            let speed = Math.abs(this.particles[i].speed[0]);
-
-            maxSpeed = Math.max(maxSpeed, speed);
-            minSpeed = Math.min(minSpeed, speed);
-        }
-
-        // update COLOR based on speed
-        let speedDiff = maxSpeed - minSpeed;
-        if (speedDiff > 0) {
-            for (let i = 0; i < this.numParticles; i++) {
-                let speed = Math.abs(this.particles[i].speed[0]);
-                let col = (speed - minSpeed) / speedDiff;
-
-                // distinguish direction
-                if (this.particles[i].speed[0] > 0) {
-                    this.particles[i].color = [col,0,0,1];
-                } else {
-                    this.particles[i].color = [0,col,0,1];
-                }
-
-            }
-        } else {
-            for (let i = 0; i < this.numParticles; i++) {
-                this.particles[i].color = [0,0,0,1];
-            }
-        }
-    }
 
 
     public update(dt: number): void {
 
         // fixed timestep
-        dt = 0.01;
-
-        // Solving the Shallow Water equations using 2D SPH particles
-        // for interactive applications      Hyokwang Lee · Soonhung Han
-        // original order:  Integration -> Height approximation -> Force computation
-        // new order:       Height approximation -> Force computation -> Integration
-
+        dt = 0.003;
         let VOLUME = 1 / this.numParticles; // constant volume
         let smoothingLength = 0.1;
 
-        //Height approximation
+        // Solving the Shallow Water equations using 2D SPH particles for interactive applications
+        // Hyokwang Lee · Soonhung Han
+        // original order:  Integration -> Height approximation -> Force computation
+        // new order:       Height approximation -> Force computation -> Integration
+
         /*
          Height approximation determines the height of particles
          by (13). The z value of each particle is updated with the
@@ -189,8 +157,8 @@ export class ShallowWater1D extends Scene {
          with   Vj = volume of j = const.
                 Wij = Smoothing kernel
          */
-
-        // !! the height HERE is Y !!
+        // Height approximation
+        // !! the height HERE is Y = pos[1] !!
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
             pi.pos[1] = 0;
@@ -206,8 +174,6 @@ export class ShallowWater1D extends Scene {
 
 
 
-
-        //Force computation
         /*
          Force computation computes the force interaction between
          particles where the pressure is determined by (20).
@@ -218,47 +184,43 @@ export class ShallowWater1D extends Scene {
                 D u_i / D t = acceleration
          */
 
+        // Acceleration computation
         let g = 9.81;
-
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
+            pi.acceleration = 0;
 
             for (let j = 0; j < this.numParticles; j++) {
                 if (i==j) continue;
 
-                let pj = this.particles[j];
-
                 let dist = this.xDistBetween(i, j);
                 let W = SmoothingKernel.dCubic1D(dist, smoothingLength);
 
-                let acc = g * VOLUME * W;
-
-                // determine acceleration direction (cyclic field)!!
-                pi.speed[0] += acc * dt;
+                pi.acceleration += g * VOLUME * W;
             }
 
-            //pi.speed[0] *= 0.99; // stabilize
         }
 
-        this.speedColoring();
+        Coloring.speedColoring(this.particles);
 
 
-        //Integration
+
         /*
-         Velocity updated above
-
          Integration updates the particle’s velocity and position,
          and moves the particle on the x line. The velocity is updated
          with the pressure and viscous force computed at the
-         previous time step, and the position is updated with the new
+         previous step, and the position is updated with the new
          velocity.
         */
 
-
+        //Integration
         let bounds = this.getOrthographicBounds();
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
-
+            // explicit euler
+            // speed
+            pi.speed[0] += pi.acceleration * dt;
+            // position
             let newPos = pi.pos[0] + pi.speed[0] * dt;
             if (newPos > bounds.xMax) newPos -= bounds.xMax - bounds.xMin;
             if (newPos < bounds.xMin) newPos += bounds.xMax - bounds.xMin;
