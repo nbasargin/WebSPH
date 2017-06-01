@@ -31,7 +31,10 @@ export class ShallowWater1D extends Scene {
         this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
 
         // generate particles
-        this.genParticles(this.numParticles);
+        let stackedParticles = this.numParticles / 10;
+        let bounds = this.getOrthographicBounds();
+        this.particles = this.genParticles(this.numParticles - stackedParticles, bounds.xMin, bounds.xMax);
+        this.particles = this.particles.concat(this.genParticles(stackedParticles, bounds.xMin / 5, (bounds.xMax) / 5));
 
         // (empty) buffers
         this.particlePosXY = new Float32Array(this.numParticles * 2);
@@ -47,41 +50,22 @@ export class ShallowWater1D extends Scene {
 
 
     /**
-     * Generates particles: x pos is evenly spread over the domain; y pos forms a sin curve.
+     * Generates particles: x pos is evenly spread over the domain (start to end)
      * @param numParticles
+     * @param start         start of the domain
+     * @param end           end of the domain
      */
-    private genParticles(numParticles : number) {
-        let bounds = this.getOrthographicBounds();
-        this.particles = [];
+    private genParticles(numParticles : number, start : number, end : number) : Array<Particle> {
+        let particles = [];
 
         for (let i = 0; i < numParticles; i++) {
             let p = new Particle();
-
             // x = min + width * ratio
-            let x = bounds.xMin + (bounds.xMax - bounds.xMin) * ((i+0.5) / numParticles);
-            let y = 0; // water height will be updated in each timestep
-            p.pos = [x, y, 0];
-
-            // color
-            p.color = [Math.random() * 0.5, Math.random() * 0.5, Math.random() * 0.5, 1]; // alpha: 1 = opaque; 0 = transparent
-
-            this.particles[i] = p;
+            let x = start + (end - start) * (i / numParticles);
+            p.pos = [x, 0, 0];
+            particles[i] = p;
         }
-
-        // squeeze some particles
-
-        let squeezeAreaSize = 70;
-        let normalSpacing = (bounds.xMax - bounds.xMin) / numParticles;
-        for (let i = 0; i < squeezeAreaSize; i++) {
-            this.particles[numParticles/2 - squeezeAreaSize + i - 30].pos[0] += i / (squeezeAreaSize * 0.1) * normalSpacing;
-            this.particles[numParticles/2 + squeezeAreaSize - i - 30].pos[0] -= i / (squeezeAreaSize * 0.1) * normalSpacing;
-        }
-
-        // give some speed
-        for (let i = 0; i < 10; i++) {
-            //this.particles[numParticles/2 + 30 + i].speed[0] = 1;
-        }
-
+        return particles;
     }
 
 
@@ -164,8 +148,6 @@ export class ShallowWater1D extends Scene {
             pi.pos[1] = 0;
 
             for (let j = 0; j < this.numParticles; j++) {
-                if (i==j) continue;
-
                 let dist = this.xDistBetween(i, j);
                 let W = SmoothingKernel.cubic1D(dist, smoothingLength);
                 pi.pos[1] += VOLUME * W;
@@ -191,8 +173,6 @@ export class ShallowWater1D extends Scene {
             pi.acceleration = 0;
 
             for (let j = 0; j < this.numParticles; j++) {
-                if (i==j) continue;
-
                 let dist = this.xDistBetween(i, j);
                 let W = SmoothingKernel.dCubic1D(dist, smoothingLength);
 
@@ -201,7 +181,6 @@ export class ShallowWater1D extends Scene {
 
         }
 
-        Coloring.speedColoring(this.particles);
 
 
 
@@ -226,6 +205,8 @@ export class ShallowWater1D extends Scene {
             if (newPos < bounds.xMin) newPos += bounds.xMax - bounds.xMin;
             this.particles[i].pos[0] = newPos;
         }
+
+        Coloring.speedColoring(this.particles);
 
 
         this.updateBuffers();
