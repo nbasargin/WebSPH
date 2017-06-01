@@ -20,27 +20,31 @@ export let main = function() {
 
     let timing = new Timing(10);
 
-    // start render loop
-    function renderLoop() {
-        timing.nextFrame();
+    let animate = true;
+    if (animate) {
+        // start render loop
+        function renderLoop() {
+            timing.nextFrame();
 
-        document.getElementById("websph-fps").innerText =
-            "FPS: " + timing.getAvgFPS().toFixed(1)  + " (avg)";
+            document.getElementById("websph-fps").innerText =
+                "FPS: " + timing.getAvgFPS().toFixed(1)  + " (avg)";
 
-        scene.update(timing.getLastFrameDuration());
-        scene.render();
-        window.requestAnimationFrame(renderLoop);
+            scene.update(timing.getLastFrameDuration());
+            scene.render();
+            window.requestAnimationFrame(renderLoop);
+        }
+        renderLoop();
+    } else {
+        // next frame on keypress
+        function oneFrame() {
+            scene.update(0);
+            scene.render();
+        }
+        document.onkeypress = function (ke : KeyboardEvent) {
+            if (ke.code == "ArrowRight") oneFrame();
+        };
+        oneFrame();
     }
-    renderLoop();
 
-/*
-    function oneFrame() {
-        scene.update(0);
-        scene.render();
-    }
-    document.onkeypress = function (ke : KeyboardEvent) {
-        if (ke.code == "ArrowRight") oneFrame();
-    };
-    oneFrame();
-*/
+
 };

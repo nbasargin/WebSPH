@@ -34,7 +34,7 @@ export class ShallowWater1D extends Scene {
         let stackedParticles = this.numParticles / 10;
         let bounds = this.getOrthographicBounds();
         this.particles = this.genParticles(this.numParticles - stackedParticles, bounds.xMin, bounds.xMax);
-        this.particles = this.particles.concat(this.genParticles(stackedParticles, bounds.xMin / 5, (bounds.xMax) / 5));
+        this.particles = this.particles.concat(this.genParticles(stackedParticles, bounds.xMin / 2, bounds.xMin / 4));
 
         // (empty) buffers
         this.particlePosXY = new Float32Array(this.numParticles * 2);
@@ -171,14 +171,11 @@ export class ShallowWater1D extends Scene {
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
             pi.acceleration = 0;
-
             for (let j = 0; j < this.numParticles; j++) {
                 let dist = this.xDistBetween(i, j);
-                let W = SmoothingKernel.dCubic1D(dist, smoothingLength);
-
-                pi.acceleration += g * VOLUME * W;
+                let dW = SmoothingKernel.dCubic1D(dist, smoothingLength);
+                pi.acceleration += g * VOLUME * dW;
             }
-
         }
 
 
