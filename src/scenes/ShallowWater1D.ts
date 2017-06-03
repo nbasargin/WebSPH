@@ -8,7 +8,11 @@ import {Coloring} from "../util/Coloring";
 
 export class ShallowWater1D extends Scene {
 
+    // drawing options
+    private drawParticles = true;
+    private drawWaterHeight = true;
 
+    // particles
     private numParticles = 300;
     private particles : Array<Particle>;
 
@@ -20,6 +24,13 @@ export class ShallowWater1D extends Scene {
 
     private glLinePosBuffer : GLBuffer;
     private glLineColBuffer : GLBuffer;
+
+    // water height
+    private waterHeightSamples = 300;
+    private waterHeightPosXY : Float32Array;
+    private waterHeightColRGBA : Float32Array;
+    private glWaterHeightPosBuffer : GLBuffer;
+    private glWaterHeightColBuffer : GLBuffer;
 
 
     public constructor(glContext : GLContext) {
@@ -36,16 +47,41 @@ export class ShallowWater1D extends Scene {
         this.particles = this.genParticles(this.numParticles - stackedParticles, bounds.xMin, bounds.xMax);
         this.particles = this.particles.concat(this.genParticles(stackedParticles, bounds.xMin / 2, bounds.xMin / 4));
 
-        // (empty) buffers
-        this.particlePosXY = new Float32Array(this.numParticles * 2);
-        this.particleColRGBA = new Float32Array(this.numParticles * 4);
-        this.glParticlePosBuffer = new GLBuffer(this.glContext.gl, this.particlePosXY, 2);
-        this.glParticleColBuffer = new GLBuffer(this.glContext.gl, this.particleColRGBA, 4);
+        if (this.drawParticles) {// (empty) buffers
+            this.particlePosXY = new Float32Array(this.numParticles * 2);
+            this.particleColRGBA = new Float32Array(this.numParticles * 4);
+            this.glParticlePosBuffer = new GLBuffer(this.glContext.gl, this.particlePosXY, 2);
+            this.glParticleColBuffer = new GLBuffer(this.glContext.gl, this.particleColRGBA, 4);
+        }
 
         // ground y = 0 line
         this.glLinePosBuffer = new GLBuffer(this.glContext.gl, new Float32Array([-100, 0,   100, 0]), 2);
         this.glLineColBuffer = new GLBuffer(this.glContext.gl, new Float32Array([0,0,0,1,  0,0,0,1]), 4);
 
+        // water height
+        if (this.drawWaterHeight) {
+            // position
+            let bounds = this.getOrthographicBounds();
+            this.waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
+            for (let i = 0; i < this.waterHeightSamples; i++) {
+                let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
+                this.waterHeightPosXY[i*4    ] = x;             // x ground
+                this.waterHeightPosXY[i*4 + 1] = bounds.yMin;   // y ground
+                this.waterHeightPosXY[i*4 + 2] = x;             // x water
+                this.waterHeightPosXY[i*4 + 3] = 0;             // y water
+            }
+            this.glWaterHeightPosBuffer = new GLBuffer(this.glContext.gl, this.waterHeightPosXY, 2);
+
+            // color (constant color)
+            this.waterHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
+            for (let i = 0; i < this.waterHeightColRGBA.length / 4; i++) {
+                this.waterHeightColRGBA[i*4    ] = 0; // r
+                this.waterHeightColRGBA[i*4 + 1] = 0; // g
+                this.waterHeightColRGBA[i*4 + 2] = 1; // b
+                this.waterHeightColRGBA[i*4 + 3] = 1; // a
+            }
+            this.glWaterHeightColBuffer = new GLBuffer(this.glContext.gl, this.waterHeightColRGBA, 4);
+        }
     }
 
 
@@ -74,19 +110,26 @@ export class ShallowWater1D extends Scene {
      */
     private updateBuffers() {
 
-        for (let i = 0; i < this.numParticles; i++) {
-            // position
-            this.particlePosXY[i*2]   = this.particles[i].pos[0];
-            this.particlePosXY[i*2+1] = this.particles[i].pos[1];
+        if (this.drawParticles) {
+            for (let i = 0; i < this.numParticles; i++) {
+                // position
+                this.particlePosXY[i*2]   = this.particles[i].pos[0];
+                this.particlePosXY[i*2+1] = this.particles[i].pos[1];
 
-            // color
-            this.particleColRGBA[i*4]   = this.particles[i].color[0];
-            this.particleColRGBA[i*4+1] = this.particles[i].color[1];
-            this.particleColRGBA[i*4+2] = this.particles[i].color[2];
-            this.particleColRGBA[i*4+3] = this.particles[i].color[3];
+                // color
+                this.particleColRGBA[i*4]   = this.particles[i].color[0];
+                this.particleColRGBA[i*4+1] = this.particles[i].color[1];
+                this.particleColRGBA[i*4+2] = this.particles[i].color[2];
+                this.particleColRGBA[i*4+3] = this.particles[i].color[3];
+            }
+            this.glParticlePosBuffer.updateData(this.particlePosXY, 2);
+            this.glParticleColBuffer.updateData(this.particleColRGBA, 4);
         }
-        this.glParticlePosBuffer.updateData(this.particlePosXY, 2);
-        this.glParticleColBuffer.updateData(this.particleColRGBA, 4);
+
+
+        if (this.drawWaterHeight) {
+            this.glWaterHeightPosBuffer.updateData(this.waterHeightPosXY, 2);
+        }
     }
 
     /**
@@ -100,23 +143,36 @@ export class ShallowWater1D extends Scene {
         let pix = this.particles[i].pos[0];
         let pjx = this.particles[j].pos[0];
 
+        return this.xDist(pix, pjx);
+    }
+
+
+    /**
+     * Calculates the x distance between two given x positions. Cyclic field
+     * is taken into account.
+     * @param x1        first position
+     * @param x2        second position
+     * @returns {number}
+     */
+    private xDist(x1 : number, x2 : number) : number {
+
         let bounds = this.getOrthographicBounds();
         let fieldWidth = bounds.xMax - bounds.xMin;
 
-        let distNormal = pix - pjx;
+        let distNormal = x1 - x2;
         let distCyclic;
-        if (pix < pjx) {
-            distCyclic = (pix + fieldWidth) - pjx;
+        if (x1 < x2) {
+            distCyclic = (x1 + fieldWidth) - x2;
         } else {
-            distCyclic = (pix - fieldWidth) - pjx;
+            distCyclic = (x1 - fieldWidth) - x2;
         }
 
         if (Math.abs(distNormal) < Math.abs(distCyclic)) {
             return distNormal;
         }
         return distCyclic;
-    }
 
+    }
 
 
     public update(dt: number): void {
@@ -143,15 +199,33 @@ export class ShallowWater1D extends Scene {
          */
         // Height approximation
         // !! the height HERE is Y = pos[1] !!
-        for (let i = 0; i < this.numParticles; i++) {
-            let pi = this.particles[i];
-            pi.pos[1] = 0;
+        if (this.drawParticles) {
+            for (let i = 0; i < this.numParticles; i++) {
+                let pi = this.particles[i];
+                pi.pos[1] = 0;
 
-            for (let j = 0; j < this.numParticles; j++) {
-                let dist = this.xDistBetween(i, j);
-                let W = SmoothingKernel.cubic1D(dist, smoothingLength);
-                pi.pos[1] += VOLUME * W;
+                for (let j = 0; j < this.numParticles; j++) {
+                    let dist = this.xDistBetween(i, j);
+                    let W = SmoothingKernel.cubic1D(dist, smoothingLength);
+                    pi.pos[1] += VOLUME * W;
+                }
             }
+        }
+
+        // update water height
+        if (this.drawWaterHeight) {
+            for (let i = 0; i < this.waterHeightSamples; i++) {
+                let x = this.waterHeightPosXY[i*4]; // x ground
+                this.waterHeightPosXY[i*4 + 3] = 0; // y water
+                for (let j = 0; j < this.particles.length; j++) {
+                    let xp = this.particles[j].pos[0];
+                    let dist = this.xDist(x, xp);
+                    let W = SmoothingKernel.cubic1D(dist, smoothingLength);
+                    this.waterHeightPosXY[i*4 + 3] += VOLUME * W; // y water
+                }
+
+            }
+
         }
 
 
@@ -203,8 +277,9 @@ export class ShallowWater1D extends Scene {
             this.particles[i].pos[0] = newPos;
         }
 
-        Coloring.speedColoring(this.particles);
-
+        if (this.drawParticles) {
+            Coloring.speedColoring(this.particles);
+        }
 
         this.updateBuffers();
     }
@@ -232,17 +307,33 @@ export class ShallowWater1D extends Scene {
 
 
         // draw particles
-        mvMatrix.push();
-        // positions
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticlePosBuffer.buffer);
-        gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glParticlePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        // colors
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticleColBuffer.buffer);
-        gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glParticleColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        // matrix setup + draw
-        this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
-        gl.drawArrays(gl.POINTS, 0, this.glParticlePosBuffer.numItems);
-        mvMatrix.pop();
+        if (this.drawParticles) {
+            mvMatrix.push();
+            // positions
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticlePosBuffer.buffer);
+            gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glParticlePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            // colors
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticleColBuffer.buffer);
+            gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glParticleColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            // matrix setup + draw
+            this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
+            gl.drawArrays(gl.POINTS, 0, this.glParticlePosBuffer.numItems);
+            mvMatrix.pop();
+        }
+
+
+        // draw water level
+        if (this.drawWaterHeight) {
+            // positions
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightPosBuffer.buffer);
+            gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glWaterHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            // colors
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightColBuffer.buffer);
+            gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glWaterHeightColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            // matrix setup + draw
+            this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
+        }
 
     }
 
