@@ -1,10 +1,13 @@
 import {Scene} from "./Scene";
 import {GLContext} from "../util/GLContext";
 
-export class MovingParticlesGPU extends Scene {
+export class DrawTexture extends Scene {
+
+    public image = require("../../textures/nehe.gif");
 
     public constructor(glContext : GLContext) {
         super(glContext);
+
 
     }
 
