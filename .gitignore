@@ -6,4 +6,4 @@
 node_modules
 
 # Output
-js
+dist
