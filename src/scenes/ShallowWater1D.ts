@@ -8,12 +8,16 @@ import {Coloring} from "../util/Coloring";
 
 export class ShallowWater1D extends Scene {
 
+    // global simulation vars
+    private numParticles = 500;
+    private dt = 0.001;
+    private smoothingLength = 0.03;
+
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
 
     // particles
-    private numParticles = 300;
     private particles : Array<Particle>;
 
     private particlePosXY : Float32Array;
@@ -45,7 +49,7 @@ export class ShallowWater1D extends Scene {
         let stackedParticles = this.numParticles / 10;
         let bounds = this.getOrthographicBounds();
         this.particles = this.genParticles(this.numParticles - stackedParticles, bounds.xMin, bounds.xMax);
-        this.particles = this.particles.concat(this.genParticles(stackedParticles, bounds.xMin / 2, bounds.xMin / 4));
+        this.particles = this.particles.concat(this.genParticles(stackedParticles, 0, 0.2));
 
         if (this.drawParticles) {// (empty) buffers
             this.particlePosXY = new Float32Array(this.numParticles * 2);
@@ -54,9 +58,16 @@ export class ShallowWater1D extends Scene {
             this.glParticleColBuffer = new GLBuffer(this.glContext.gl, this.particleColRGBA, 4);
         }
 
-        // ground y = 0 line
-        this.glLinePosBuffer = new GLBuffer(this.glContext.gl, new Float32Array([-100, 0,   100, 0]), 2);
-        this.glLineColBuffer = new GLBuffer(this.glContext.gl, new Float32Array([0,0,0,1,  0,0,0,1]), 4);
+        // border lines
+        let lines = [];
+        lines = lines.concat([0,0,  1,0]); // y = 0
+        lines = lines.concat([0,1,  1,1]); // y = 1
+        lines = lines.concat([0,0,  0,1]); // x = 0
+        lines = lines.concat([1,0,  1,1]); // x = 1
+        let colors = [];
+        this.glLinePosBuffer = new GLBuffer(this.glContext.gl, new Float32Array(lines), 2);
+        for (let i = 0; i < this.glLinePosBuffer.numItems; i++) colors = colors.concat([1,1,1,1]);
+        this.glLineColBuffer = new GLBuffer(this.glContext.gl, new Float32Array(colors), 4);
 
         // water height
         if (this.drawWaterHeight) {
@@ -178,9 +189,9 @@ export class ShallowWater1D extends Scene {
     public update(dt: number): void {
 
         // fixed timestep
-        dt = 0.003;
+        dt = this.dt;
         let VOLUME = 1 / this.numParticles; // constant volume
-        let smoothingLength = 0.1;
+        let smoothingLength = this.smoothingLength;
 
         // Solving the Shallow Water equations using 2D SPH particles for interactive applications
         // Hyokwang Lee · Soonhung Han

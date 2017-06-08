@@ -51,14 +51,14 @@ export abstract class Scene {
     public getOrthographicBounds() : {xMin : number, xMax : number, yMin : number, yMax : number} {
         let w = this.glContext.viewWidthPx();
         let h = this.glContext.viewHeightPx();
-        if (h != 0 && w > h) {
+        if (0 < h && h < w) {
             let ratio = w / h;
-            return { xMin : -ratio, xMax : ratio, yMin : -1, yMax : 1};
-        }else if (w != 0 && h > w) {
+            return { xMin : -(ratio - 1) / 2, xMax : 1 + (ratio - 1) / 2, yMin : 0, yMax : 1};
+        }else if (0 < w && w < h) {
             let ratio = h / w;
-            return { xMin : -1, xMax : 1, yMin : -ratio, yMax : ratio};
+            return { xMin : 0, xMax : 1, yMin : -(ratio - 1) / 2, yMax : 1 + (ratio - 1) / 2};
         } else {
-            return { xMin : -1, xMax : 1, yMin : -1, yMax : 1};
+            return { xMin : 0, xMax : 1, yMin : 0, yMax : 1};
         }
     }
 
