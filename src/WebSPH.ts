@@ -1,10 +1,21 @@
 import {GLContext} from "./util/GLContext";
 import {ShallowWater1D} from "./scenes/ShallowWater1D";
 import {RenderLoop} from "./util/RenderLoop";
+import {Scene} from "./scenes/Scene";
 /**
  * Main browser entry point.
  */
+
+let animate = false;
+
+
 let renderLoop : RenderLoop;
+let scene : Scene;
+
+let oneFrame = function() {
+    scene.update(0);
+    scene.render();
+};
 
 export let main = function() {
 
@@ -15,38 +26,40 @@ export let main = function() {
     // set up scene
     //let scene = new DummyScene(glContext);
     //let scene = new MovingParticles(glContext);
-    let scene = new ShallowWater1D(glContext);
-
-    let oneFrame = function() {
-        scene.update(0);
-        scene.render();
-    };
-
-    let animate = true;
-    if (animate) {
-        // start render loop
-        renderLoop = new RenderLoop(scene, document.getElementById("websph-fps"));
-        renderLoop.start();
-    } else {
-        // next frame on keypress
-        oneFrame();
-    }
+    scene = new ShallowWater1D(glContext);
 
 
-    document.onkeypress = function (ke : KeyboardEvent) {
+    renderLoop = new RenderLoop(scene, document.getElementById("websph-fps"));
+    oneFrame();
+
+
+    // UI
+    let btnAnimID = "websph-btn-animation";
+    let btnOneStepID = "websph-btn-onestep";
+    let trOneStepID = "websph-tr-onestep";
+
+    let btnAnim = document.getElementById(btnAnimID);
+    let btnOneStep = document.getElementById(btnOneStepID);
+    let trOneStep = document.getElementById(trOneStepID);
+
+    btnAnim.onclick = function() {
         if (!animate) {
-            if (ke.code == "ArrowRight") oneFrame();
+            btnAnim.innerText = "Stop";
+            trOneStep.style.visibility = "hidden";
+            animate = true;
+            renderLoop.start();
         } else {
-            if (ke.code == "ArrowRight") {
-                if (renderLoop.isRunning()) {
-                    renderLoop.stop();
-                } else {
-                    renderLoop.start();
-                }
-            }
-
+            btnAnim.innerText = "Start";
+            trOneStep.style.visibility = "visible";
+            animate = false;
+            renderLoop.stop();
         }
     };
+
+    btnOneStep.onclick = function() {
+        oneFrame();
+    };
+
 
 
 
