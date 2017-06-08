@@ -24,7 +24,7 @@ export let main = function() {
             timing.nextFrame();
 
             document.getElementById("websph-fps").innerText =
-                "FPS: " + timing.getAvgFPS().toFixed(1)  + " (avg)";
+                timing.getAvgFPS().toFixed(1);
 
             scene.update(timing.getLastFrameDuration());
             scene.render();
