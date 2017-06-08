@@ -7,13 +7,17 @@ export class Timing {
 
     private frameDurations : RingBuffer;
 
-    public constructor(numberOfFramesToAvgFPS : number) {
+    public constructor(numberOfFramesToAvgFPS : number = 10) {
+        this.reset(numberOfFramesToAvgFPS);
+    }
+
+
+    public reset(numberOfFramesToAvgFPS : number = 10) {
         this.lastFrameStartTime = performance.now();
         this.framesTotal = 0;
         this.lastFrameDuration = 0;
         this.frameDurations = new RingBuffer(Math.max(numberOfFramesToAvgFPS, 1));
     }
-
 
     public nextFrame() {
         let now = performance.now();

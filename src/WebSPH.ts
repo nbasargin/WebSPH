@@ -1,9 +1,11 @@
 import {GLContext} from "./util/GLContext";
-import {Timing} from "./util/Timing";
 import {ShallowWater1D} from "./scenes/ShallowWater1D";
+import {RenderLoop} from "./util/RenderLoop";
 /**
  * Main browser entry point.
  */
+let renderLoop : RenderLoop;
+
 export let main = function() {
 
     // create GL context from canvas
@@ -15,33 +17,37 @@ export let main = function() {
     //let scene = new MovingParticles(glContext);
     let scene = new ShallowWater1D(glContext);
 
-    let timing = new Timing(10);
+    let oneFrame = function() {
+        scene.update(0);
+        scene.render();
+    };
 
     let animate = true;
     if (animate) {
         // start render loop
-        function renderLoop() {
-            timing.nextFrame();
-
-            document.getElementById("websph-fps").innerText =
-                timing.getAvgFPS().toFixed(1);
-
-            scene.update(timing.getLastFrameDuration());
-            scene.render();
-            window.requestAnimationFrame(renderLoop);
-        }
-        renderLoop();
+        renderLoop = new RenderLoop(scene, document.getElementById("websph-fps"));
+        renderLoop.start();
     } else {
         // next frame on keypress
-        function oneFrame() {
-            scene.update(0);
-            scene.render();
-        }
-        document.onkeypress = function (ke : KeyboardEvent) {
-            if (ke.code == "ArrowRight") oneFrame();
-        };
         oneFrame();
     }
+
+
+    document.onkeypress = function (ke : KeyboardEvent) {
+        if (!animate) {
+            if (ke.code == "ArrowRight") oneFrame();
+        } else {
+            if (ke.code == "ArrowRight") {
+                if (renderLoop.isRunning()) {
+                    renderLoop.stop();
+                } else {
+                    renderLoop.start();
+                }
+            }
+
+        }
+    };
+
 
 
 };
