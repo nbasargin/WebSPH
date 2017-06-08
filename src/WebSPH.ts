@@ -1,7 +1,6 @@
 import {GLContext} from "./util/GLContext";
 import {ShallowWater1D} from "./scenes/ShallowWater1D";
 import {RenderLoop} from "./util/RenderLoop";
-import {Scene} from "./scenes/Scene";
 /**
  * Main browser entry point.
  */
@@ -10,7 +9,7 @@ let animate = false;
 
 
 let renderLoop : RenderLoop;
-let scene : Scene;
+let scene : ShallowWater1D;
 
 let oneFrame = function() {
     scene.update(0);
@@ -37,10 +36,12 @@ export let main = function() {
     let btnAnimID = "websph-btn-animation";
     let btnOneStepID = "websph-btn-onestep";
     let trOneStepID = "websph-tr-onestep";
+    let sldSmoothingID = "websph-sld-smoothing";
 
     let btnAnim = document.getElementById(btnAnimID);
     let btnOneStep = document.getElementById(btnOneStepID);
     let trOneStep = document.getElementById(trOneStepID);
+    let sldSmoothing : HTMLInputElement = <HTMLInputElement> document.getElementById(sldSmoothingID);
 
     btnAnim.onclick = function() {
         if (!animate) {
@@ -59,6 +60,18 @@ export let main = function() {
     btnOneStep.onclick = function() {
         oneFrame();
     };
+
+    sldSmoothing.onchange = function () {
+        scene.smoothingLength = parseFloat(sldSmoothing.value);
+
+        // super hacky way to keep particles in place
+        let oldDT = scene.dt;
+        scene.dt = 0;
+        scene.update(0);
+        scene.render();
+        scene.dt = oldDT;
+
+    }
 
 
 

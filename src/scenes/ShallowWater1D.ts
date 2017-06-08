@@ -10,8 +10,8 @@ export class ShallowWater1D extends Scene {
 
     // global simulation vars
     private numParticles = 500;
-    private dt = 0.001;
-    private smoothingLength = 0.03;
+    public dt = 0.001;
+    public smoothingLength = 0.03;
 
     // drawing options
     private drawParticles = true;
