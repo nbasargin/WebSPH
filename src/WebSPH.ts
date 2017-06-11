@@ -37,11 +37,16 @@ export let main = function() {
     let btnOneStepID = "websph-btn-onestep";
     let trOneStepID = "websph-tr-onestep";
     let sldSmoothingID = "websph-sld-smoothing";
+    let divSmoothingID = "websph-div-smoothing";
 
     let btnAnim = document.getElementById(btnAnimID);
     let btnOneStep = document.getElementById(btnOneStepID);
     let trOneStep = document.getElementById(trOneStepID);
     let sldSmoothing : HTMLInputElement = <HTMLInputElement> document.getElementById(sldSmoothingID);
+    let divSmoothing = document.getElementById(divSmoothingID);
+
+    sldSmoothing.value = "" + scene.smoothingLength;
+    divSmoothing.innerText = "" + scene.smoothingLength;
 
     btnAnim.onclick = function() {
         if (!animate) {
@@ -63,6 +68,7 @@ export let main = function() {
 
     sldSmoothing.onchange = function () {
         scene.smoothingLength = parseFloat(sldSmoothing.value);
+        divSmoothing.innerText = "" + scene.smoothingLength;
 
         // super hacky way to keep particles in place
         let oldDT = scene.dt;
