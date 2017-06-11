@@ -1,5 +1,5 @@
-import {MatrixStack} from "../util/MatrixStack";
-import {GLContext} from "../util/GLContext";
+import {MatrixStack} from "../rendering/MatrixStack";
+import {GLContext} from "../rendering/GLContext";
 import {mat4} from "gl-matrix";
 
 /**

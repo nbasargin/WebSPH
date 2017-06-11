@@ -1,9 +1,9 @@
 import {Scene} from "./Scene";
-import {GLContext} from "../util/GLContext";
-import {Particle} from "../sph/Particle";
-import {GLBuffer} from "../util/GLBuffer";
-import {ShaderLoader} from "../util/ShaderLoader";
-import {SmoothingKernel} from "../sph/SmoothingKernel";
+import {GLContext} from "../rendering/GLContext";
+import {Particle} from "../simulation/Particle";
+import {GLBuffer} from "../rendering/GLBuffer";
+import {ShaderLoader} from "../rendering/ShaderLoader";
+import {SmoothingKernel} from "../simulation/SmoothingKernel";
 import {Coloring} from "../util/Coloring";
 
 export class ShallowWater1D extends Scene {

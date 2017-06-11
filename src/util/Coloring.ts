@@ -1,4 +1,4 @@
-import {Particle} from "../sph/Particle";
+import {Particle} from "../simulation/Particle";
 export class Coloring {
 
     public static speedColoring(particles : Array<Particle>) {

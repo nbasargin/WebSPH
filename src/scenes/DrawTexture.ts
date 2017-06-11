@@ -1,7 +1,7 @@
 import {Scene} from "./Scene";
-import {GLContext} from "../util/GLContext";
-import {GLTexture} from "../util/GLTexture";
-import {GLBuffer} from "../util/GLBuffer";
+import {GLContext} from "../rendering/GLContext";
+import {GLTexture} from "../rendering/GLTexture";
+import {GLBuffer} from "../rendering/GLBuffer";
 
 export class DrawTexture extends Scene {
 

@@ -1,7 +1,7 @@
 import {Scene} from "./Scene";
-import {GLContext} from "../util/GLContext";
-import {GLBuffer} from "../util/GLBuffer";
-import {ShaderLoader} from "../util/ShaderLoader";
+import {GLContext} from "../rendering/GLContext";
+import {GLBuffer} from "../rendering/GLBuffer";
+import {ShaderLoader} from "../rendering/ShaderLoader";
 
 export class MovingParticles extends Scene {
 

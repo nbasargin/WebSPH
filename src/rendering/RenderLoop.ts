@@ -1,5 +1,5 @@
 import {Scene} from "../scenes/Scene";
-import {Timing} from "./Timing";
+import {Timing} from "../util/Timing";
 
 export class RenderLoop {
 

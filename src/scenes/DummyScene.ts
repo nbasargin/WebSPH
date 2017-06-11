@@ -1,7 +1,7 @@
 import {Scene} from "./Scene";
-import {GLContext} from "../util/GLContext";
-import {ShaderLoader} from "../util/ShaderLoader";
-import {GLBuffer} from "../util/GLBuffer";
+import {GLContext} from "../rendering/GLContext";
+import {ShaderLoader} from "../rendering/ShaderLoader";
+import {GLBuffer} from "../rendering/GLBuffer";
 
 /**
  * Draws a triangle and a square on the screen.

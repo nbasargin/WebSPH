@@ -1,6 +1,6 @@
-import {GLContext} from "./util/GLContext";
+import {GLContext} from "./rendering/GLContext";
 import {ShallowWater1D} from "./scenes/ShallowWater1D";
-import {RenderLoop} from "./util/RenderLoop";
+import {RenderLoop} from "./rendering/RenderLoop";
 /**
  * Main browser entry point.
  */
