@@ -150,48 +150,6 @@ export class ShallowWater1D extends Scene {
         }
     }
 
-    /**
-     * Calculates the x distance between particles i and j. Cyclic field
-     * is taken into account.
-     * @param i  id of the first particle
-     * @param j  id of the second particle
-     * @returns {number}
-     */
-    private xDistBetween(i : number, j : number) : number {
-        let pix = this.particles[i].pos[0];
-        let pjx = this.particles[j].pos[0];
-
-        return this.xDist(pix, pjx);
-    }
-
-
-    /**
-     * Calculates the x distance between two given x positions. Cyclic field
-     * is taken into account.
-     * @param x1        first position
-     * @param x2        second position
-     * @returns {number}
-     */
-    private xDist(x1 : number, x2 : number) : number {
-
-        let domain = this.domain;
-        let fieldWidth = domain.xMax - domain.xMin;
-
-        let distNormal = x1 - x2;
-        let distCyclic;
-        if (x1 < x2) {
-            distCyclic = (x1 + fieldWidth) - x2;
-        } else {
-            distCyclic = (x1 - fieldWidth) - x2;
-        }
-
-        if (Math.abs(distNormal) < Math.abs(distCyclic)) {
-            return distNormal;
-        }
-        return distCyclic;
-
-    }
-
 
     public update(dt: number): void {
 
@@ -223,7 +181,7 @@ export class ShallowWater1D extends Scene {
                 pi.pos[1] = 0;
 
                 for (let j = 0; j < this.numParticles; j++) {
-                    let dist = this.xDistBetween(i, j);
+                    let dist = this.domain.xDistCyclic(pi.pos[0], this.particles[j].pos[0]);
                     let W = SmoothingKernel.cubic1D(dist, smoothingLength);
                     pi.pos[1] += VOLUME * W;
                 }
@@ -237,7 +195,7 @@ export class ShallowWater1D extends Scene {
                 this.waterHeightPosXY[i*4 + 3] = 0; // y water
                 for (let j = 0; j < this.particles.length; j++) {
                     let xp = this.particles[j].pos[0];
-                    let dist = this.xDist(x, xp);
+                    let dist = this.domain.xDistCyclic(x, xp);
                     let W = SmoothingKernel.cubic1D(dist, smoothingLength);
                     this.waterHeightPosXY[i*4 + 3] += VOLUME * W; // y water
                 }
@@ -264,7 +222,7 @@ export class ShallowWater1D extends Scene {
             let pi = this.particles[i];
             pi.acceleration = 0;
             for (let j = 0; j < this.numParticles; j++) {
-                let dist = this.xDistBetween(i, j);
+                let dist = this.domain.xDistCyclic(pi.pos[0], this.particles[j].pos[0]);
                 let dW = SmoothingKernel.dCubic1D(dist, smoothingLength);
                 pi.acceleration += g * VOLUME * dW;
             }
@@ -290,9 +248,7 @@ export class ShallowWater1D extends Scene {
             pi.speed[0] += pi.acceleration * dt;
             // position
             let newPos = pi.pos[0] + pi.speed[0] * dt;
-            if (newPos > domain.xMax) newPos -= domain.xMax - domain.xMin;
-            if (newPos < domain.xMin) newPos += domain.xMax - domain.xMin;
-            this.particles[i].pos[0] = newPos;
+            this.particles[i].pos[0] = this.domain.mapXInsideDomainCyclic(newPos);
         }
 
         if (this.drawParticles) {
