@@ -5,6 +5,7 @@ import {GLBuffer} from "../rendering/GLBuffer";
 import {ShaderLoader} from "../rendering/ShaderLoader";
 import {SmoothingKernel} from "../simulation/SmoothingKernel";
 import {Coloring} from "../util/Coloring";
+import {Domain} from "../simulation/Domain";
 
 export class ShallowWater1D extends Scene {
 
@@ -36,9 +37,13 @@ export class ShallowWater1D extends Scene {
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
 
+    private domain : Domain;
+
 
     public constructor(glContext : GLContext) {
         super(glContext);
+
+        this.domain = new Domain(this.getOrthographicBounds());
 
         // shaders
         let fragShaderSrc = ShaderLoader.getDummyColorFragShader();
@@ -47,8 +52,8 @@ export class ShallowWater1D extends Scene {
 
         // generate particles
         let stackedParticles = this.numParticles / 10;
-        let bounds = this.getOrthographicBounds();
-        this.particles = this.genParticles(this.numParticles - stackedParticles, bounds.xMin, bounds.xMax);
+        let domain = this.domain;
+        this.particles = this.genParticles(this.numParticles - stackedParticles, domain.xMin, domain.xMax);
         this.particles = this.particles.concat(this.genParticles(stackedParticles, 0, 0.2));
 
         if (this.drawParticles) {// (empty) buffers
@@ -72,12 +77,12 @@ export class ShallowWater1D extends Scene {
         // water height
         if (this.drawWaterHeight) {
             // position
-            let bounds = this.getOrthographicBounds();
+            let domain = this.domain;
             this.waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
             for (let i = 0; i < this.waterHeightSamples; i++) {
-                let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
+                let x = domain.xMin + (domain.xMax - domain.xMin) * i / (this.waterHeightSamples - 1);
                 this.waterHeightPosXY[i*4    ] = x;             // x ground
-                this.waterHeightPosXY[i*4 + 1] = bounds.yMin;   // y ground
+                this.waterHeightPosXY[i*4 + 1] = domain.yMin;   // y ground
                 this.waterHeightPosXY[i*4 + 2] = x;             // x water
                 this.waterHeightPosXY[i*4 + 3] = 0;             // y water
             }
@@ -93,6 +98,8 @@ export class ShallowWater1D extends Scene {
             }
             this.glWaterHeightColBuffer = new GLBuffer(this.glContext.gl, this.waterHeightColRGBA, 4);
         }
+
+
     }
 
 
@@ -167,8 +174,8 @@ export class ShallowWater1D extends Scene {
      */
     private xDist(x1 : number, x2 : number) : number {
 
-        let bounds = this.getOrthographicBounds();
-        let fieldWidth = bounds.xMax - bounds.xMin;
+        let domain = this.domain;
+        let fieldWidth = domain.xMax - domain.xMin;
 
         let distNormal = x1 - x2;
         let distCyclic;
@@ -275,7 +282,7 @@ export class ShallowWater1D extends Scene {
         */
 
         //Integration
-        let bounds = this.getOrthographicBounds();
+        let domain = this.domain;
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
             // explicit euler
@@ -283,8 +290,8 @@ export class ShallowWater1D extends Scene {
             pi.speed[0] += pi.acceleration * dt;
             // position
             let newPos = pi.pos[0] + pi.speed[0] * dt;
-            if (newPos > bounds.xMax) newPos -= bounds.xMax - bounds.xMin;
-            if (newPos < bounds.xMin) newPos += bounds.xMax - bounds.xMin;
+            if (newPos > domain.xMax) newPos -= domain.xMax - domain.xMin;
+            if (newPos < domain.xMin) newPos += domain.xMax - domain.xMin;
             this.particles[i].pos[0] = newPos;
         }
 

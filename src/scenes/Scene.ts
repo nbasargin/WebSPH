@@ -1,6 +1,7 @@
 import {MatrixStack} from "../rendering/MatrixStack";
 import {GLContext} from "../rendering/GLContext";
 import {mat4} from "gl-matrix";
+import {Bounds} from "../util/Bounds";
 
 /**
  * Scene abstraction. Contains basic matrix and perspective/orthographic projection setup.
@@ -48,7 +49,7 @@ export abstract class Scene {
      * Returns bounds for orthographic projection based on the canvas size.
      * The original square (x -1 to 1; y -1 to 1) is always inside that bounds.
      */
-    public getOrthographicBounds() : {xMin : number, xMax : number, yMin : number, yMax : number} {
+    public getOrthographicBounds() : Bounds {
         let w = this.glContext.viewWidthPx();
         let h = this.glContext.viewHeightPx();
         if (0 < h && h < w) {
