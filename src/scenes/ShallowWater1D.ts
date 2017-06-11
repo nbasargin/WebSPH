@@ -3,9 +3,9 @@ import {GLContext} from "../rendering/GLContext";
 import {Particle} from "../simulation/Particle";
 import {GLBuffer} from "../rendering/GLBuffer";
 import {ShaderLoader} from "../rendering/ShaderLoader";
-import {SmoothingKernel} from "../simulation/SmoothingKernel";
 import {Coloring} from "../util/Coloring";
 import {Domain} from "../simulation/Domain";
+import {ShallowWaterPhysics1D} from "../simulation/ShallowWaterPhysics1D";
 
 export class ShallowWater1D extends Scene {
 
@@ -17,6 +17,7 @@ export class ShallowWater1D extends Scene {
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
+    private drawBaseSquare = false;
 
     // particles
     private particles : Array<Particle>;
@@ -31,19 +32,22 @@ export class ShallowWater1D extends Scene {
     private glLineColBuffer : GLBuffer;
 
     // water height
-    private waterHeightSamples = 300;
+    private waterHeightSamples = 500;
     private waterHeightPosXY : Float32Array;
     private waterHeightColRGBA : Float32Array;
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
 
     private domain : Domain;
+    private swPhysics : ShallowWaterPhysics1D;
 
 
     public constructor(glContext : GLContext) {
         super(glContext);
 
         this.domain = new Domain(this.getOrthographicBounds());
+        this.swPhysics = new ShallowWaterPhysics1D(this.domain);
+
 
         // shaders
         let fragShaderSrc = ShaderLoader.getDummyColorFragShader();
@@ -156,7 +160,6 @@ export class ShallowWater1D extends Scene {
         // fixed timestep
         dt = this.dt;
         let VOLUME = 1 / this.numParticles; // constant volume
-        let smoothingLength = this.smoothingLength;
 
         // Solving the Shallow Water equations using 2D SPH particles for interactive applications
         // Hyokwang Lee · Soonhung Han
@@ -178,13 +181,7 @@ export class ShallowWater1D extends Scene {
         if (this.drawParticles) {
             for (let i = 0; i < this.numParticles; i++) {
                 let pi = this.particles[i];
-                pi.pos[1] = 0;
-
-                for (let j = 0; j < this.numParticles; j++) {
-                    let dist = this.domain.xDistCyclic(pi.pos[0], this.particles[j].pos[0]);
-                    let W = SmoothingKernel.cubic1D(dist, smoothingLength);
-                    pi.pos[1] += VOLUME * W;
-                }
+                pi.pos[1] = VOLUME * this.swPhysics.getWaterHeight(pi.pos[0], this.particles, this.smoothingLength);
             }
         }
 
@@ -192,14 +189,8 @@ export class ShallowWater1D extends Scene {
         if (this.drawWaterHeight) {
             for (let i = 0; i < this.waterHeightSamples; i++) {
                 let x = this.waterHeightPosXY[i*4]; // x ground
-                this.waterHeightPosXY[i*4 + 3] = 0; // y water
-                for (let j = 0; j < this.particles.length; j++) {
-                    let xp = this.particles[j].pos[0];
-                    let dist = this.domain.xDistCyclic(x, xp);
-                    let W = SmoothingKernel.cubic1D(dist, smoothingLength);
-                    this.waterHeightPosXY[i*4 + 3] += VOLUME * W; // y water
-                }
-
+                let height = this.swPhysics.getWaterHeight(x, this.particles, this.smoothingLength);
+                this.waterHeightPosXY[i*4 + 3] = VOLUME * height; // y water
             }
 
         }
@@ -220,12 +211,8 @@ export class ShallowWater1D extends Scene {
         let g = 9.81;
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
-            pi.acceleration = 0;
-            for (let j = 0; j < this.numParticles; j++) {
-                let dist = this.domain.xDistCyclic(pi.pos[0], this.particles[j].pos[0]);
-                let dW = SmoothingKernel.dCubic1D(dist, smoothingLength);
-                pi.acceleration += g * VOLUME * dW;
-            }
+            pi.acceleration = g * VOLUME * this.swPhysics.getAcceleration(pi.pos[0], this.particles, this.smoothingLength);
+
         }
 
 
@@ -240,7 +227,6 @@ export class ShallowWater1D extends Scene {
         */
 
         //Integration
-        let domain = this.domain;
         for (let i = 0; i < this.numParticles; i++) {
             let pi = this.particles[i];
             // explicit euler
@@ -271,13 +257,15 @@ export class ShallowWater1D extends Scene {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-        // draw zero line
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.glLinePosBuffer.buffer);
-        gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glLinePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.glLineColBuffer.buffer);
-        gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glLineColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
-        gl.drawArrays(gl.LINES, 0, this.glLinePosBuffer.numItems);
+        // draw base square
+        if (this.drawBaseSquare) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glLinePosBuffer.buffer);
+            gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glLinePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glLineColBuffer.buffer);
+            gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glLineColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
+            gl.drawArrays(gl.LINES, 0, this.glLinePosBuffer.numItems);
+        }
 
 
         // draw particles
