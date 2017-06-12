@@ -7,6 +7,7 @@ import {Coloring} from "../util/Coloring";
 import {Domain} from "../simulation/Domain";
 import {ShallowWaterPhysics1D} from "../simulation/ShallowWaterPhysics1D";
 import {IntegratorEuler} from "../simulation/integrator/IntegratorEuler";
+import {IntegratorHeun} from "../simulation/integrator/IntegratorHeun";
 
 export class ShallowWater1D extends Scene {
 
@@ -14,6 +15,7 @@ export class ShallowWater1D extends Scene {
     private numParticles = 500;
     public dt = 0.001;
     public smoothingLength = 0.03;
+    public visualizationSmoothingLength = 0.03;
 
     // drawing options
     private drawParticles = true;
@@ -45,6 +47,7 @@ export class ShallowWater1D extends Scene {
     private domain : Domain;
     private swPhysics : ShallowWaterPhysics1D;
     private integratorEuler : IntegratorEuler;
+    private integratorHeun : IntegratorHeun;
 
     public constructor(glContext : GLContext) {
         super(glContext);
@@ -54,6 +57,8 @@ export class ShallowWater1D extends Scene {
         this.domain = new Domain(this.getOrthographicBounds());
         this.swPhysics = new ShallowWaterPhysics1D(this.domain);
         this.integratorEuler = new IntegratorEuler(this.swPhysics, this.particleVolume);
+        this.integratorHeun = new IntegratorHeun(this.swPhysics, this.particleVolume, this.numParticles);
+
 
 
         // shaders
@@ -166,7 +171,8 @@ export class ShallowWater1D extends Scene {
 
         // fixed timestep
         dt = this.dt;
-        this.integratorEuler.integrate(this.particles, dt, this.smoothingLength);
+        //this.integratorEuler.integrate(this.particles, dt, this.smoothingLength);
+        this.integratorHeun.integrate(this.particles, dt, this.smoothingLength);
 
         if (this.drawParticles) {
             Coloring.speedColoring(this.particles);
@@ -175,7 +181,7 @@ export class ShallowWater1D extends Scene {
             // update water height
             for (let i = 0; i < this.waterHeightSamples; i++) {
                 let x = this.waterHeightPosXY[i * 4]; // x ground
-                let height = this.swPhysics.getWaterHeight(x, this.particles, this.smoothingLength);
+                let height = this.swPhysics.getWaterHeight(x, this.particles, this.visualizationSmoothingLength);
                 this.waterHeightPosXY[i * 4 + 3] = this.particleVolume * height; // y water
             }
         }
