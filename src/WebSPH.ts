@@ -33,22 +33,15 @@ export let main = function() {
 
 
     // UI
-    let btnAnimID = "websph-btn-animation";
-    let btnOneStepID = "websph-btn-onestep";
-    let trOneStepID = "websph-tr-onestep";
-    let sldSmoothingID = "websph-sld-smoothing";
-    let divSmoothingID = "websph-div-smoothing";
-    let sldSmoothingVisuID = "websph-sld-smoothing-visu";
-    let divSmoothingVisuID = "websph-div-smoothing-visu";
-
-
-    let btnAnim = document.getElementById(btnAnimID);
-    let btnOneStep = document.getElementById(btnOneStepID);
-    let trOneStep = document.getElementById(trOneStepID);
-    let sldSmoothing : HTMLInputElement = <HTMLInputElement> document.getElementById(sldSmoothingID);
-    let divSmoothing = document.getElementById(divSmoothingID);
-    let sldSmoothingVisu : HTMLInputElement = <HTMLInputElement> document.getElementById(sldSmoothingVisuID);
-    let divSmoothingVisu = document.getElementById(divSmoothingVisuID);
+    let btnAnim = document.getElementById("websph-btn-animation");
+    let btnOneStep = document.getElementById("websph-btn-onestep");
+    let trOneStep = document.getElementById("websph-tr-onestep");
+    let sldSmoothing : HTMLInputElement = <HTMLInputElement> document.getElementById("websph-sld-smoothing");
+    let divSmoothing = document.getElementById("websph-div-smoothing");
+    let sldSmoothingVisu : HTMLInputElement = <HTMLInputElement> document.getElementById("websph-sld-smoothing-visu");
+    let divSmoothingVisu = document.getElementById("websph-div-smoothing-visu");
+    let sldDt = <HTMLInputElement> document.getElementById("websph-sld-dt");
+    let divDt =document.getElementById("websph-div-dt");
 
 
     sldSmoothing.value = "" + scene.smoothingLength;
@@ -56,6 +49,9 @@ export let main = function() {
 
     sldSmoothingVisu.value = "" + scene.visualizationSmoothingLength;
     divSmoothingVisu.innerText = "" + scene.visualizationSmoothingLength;
+
+    sldDt.value = "" + scene.dt;
+    divDt.innerText = "" + scene.dt;
 
     btnAnim.onclick = function() {
         if (!animate) {
@@ -99,6 +95,11 @@ export let main = function() {
         scene.render();
         scene.dt = oldDT;
     };
+
+    sldDt.onchange = function() {
+        scene.dt = parseFloat(sldDt.value);
+        divDt.innerText = "" + scene.dt;
+    }
 
 
 
