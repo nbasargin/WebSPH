@@ -32,7 +32,7 @@ export let main = function() {
     oneFrame();
 
 
-    // UI
+    // UI elements
     let btnAnim = document.getElementById("websph-btn-animation");
     let btnOneStep = document.getElementById("websph-btn-onestep");
     let trOneStep = document.getElementById("websph-tr-onestep");
@@ -41,9 +41,11 @@ export let main = function() {
     let sldSmoothingVisu : HTMLInputElement = <HTMLInputElement> document.getElementById("websph-sld-smoothing-visu");
     let divSmoothingVisu = document.getElementById("websph-div-smoothing-visu");
     let sldDt = <HTMLInputElement> document.getElementById("websph-sld-dt");
-    let divDt =document.getElementById("websph-div-dt");
+    let divDt = document.getElementById("websph-div-dt");
+    let optEuler = <HTMLInputElement> document.getElementById("websph-opt-euler");
+    let optHeun = <HTMLInputElement> document.getElementById("websph-opt-heun");
 
-
+    // UI default values
     sldSmoothing.value = "" + scene.smoothingLength;
     divSmoothing.innerText = "" + scene.smoothingLength;
 
@@ -53,6 +55,9 @@ export let main = function() {
     sldDt.value = "" + scene.dt;
     divDt.innerText = "" + scene.dt;
 
+    optHeun.checked = true;
+
+    // UI listeners
     btnAnim.onclick = function() {
         if (!animate) {
             btnAnim.innerText = "Stop";
@@ -103,7 +108,12 @@ export let main = function() {
     sldDt.onchange = function() {
         scene.dt = parseFloat(sldDt.value);
         divDt.innerText = "" + scene.dt;
-    }
+    };
+
+    optHeun.onclick = function() {
+        scene.useHeun = !!(optHeun.checked);
+    };
+    optEuler.onclick = optHeun.onclick;
 
 
 

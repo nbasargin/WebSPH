@@ -46,8 +46,10 @@ export class ShallowWater1D extends Scene {
     // new physics
     private domain : Domain;
     private swPhysics : ShallowWaterPhysics1D;
+    public useHeun = true;
     private integratorEuler : IntegratorEuler;
     private integratorHeun : IntegratorHeun;
+
 
     public constructor(glContext : GLContext) {
         super(glContext);
@@ -169,10 +171,15 @@ export class ShallowWater1D extends Scene {
 
     public update(dt: number): void {
 
+        console.log("using " + (this.useHeun ? "Heun" : "Euler"));
+
         // fixed timestep
         dt = this.dt;
-        //this.integratorEuler.integrate(this.particles, dt, this.smoothingLength);
-        this.integratorHeun.integrate(this.particles, dt, this.smoothingLength);
+        if (this.useHeun) {
+            this.integratorHeun.integrate(this.particles, dt, this.smoothingLength);
+        } else {
+            this.integratorEuler.integrate(this.particles, dt, this.smoothingLength);
+        }
 
         if (this.drawParticles) {
             Coloring.speedColoring(this.particles);
