@@ -75,6 +75,10 @@ export let main = function() {
         scene.smoothingLength = parseFloat(sldSmoothing.value);
         divSmoothing.innerText = "" + scene.smoothingLength;
 
+        scene.visualizationSmoothingLength = parseFloat(sldSmoothing.value);
+        sldSmoothingVisu.value = sldSmoothing.value;
+        divSmoothingVisu.innerText = "" + scene.visualizationSmoothingLength;
+
         // super hacky way to keep particles in place
         let oldDT = scene.dt;
         scene.dt = 0;
