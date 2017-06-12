@@ -6,6 +6,7 @@ import {ShaderLoader} from "../rendering/ShaderLoader";
 import {Coloring} from "../util/Coloring";
 import {Domain} from "../simulation/Domain";
 import {ShallowWaterPhysics1D} from "../simulation/ShallowWaterPhysics1D";
+import {IntegratorEuler} from "../simulation/integrator/IntegratorEuler";
 
 export class ShallowWater1D extends Scene {
 
@@ -21,6 +22,7 @@ export class ShallowWater1D extends Scene {
 
     // particles
     private particles : Array<Particle>;
+    private particleVolume : number;
 
     private particlePosXY : Float32Array;
     private particleColRGBA : Float32Array;
@@ -38,15 +40,20 @@ export class ShallowWater1D extends Scene {
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
 
+
+    // new physics
     private domain : Domain;
     private swPhysics : ShallowWaterPhysics1D;
-
+    private integratorEuler : IntegratorEuler;
 
     public constructor(glContext : GLContext) {
         super(glContext);
 
+        this.particleVolume = 1 / this.numParticles;
+
         this.domain = new Domain(this.getOrthographicBounds());
         this.swPhysics = new ShallowWaterPhysics1D(this.domain);
+        this.integratorEuler = new IntegratorEuler(this.swPhysics, this.particleVolume);
 
 
         // shaders
@@ -159,88 +166,19 @@ export class ShallowWater1D extends Scene {
 
         // fixed timestep
         dt = this.dt;
-        let VOLUME = 1 / this.numParticles; // constant volume
-
-        // Solving the Shallow Water equations using 2D SPH particles for interactive applications
-        // Hyokwang Lee · Soonhung Han
-        // original order:  Integration -> Height approximation -> Force computation
-        // new order:       Height approximation -> Force computation -> Integration
-
-        /*
-         Height approximation determines the height of particles
-         by (13). The z value of each particle is updated with the
-         vertical motion of particles in z direction. As a result, the
-         particles are positioned on the water surface.
-
-         (13): h_i = sum (j = 1 to N) { V_j * W_ij }
-         with   Vj = volume of j = const.
-                Wij = Smoothing kernel
-         */
-        // Height approximation
-        // !! the height HERE is Y = pos[1] !!
-        if (this.drawParticles) {
-            for (let i = 0; i < this.numParticles; i++) {
-                let pi = this.particles[i];
-                pi.pos[1] = VOLUME * this.swPhysics.getWaterHeight(pi.pos[0], this.particles, this.smoothingLength);
-            }
-        }
-
-        // update water height
-        if (this.drawWaterHeight) {
-            for (let i = 0; i < this.waterHeightSamples; i++) {
-                let x = this.waterHeightPosXY[i*4]; // x ground
-                let height = this.swPhysics.getWaterHeight(x, this.particles, this.smoothingLength);
-                this.waterHeightPosXY[i*4 + 3] = VOLUME * height; // y water
-            }
-
-        }
-
-
-
-        /*
-         Force computation computes the force interaction between
-         particles where the pressure is determined by (20).
-
-         (20): D u_i / D t = - g * sum (j = 1 to N) {V_j * NABLA W_ij}
-         with   g = gravitational acceleration
-                NABLA W_ij = derivative of the smoothing kernel
-                D u_i / D t = acceleration
-         */
-
-        // Acceleration computation
-        let g = 9.81;
-        for (let i = 0; i < this.numParticles; i++) {
-            let pi = this.particles[i];
-            pi.acceleration = g * VOLUME * this.swPhysics.getAcceleration(pi.pos[0], this.particles, this.smoothingLength);
-
-        }
-
-
-
-
-        /*
-         Integration updates the particle’s velocity and position,
-         and moves the particle on the x line. The velocity is updated
-         with the pressure and viscous force computed at the
-         previous step, and the position is updated with the new
-         velocity.
-        */
-
-        //Integration
-        for (let i = 0; i < this.numParticles; i++) {
-            let pi = this.particles[i];
-            // explicit euler
-            // speed
-            pi.speed[0] += pi.acceleration * dt;
-            // position
-            let newPos = pi.pos[0] + pi.speed[0] * dt;
-            this.particles[i].pos[0] = this.domain.mapXInsideDomainCyclic(newPos);
-        }
+        this.integratorEuler.integrate(this.particles, dt, this.smoothingLength);
 
         if (this.drawParticles) {
             Coloring.speedColoring(this.particles);
         }
-
+        if (this.drawWaterHeight) {
+            // update water height
+            for (let i = 0; i < this.waterHeightSamples; i++) {
+                let x = this.waterHeightPosXY[i * 4]; // x ground
+                let height = this.swPhysics.getWaterHeight(x, this.particles, this.smoothingLength);
+                this.waterHeightPosXY[i * 4 + 3] = this.particleVolume * height; // y water
+            }
+        }
         this.updateBuffers();
     }
 

@@ -4,7 +4,7 @@ import {SmoothingKernel} from "./SmoothingKernel";
 
 export class ShallowWaterPhysics1D {
 
-    private domain : Domain;
+    public domain : Domain;
 
     public constructor(domain : Domain) {
         this.domain = domain;
