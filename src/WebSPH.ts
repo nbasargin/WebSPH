@@ -1,6 +1,6 @@
 import {GLContext} from "./rendering/GLContext";
-import {ShallowWater1D} from "./scenes/ShallowWater1D";
 import {RenderLoop} from "./rendering/RenderLoop";
+import {ShallowWater1D} from "./scenes/ShallowWater1D";
 /**
  * Main browser entry point.
  */
@@ -111,7 +111,7 @@ export let main = function() {
     };
 
     optHeun.onclick = function() {
-        scene.useHeun = !!(optHeun.checked);
+        scene.useHeun = optHeun.checked;
     };
     optEuler.onclick = optHeun.onclick;
 

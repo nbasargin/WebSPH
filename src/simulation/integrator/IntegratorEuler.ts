@@ -1,18 +1,15 @@
-import {ShallowWaterPhysics1D} from "../ShallowWaterPhysics1D";
-import {Particle} from "../Particle";
+import {Environment1D} from "../Environment";
+export class IntegratorEuler2 {
 
-export class IntegratorEuler {
+    private env : Environment1D;
 
-    private particleVolume;
-    private swPhysics : ShallowWaterPhysics1D;
-
-
-    public constructor(swPhysicis : ShallowWaterPhysics1D, pVolume : number) {
-        this.particleVolume = pVolume;
-        this.swPhysics = swPhysicis;
+    public constructor(env : Environment1D) {
+        this.env = env;
     }
 
-    public integrate(particles : Array<Particle>, dt : number, smoothingLength : number) {
+    public integrate(dt : number, smoothingLength : number) {
+        let particles = this.env.particles;
+
         // position & speed update
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
@@ -20,23 +17,21 @@ export class IntegratorEuler {
             pi.speed[0] += pi.acceleration * dt;
             // position
             let newPos = pi.pos[0] + pi.speed[0] * dt;
-            particles[i].pos[0] = this.swPhysics.domain.mapXInsideDomainCyclic(newPos);
+            particles[i].pos[0] = this.env.mapXInsideDomainCyclic(newPos);
         }
 
         // force computation
-        let g = 9.81;
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
-            pi.acceleration = g * this.particleVolume * this.swPhysics.getAcceleration(pi.pos[0], particles, smoothingLength);
+            pi.acceleration = this.env.getFluidAcc(pi.pos[0], smoothingLength, particles);
         }
 
         // water height
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
-            pi.pos[1] = this.particleVolume * this.swPhysics.getWaterHeight(pi.pos[0], particles, smoothingLength);
+            pi.pos[1] = this.env.getFluidHeight(pi.pos[0], smoothingLength, particles);
         }
 
     }
-
 
 }
