@@ -1,14 +1,15 @@
-import {Scene} from "./Scene";
-import {GLContext} from "../rendering/GLContext";
-import {GLBuffer} from "../rendering/GLBuffer";
+import {GLBuffer} from "./GLBuffer";
 import {Environment1D} from "../simulation/Environment";
 import {IntegratorHeun2} from "../simulation/integrator/IntegratorHeun";
 import {IntegratorEuler2} from "../simulation/integrator/IntegratorEuler";
-import {ShaderLoader} from "../rendering/ShaderLoader";
+import {ShaderLoader} from "./ShaderLoader";
 import {Bounds} from "../util/Bounds";
-import {Coloring} from "../rendering/Coloring";
+import {Coloring} from "./Coloring";
+import {GLMatrixStack} from "./GLMatrixStack";
+import {GLCanvas} from "./GLCanvas";
+import {GLProgram} from "./GLProgram";
 
-export class ShallowWater1D extends Scene {
+export class ShallowWater1D {
 
     // global simulation vars
     private numParticles = 500;
@@ -20,7 +21,7 @@ export class ShallowWater1D extends Scene {
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
-    private drawBaseSquare = false;
+    private drawBaseSquare = true;
 
     // particle buffers
     private glParticlePosBuffer : GLBuffer;
@@ -38,10 +39,20 @@ export class ShallowWater1D extends Scene {
     private heun : IntegratorHeun2;
     private euler : IntegratorEuler2;
 
-    public constructor(glContext : GLContext) {
-        super(glContext);
 
-        let bounds : Bounds = this.getOrthographicBounds();
+    // REFACTORING
+
+    public mvMatrix : GLMatrixStack;
+    public pMatrix : GLMatrixStack;
+
+    private glCanvas : GLCanvas;
+    private glProgram : GLProgram;
+
+
+    public constructor(glCanvas : GLCanvas) {
+        this.glCanvas = glCanvas;
+
+        let bounds : Bounds = glCanvas.getOrthographicBounds();
 
         this.env = new Environment1D(this.numParticles, bounds, 1, 9.81);
         this.euler = new IntegratorEuler2(this.env);
@@ -50,14 +61,23 @@ export class ShallowWater1D extends Scene {
         // shaders
         let fragShaderSrc = ShaderLoader.getDummyColorFragShader();
         let vertShaderSrc = ShaderLoader.getDummyColorVertShader();
-        this.glContext.initShaders(vertShaderSrc, fragShaderSrc);
+        this.glProgram = new GLProgram(glCanvas.gl, vertShaderSrc, fragShaderSrc);
+        this.glProgram.use();
+        this.glProgram.enableVertexAttribArray("aVertexPosition");
+        this.glProgram.enableVertexAttribArray("aVertexColor");
+
+
+        // matrices
+        this.mvMatrix = new GLMatrixStack(glCanvas.gl, this.glProgram.getUnifLoc("uMVMatrix"));
+        this.pMatrix = new GLMatrixStack(glCanvas.gl, this.glProgram.getUnifLoc("uPMatrix"));
+
 
         // particle buffers
         if (this.drawParticles) {// (empty) buffers
             let particlePosXY = new Float32Array(this.numParticles * 2);
             let particleColRGBA = new Float32Array(this.numParticles * 4);
-            this.glParticlePosBuffer = new GLBuffer(this.glContext.gl, particlePosXY, 2);
-            this.glParticleColBuffer = new GLBuffer(this.glContext.gl, particleColRGBA, 4);
+            this.glParticlePosBuffer = new GLBuffer(this.glCanvas.gl, particlePosXY, 2);
+            this.glParticleColBuffer = new GLBuffer(this.glCanvas.gl, particleColRGBA, 4);
         }
 
         // border lines
@@ -67,9 +87,9 @@ export class ShallowWater1D extends Scene {
         lines = lines.concat([0,0,  0,1]); // x = 0
         lines = lines.concat([1,0,  1,1]); // x = 1
         let colors = [];
-        this.glLinePosBuffer = new GLBuffer(this.glContext.gl, new Float32Array(lines), 2);
+        this.glLinePosBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(lines), 2);
         for (let i = 0; i < this.glLinePosBuffer.numItems; i++) colors = colors.concat([1,1,1,1]);
-        this.glLineColBuffer = new GLBuffer(this.glContext.gl, new Float32Array(colors), 4);
+        this.glLineColBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(colors), 4);
 
         // water height
         if (this.drawWaterHeight) {
@@ -82,7 +102,7 @@ export class ShallowWater1D extends Scene {
                 waterHeightPosXY[i*4 + 2] = x;             // x water
                 waterHeightPosXY[i*4 + 3] = 0;             // y water
             }
-            this.glWaterHeightPosBuffer = new GLBuffer(this.glContext.gl, waterHeightPosXY, 2);
+            this.glWaterHeightPosBuffer = new GLBuffer(this.glCanvas.gl, waterHeightPosXY, 2);
 
             // color (constant color)
             let waterHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
@@ -92,7 +112,7 @@ export class ShallowWater1D extends Scene {
                 waterHeightColRGBA[i*4 + 2] = 1; // b
                 waterHeightColRGBA[i*4 + 3] = 1; // a
             }
-            this.glWaterHeightColBuffer = new GLBuffer(this.glContext.gl, waterHeightColRGBA, 4);
+            this.glWaterHeightColBuffer = new GLBuffer(this.glCanvas.gl, waterHeightColRGBA, 4);
         }
 
 
@@ -151,25 +171,30 @@ export class ShallowWater1D extends Scene {
     }
 
     public render(): void {
-        let gl = this.glContext.gl;
+        let gl = this.glCanvas.gl;
         let mvMatrix = this.mvMatrix;
         let pMatrix = this.pMatrix;
 
-        this.setOrthographicProjection(-1, 1);
+        pMatrix.setOrthographicProjection(this.glCanvas, -1, 1);
 
         gl.clearColor(0.5, 0.7, 0.9, 1.0);
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, this.glContext.viewWidthPx(), this.glContext.viewHeightPx());
+        gl.viewport(0, 0, this.glCanvas.viewWidthPx(), this.glCanvas.viewHeightPx());
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+
+
+        let vertexPositionAttribute = this.glProgram.getAttrLoc("aVertexPosition");
+        let vertexColorAttribute = this.glProgram.getAttrLoc("aVertexColor");
 
         // draw base square
         if (this.drawBaseSquare) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glLinePosBuffer.buffer);
-            gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glLinePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(vertexPositionAttribute, this.glLinePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glLineColBuffer.buffer);
-            gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glLineColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-            this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
+            gl.vertexAttribPointer(vertexColorAttribute, this.glLineColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            pMatrix.updateUniform();
+            mvMatrix.updateUniform();
             gl.drawArrays(gl.LINES, 0, this.glLinePosBuffer.numItems);
         }
 
@@ -179,12 +204,13 @@ export class ShallowWater1D extends Scene {
             mvMatrix.push();
             // positions
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticlePosBuffer.buffer);
-            gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glParticlePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(vertexPositionAttribute, this.glParticlePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
             // colors
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticleColBuffer.buffer);
-            gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glParticleColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(vertexColorAttribute, this.glParticleColBuffer.itemSize, gl.FLOAT, false, 0, 0);
             // matrix setup + draw
-            this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
+            pMatrix.updateUniform();
+            mvMatrix.updateUniform();
             gl.drawArrays(gl.POINTS, 0, this.glParticlePosBuffer.numItems);
             mvMatrix.pop();
         }
@@ -194,12 +220,13 @@ export class ShallowWater1D extends Scene {
         if (this.drawWaterHeight) {
             // positions
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightPosBuffer.buffer);
-            gl.vertexAttribPointer(this.glContext.vertexPositionAttribute, this.glWaterHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(vertexPositionAttribute, this.glWaterHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
             // colors
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightColBuffer.buffer);
-            gl.vertexAttribPointer(this.glContext.vertexColorAttribute, this.glWaterHeightColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(vertexColorAttribute, this.glWaterHeightColBuffer.itemSize, gl.FLOAT, false, 0, 0);
             // matrix setup + draw
-            this.glContext.setMatrixUniforms(pMatrix.get(), mvMatrix.get());
+            pMatrix.updateUniform();
+            mvMatrix.updateUniform();
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
         }
     }

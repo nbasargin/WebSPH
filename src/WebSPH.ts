@@ -1,6 +1,6 @@
-import {GLContext} from "./rendering/GLContext";
-import {RenderLoop} from "./rendering/RenderLoop";
-import {ShallowWater1D} from "./scenes/ShallowWater1D";
+import {RenderLoop} from "./rendering2/RenderLoop";
+import {ShallowWater1D} from "./rendering2/ShallowWater1D";
+import {GLCanvas} from "./rendering2/GLCanvas";
 /**
  * Main browser entry point.
  */
@@ -20,12 +20,13 @@ export let main = function() {
 
     // create GL context from canvas
     let canvas : HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("web-gl-canvas");
-    let glContext = new GLContext(canvas);
+
+    let glCanvas = new GLCanvas(canvas);
 
     // set up scene
     //let scene = new DummyScene(glContext);
     //let scene = new MovingParticles(glContext);
-    scene = new ShallowWater1D(glContext);
+    scene = new ShallowWater1D(glCanvas);
 
 
     renderLoop = new RenderLoop(scene, document.getElementById("websph-fps"));

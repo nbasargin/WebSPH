@@ -1,19 +1,32 @@
 import {mat4} from "gl-matrix";
-
+import {GLCanvas} from "./GLCanvas";
 /**
  * Matrix stack:
  * - contains the actual matrix,
  * - simulates glPushMatrix() and glPopMatrix()
  * - has some utility functions
  */
-export class MatrixStack {
+export class GLMatrixStack {
+
+    private gl : WebGLRenderingContext;
+    private matrixUniform : WebGLUniformLocation;
 
     private matrix : mat4;
     private stack : Array<mat4>;
 
-    public constructor() {
+    public constructor(gl : WebGLRenderingContext, matrixUniformLoc : WebGLUniformLocation) {
+        this.gl = gl;
+        this.matrixUniform = matrixUniformLoc;
+
         this.matrix = mat4.create();
         this.stack = [];
+    }
+
+    /**
+     * Transfer actual matrix to the GPU.
+     */
+    public updateUniform() {
+        this.gl.uniformMatrix4fv(this.matrixUniform, false, this.matrix);
     }
 
     /**
@@ -23,6 +36,8 @@ export class MatrixStack {
     public get() : mat4 {
         return this.matrix;
     }
+
+    //region push/pop
 
     /**
      * Push a copy of the actual matrix to the stack.
@@ -42,6 +57,10 @@ export class MatrixStack {
         let fromStack = this.stack.pop();
         mat4.copy(this.matrix, fromStack);
     }
+
+    //endregion
+
+    // region identity, scale, translate
 
     /**
      * Actual matrix becomes the identity matrix.
@@ -86,5 +105,38 @@ export class MatrixStack {
         mat4.scale(this.matrix, this.matrix, vec);
     }
 
+    //endregion
+
+    //region projection
+
+    /**
+     * Set up perspective projection.
+     * @param glCanvas
+     * @param fovy      field of view (y) in degrees(!)
+     * @param near      near clipping distance
+     * @param far       far clipping distance
+     */
+    public setPerspectiveProjection(glCanvas : GLCanvas, fovy : number, near : number, far : number) {
+        let w = glCanvas.viewWidthPx();
+        let h = glCanvas.viewHeightPx();
+        if (h != 0) {
+            mat4.perspective(this.matrix, fovy, w / h, near, far);
+        } else {
+            mat4.perspective(this.matrix, fovy, 1, near, far);
+        }
+    }
+
+    /**
+     * Set up orthographic projection.
+     * @param glCanvas
+     * @param near      near clipping distance
+     * @param far       far clipping distance
+     */
+    public setOrthographicProjection(glCanvas : GLCanvas,  near : number, far : number) {
+        let b = glCanvas.getOrthographicBounds();
+        mat4.ortho(this.matrix, b.xMin, b.xMax, b.yMin, b.yMax, near, far);
+    }
+
+    //endregion
 
 }

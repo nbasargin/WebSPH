@@ -66,4 +66,10 @@ export class GLProgram {
     }
 
 
+    public enableVertexAttribArray(attribute : string) {
+        let loc = this.getAttrLoc(attribute);
+        this.gl.enableVertexAttribArray(loc);
+    }
+
+
 }

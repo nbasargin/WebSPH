@@ -1,15 +1,15 @@
-import {Scene} from "../scenes/Scene";
 import {Timing} from "../util/Timing";
+import {ShallowWater1D} from "./ShallowWater1D";
 
 export class RenderLoop {
 
     private static numberOfFramesToAvgFPS = 10;
-    private scene : Scene;
+    private scene : ShallowWater1D;
     private timing : Timing;
     private fpsElement : HTMLElement;
     private running : boolean;
 
-    public constructor(scene : Scene, fpsElm? : HTMLElement) {
+    public constructor(scene : ShallowWater1D, fpsElm? : HTMLElement) {
         this.scene = scene;
         this.timing = new Timing(RenderLoop.numberOfFramesToAvgFPS);
         this.fpsElement = fpsElm;
