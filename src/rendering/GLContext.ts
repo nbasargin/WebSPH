@@ -45,7 +45,7 @@ export class GLContext {
         let gl = this.gl;
 
         // compile shaders
-        function compileShader(src : string, type) {
+        function compileShader(src : string, type : number) {
             let shader : WebGLShader = gl.createShader(type);
             gl.shaderSource(shader, src);
             gl.compileShader(shader);

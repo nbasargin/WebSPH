@@ -47,7 +47,7 @@ export abstract class Scene {
 
     /**
      * Returns bounds for orthographic projection based on the canvas size.
-     * The original square (x -1 to 1; y -1 to 1) is always inside that bounds.
+     * The original square (x 0 to 1; y 0 to 1) is always inside that bounds.
      */
     public getOrthographicBounds() : Bounds {
         let w = this.glContext.viewWidthPx();
