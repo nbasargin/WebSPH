@@ -1,4 +1,5 @@
 import {mat4} from "gl-matrix";
+import {GLProgram} from "../rendering2/GLProgram";
 
 /**
  * Wrapper for the WebGLRenderingContext.
@@ -44,39 +45,17 @@ export class GLContext {
     public initShaders(vertShaderSrc : string, fragShaderSrc : string) {
         let gl = this.gl;
 
-        // compile shaders
-        function compileShader(src : string, type : number) {
-            let shader : WebGLShader = gl.createShader(type);
-            gl.shaderSource(shader, src);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                throw new Error("Couldn't compile " +
-                    (type == gl.VERTEX_SHADER ? "vertex" : "fragment")  + " shader)!\n" +
-                    gl.getShaderInfoLog(shader));
-            }
-            return shader;
-        }
-        let vertShader = compileShader(vertShaderSrc, gl.VERTEX_SHADER);
-        let fragShader = compileShader(fragShaderSrc, gl.FRAGMENT_SHADER);
-
-        // link program
-        let shaderProgram = gl.createProgram();
-        gl.attachShader(shaderProgram, vertShader);
-        gl.attachShader(shaderProgram, fragShader);
-        gl.linkProgram(shaderProgram);
-        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            throw new Error("Couldn't not initialise shaders");
-        }
-        gl.useProgram(shaderProgram);
-        this.shaderProgram = shaderProgram;
+        let glProgram = new GLProgram(gl, vertShaderSrc, fragShaderSrc);
+        glProgram.use();
+        this.shaderProgram = glProgram.program;
 
         // save addition properties
-        this.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        this.vertexPositionAttribute = glProgram.getAttrLoc("aVertexPosition");
         if (this.vertexPositionAttribute != -1)  gl.enableVertexAttribArray(this.vertexPositionAttribute);
-        this.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+        this.vertexColorAttribute = glProgram.getAttrLoc("aVertexColor");
         if (this.vertexColorAttribute != -1) gl.enableVertexAttribArray(this.vertexColorAttribute);
-        this.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        this.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        this.pMatrixUniform = glProgram.getUnifLoc("uPMatrix");
+        this.mvMatrixUniform = glProgram.getUnifLoc("uMVMatrix");
 
     }
 
