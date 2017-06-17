@@ -1,7 +1,7 @@
 import {Environment1D} from "../Environment";
 import {Particle} from "../Particle";
 
-export class IntegratorHeun2 {
+export class IntegratorHeun {
 
     public env : Environment1D;
     private prediction : Array<Particle>;

@@ -1,18 +1,24 @@
 import {GLBuffer} from "./GLBuffer";
 import {Environment1D} from "../simulation/Environment";
-import {IntegratorHeun2} from "../simulation/integrator/IntegratorHeun";
-import {IntegratorEuler2} from "../simulation/integrator/IntegratorEuler";
+import {IntegratorHeun} from "../simulation/integrator/IntegratorHeun";
+import {IntegratorEuler} from "../simulation/integrator/IntegratorEuler";
 import {ShaderLoader} from "./ShaderLoader";
 import {Bounds} from "../util/Bounds";
 import {Coloring} from "./Coloring";
 import {GLMatrixStack} from "./GLMatrixStack";
 import {GLCanvas} from "./GLCanvas";
 import {GLProgram} from "./GLProgram";
+import {Particle} from "../simulation/Particle";
 
 export class ShallowWater1D {
 
-    // global simulation vars
+    // simulation
     private numParticles = 500;
+    private env : Environment1D;
+    private heun : IntegratorHeun;
+    private euler : IntegratorEuler;
+
+    // vars changed by controller
     public dt = 0.001;
     public smoothingLength = 0.03;
     public visualizationSmoothingLength = 0.03;
@@ -23,28 +29,18 @@ export class ShallowWater1D {
     private drawWaterHeight = true;
     private drawBaseSquare = true;
 
-    // particle buffers
+    // buffers
     private glParticlePosBuffer : GLBuffer;
     private glParticleColBuffer : GLBuffer;
     private glLinePosBuffer : GLBuffer;
     private glLineColBuffer : GLBuffer;
-
-    // water height
-    private waterHeightSamples = 500;
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
 
-
-    private env : Environment1D;
-    private heun : IntegratorHeun2;
-    private euler : IntegratorEuler2;
-
-
-    // REFACTORING
-
+    // rendering
+    private waterHeightSamples = 500;
     public mvMatrix : GLMatrixStack;
     public pMatrix : GLMatrixStack;
-
     private glCanvas : GLCanvas;
     private glProgram : GLProgram;
 
@@ -54,9 +50,10 @@ export class ShallowWater1D {
 
         let bounds : Bounds = glCanvas.getOrthographicBounds();
 
+
         this.env = new Environment1D(this.numParticles, bounds, 1, 9.81);
-        this.euler = new IntegratorEuler2(this.env);
-        this.heun = new IntegratorHeun2(this.env);
+        this.euler = new IntegratorEuler(this.env);
+        this.heun = new IntegratorHeun(this.env);
 
         // shaders
         let fragShaderSrc = ShaderLoader.getDummyColorFragShader();
@@ -122,25 +119,24 @@ export class ShallowWater1D {
     /**
      * Transfer position & color to the GPU
      */
-    private updateParticleBuffers() {
+    private updateParticleBuffers(particles : Array<Particle>) {
         let particlePosXY = this.glParticlePosBuffer.getData();
         let particleColRGBA = this.glParticleColBuffer.getData();
 
-        if (this.drawParticles) {
-            for (let i = 0; i < this.numParticles; i++) {
-                // position
-                particlePosXY[i*2]   = this.env.particles[i].pos[0];
-                particlePosXY[i*2+1] = this.env.particles[i].pos[1];
+        for (let i = 0; i < particles.length; i++) {
+            // position
+            particlePosXY[i*2]   = particles[i].pos[0];
+            particlePosXY[i*2+1] = particles[i].pos[1];
 
-                // color
-                particleColRGBA[i*4]   = this.env.particles[i].color[0];
-                particleColRGBA[i*4+1] = this.env.particles[i].color[1];
-                particleColRGBA[i*4+2] = this.env.particles[i].color[2];
-                particleColRGBA[i*4+3] = this.env.particles[i].color[3];
-            }
-            this.glParticlePosBuffer.setData(particlePosXY, 2);
-            this.glParticleColBuffer.setData(particleColRGBA, 4);
+            // color
+            particleColRGBA[i*4]   = particles[i].color[0];
+            particleColRGBA[i*4+1] = particles[i].color[1];
+            particleColRGBA[i*4+2] = particles[i].color[2];
+            particleColRGBA[i*4+3] = particles[i].color[3];
         }
+
+        this.glParticlePosBuffer.flushData(); //setData(particlePosXY, 2);
+        this.glParticleColBuffer.flushData(); //setData(particleColRGBA, 4);
 
     }
 
@@ -156,6 +152,7 @@ export class ShallowWater1D {
 
         if (this.drawParticles) {
             Coloring.speedColoring(this.env.particles);
+            this.updateParticleBuffers(this.env.particles);
         }
         if (this.drawWaterHeight) {
             let waterHeightPosXY = this.glWaterHeightPosBuffer.getData();
@@ -167,7 +164,6 @@ export class ShallowWater1D {
             }
             this.glWaterHeightPosBuffer.flushData();
         }
-        this.updateParticleBuffers();
     }
 
     public render(): void {

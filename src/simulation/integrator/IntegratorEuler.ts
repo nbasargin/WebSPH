@@ -1,5 +1,5 @@
 import {Environment1D} from "../Environment";
-export class IntegratorEuler2 {
+export class IntegratorEuler {
 
     private env : Environment1D;
 
