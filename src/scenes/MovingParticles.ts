@@ -79,7 +79,7 @@ export class MovingParticles extends Scene {
 
         }
 
-        this.glParticlePosBuffer.updateData(this.particlePosXY, 2);
+        this.glParticlePosBuffer.setData(this.particlePosXY, 2);
     }
 
     public render(): void {
