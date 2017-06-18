@@ -1,5 +1,8 @@
 import {SWEnvironment1D} from "../SWEnvironment1D";
 
+/**
+ * Abstract integrator class for 1D shallow water environments.
+ */
 export abstract class SWIntegrator1D {
 
     private env : SWEnvironment1D;

@@ -1,5 +1,8 @@
 import {Timing} from "../util/Timing";
 
+/**
+ * Render loop will repeatedly call the callback function and update the FPS.
+ */
 export class RenderLoop {
 
     private static numberOfFramesToAvgFPS = 10;

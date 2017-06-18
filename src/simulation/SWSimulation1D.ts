@@ -3,6 +3,9 @@ import {SWEnvironment1D} from "./SWEnvironment1D";
 import {IntegratorEuler} from "./integrator/IntegratorEuler";
 import {IntegratorHeun} from "./integrator/IntegratorHeun";
 
+/**
+ * Main simulation class, contains the integrator and the environment.
+ */
 export class SWSimulation1D {
 
     public env : SWEnvironment1D;
@@ -10,7 +13,7 @@ export class SWSimulation1D {
     private heun : IntegratorHeun;
 
     public dt = 0.001;
-    public smoothingLength = 0.03;
+    public smoothingLength = 0.02;
     public useHeun = true;
 
     public constructor(numParticles : number, bounds : Bounds) {

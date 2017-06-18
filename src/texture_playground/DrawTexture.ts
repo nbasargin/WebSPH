@@ -1,6 +1,6 @@
 import {GLTexture} from "./GLTexture";
-import {GLBuffer} from "../rendering/GLBuffer";
-import {GLCanvas} from "../rendering/GLCanvas";
+import {GLBuffer} from "../rendering/glUtil/GLBuffer";
+import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 
 export class DrawTexture {
 

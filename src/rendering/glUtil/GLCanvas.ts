@@ -1,4 +1,4 @@
-import {Bounds} from "../util/Bounds";
+import {Bounds} from "../../util/Bounds";
 
 export class GLCanvas {
 

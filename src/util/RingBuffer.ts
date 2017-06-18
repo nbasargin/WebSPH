@@ -1,3 +1,6 @@
+/**
+ * Ring buffer: pushing a new value will overwrite the oldest value if there is no space left.
+ */
 export class RingBuffer {
 
     private capacity : number;

@@ -1,11 +1,14 @@
-import {GLCanvas} from "./GLCanvas";
+import {GLCanvas} from "./glUtil/GLCanvas";
 import {SWEnvironment1D} from "../simulation/SWEnvironment1D";
-import {GLBuffer} from "./GLBuffer";
-import {GLMatrixStack} from "./GLMatrixStack";
-import {GLProgram} from "./GLProgram";
+import {GLBuffer} from "./glUtil/GLBuffer";
+import {GLMatrixStack} from "./glUtil/GLMatrixStack";
+import {GLProgram} from "./glUtil/GLProgram";
 import {ShaderLoader} from "./ShaderLoader";
 import {Coloring} from "./Coloring";
 
+/**
+ * Renders the state of the environment to the canvas.
+ */
 export class SWRenderer1D {
 
     // environment
@@ -14,7 +17,7 @@ export class SWRenderer1D {
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
-    private drawBaseSquare = true;
+    private drawBaseSquare = false;
     public visualizationSmoothingLength = 0.03;
     private waterHeightSamples = 500;
 
@@ -26,7 +29,7 @@ export class SWRenderer1D {
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
 
-    // rendering
+    // gl stuff
     public mvMatrix : GLMatrixStack;
     public pMatrix : GLMatrixStack;
     public glCanvas : GLCanvas;
@@ -38,55 +41,10 @@ export class SWRenderer1D {
         this.env = env;
 
         this.initShaders();
-
-        // matrices
-        this.mvMatrix = new GLMatrixStack(glCanvas.gl, this.glProgram.getUnifLoc("uMVMatrix"));
-        this.pMatrix = new GLMatrixStack(glCanvas.gl, this.glProgram.getUnifLoc("uPMatrix"));
-
-        // buffers
-        let particlePosXY = new Float32Array(this.env.particles.length * 2);
-        let particleColRGBA = new Float32Array(this.env.particles.length * 4);
-        this.glParticlePosBuffer = new GLBuffer(this.glCanvas.gl, particlePosXY, 2);
-        this.glParticleColBuffer = new GLBuffer(this.glCanvas.gl, particleColRGBA, 4);
-
-        // border lines
-        let lines = [];
-        lines = lines.concat([0,0,  1,0]); // y = 0
-        lines = lines.concat([0,1,  1,1]); // y = 1
-        lines = lines.concat([0,0,  0,1]); // x = 0
-        lines = lines.concat([1,0,  1,1]); // x = 1
-        let colors = [];
-        this.glLinePosBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(lines), 2);
-        for (let i = 0; i < this.glLinePosBuffer.numItems; i++) colors = colors.concat([1,1,1,1]);
-        this.glLineColBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(colors), 4);
-
-        // water height
-        let bounds = this.env.bounds;
-        if (this.drawWaterHeight) {
-            // position
-            let waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
-            for (let i = 0; i < this.waterHeightSamples; i++) {
-                let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
-                waterHeightPosXY[i*4    ] = x;             // x ground
-                waterHeightPosXY[i*4 + 1] = bounds.yMin;   // y ground
-                waterHeightPosXY[i*4 + 2] = x;             // x water
-                waterHeightPosXY[i*4 + 3] = 0;             // y water
-            }
-            this.glWaterHeightPosBuffer = new GLBuffer(this.glCanvas.gl, waterHeightPosXY, 2);
-
-            // color (constant color)
-            let waterHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
-            for (let i = 0; i < waterHeightColRGBA.length / 4; i++) {
-                waterHeightColRGBA[i*4    ] = 0; // r
-                waterHeightColRGBA[i*4 + 1] = 0; // g
-                waterHeightColRGBA[i*4 + 2] = 1; // b
-                waterHeightColRGBA[i*4 + 3] = 1; // a
-            }
-            this.glWaterHeightColBuffer = new GLBuffer(this.glCanvas.gl, waterHeightColRGBA, 4);
-        }
-
-
-
+        this.initMatrices();
+        this.initParticleBuffers();
+        this.initBorderLines();
+        this.initWaterHeightBuffers();
     }
 
     private initShaders() {
@@ -98,13 +56,55 @@ export class SWRenderer1D {
         this.glProgram.enableVertexAttribArray("aVertexColor");
     }
 
-
-
-    public setPointSize(size : number) {
-        this.drawParticles = (size >= 1);
-        let uPointSizeLoc = this.glProgram.getUnifLoc("uPointSize");
-        this.glCanvas.gl.uniform1f(uPointSizeLoc, size);
+    private initMatrices() {
+        this.mvMatrix = new GLMatrixStack(this.glCanvas.gl, this.glProgram.getUnifLoc("uMVMatrix"));
+        this.pMatrix = new GLMatrixStack(this.glCanvas.gl, this.glProgram.getUnifLoc("uPMatrix"));
     }
+
+    private initParticleBuffers() {
+        let particlePosXY = new Float32Array(this.env.particles.length * 2);
+        let particleColRGBA = new Float32Array(this.env.particles.length * 4);
+        this.glParticlePosBuffer = new GLBuffer(this.glCanvas.gl, particlePosXY, 2);
+        this.glParticleColBuffer = new GLBuffer(this.glCanvas.gl, particleColRGBA, 4);
+    }
+
+    private initWaterHeightBuffers() {
+        let bounds = this.env.bounds;
+        // position
+        let waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
+        for (let i = 0; i < this.waterHeightSamples; i++) {
+            let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
+            waterHeightPosXY[i*4    ] = x;             // x ground
+            waterHeightPosXY[i*4 + 1] = bounds.yMin;   // y ground
+            waterHeightPosXY[i*4 + 2] = x;             // x water
+            waterHeightPosXY[i*4 + 3] = 0;             // y water
+        }
+        this.glWaterHeightPosBuffer = new GLBuffer(this.glCanvas.gl, waterHeightPosXY, 2);
+
+        // color (constant color)
+        let waterHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
+        for (let i = 0; i < waterHeightColRGBA.length / 4; i++) {
+            waterHeightColRGBA[i*4    ] = 0; // r
+            waterHeightColRGBA[i*4 + 1] = 0; // g
+            waterHeightColRGBA[i*4 + 2] = 1; // b
+            waterHeightColRGBA[i*4 + 3] = 1; // a
+        }
+        this.glWaterHeightColBuffer = new GLBuffer(this.glCanvas.gl, waterHeightColRGBA, 4);
+    }
+
+    private initBorderLines() {
+        let lines = [];
+        lines = lines.concat([0,0,  1,0]); // y = 0
+        lines = lines.concat([0,1,  1,1]); // y = 1
+        lines = lines.concat([0,0,  0,1]); // x = 0
+        lines = lines.concat([1,0,  1,1]); // x = 1
+        let colors = [];
+        this.glLinePosBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(lines), 2);
+        for (let i = 0; i < this.glLinePosBuffer.numItems; i++) colors = colors.concat([1,1,1,1]);
+        this.glLineColBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(colors), 4);
+    }
+
+
 
     /**
      * Transfer position & color to the GPU
@@ -146,12 +146,14 @@ export class SWRenderer1D {
     }
 
 
+
+    public setPointSize(size : number) {
+        this.drawParticles = (size >= 1);
+        let uPointSizeLoc = this.glProgram.getUnifLoc("uPointSize");
+        this.glCanvas.gl.uniform1f(uPointSizeLoc, size);
+    }
+
     public render(): void {
-
-        this.updateParticleBuffers();
-        this.updateWaterHeightBuffers();
-
-
 
         let gl = this.glCanvas.gl;
         let mvMatrix = this.mvMatrix;
@@ -183,6 +185,9 @@ export class SWRenderer1D {
 
         // draw particles
         if (this.drawParticles) {
+
+            this.updateParticleBuffers();
+
             mvMatrix.push();
             // positions
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticlePosBuffer.buffer);
@@ -200,6 +205,9 @@ export class SWRenderer1D {
 
         // draw water level
         if (this.drawWaterHeight) {
+
+            this.updateWaterHeightBuffers();
+
             // positions
             gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightPosBuffer.buffer);
             gl.vertexAttribPointer(vertexPositionAttribute, this.glWaterHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);

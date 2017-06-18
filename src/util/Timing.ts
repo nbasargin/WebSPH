@@ -1,4 +1,8 @@
 import {RingBuffer} from "./RingBuffer";
+
+/**
+ * Contains functions to measure frame durations and calculate FPS.
+ */
 export class Timing {
 
     private lastFrameStartTime : number;

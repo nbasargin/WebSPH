@@ -1,4 +1,4 @@
-import {GLCanvas} from "./rendering/GLCanvas";
+import {GLCanvas} from "./rendering/glUtil/GLCanvas";
 import {SWController1D} from "./controller/SWController1D";
 import {SWRenderer1D} from "./rendering/SWRenderer1D";
 import {SWSimulation1D} from "./simulation/SWSimulation1D";
@@ -19,6 +19,6 @@ export let main = function() {
     let renderer = new SWRenderer1D(glCanvas, simulation.env);
 
     // controller
-    let controller = new SWController1D(simulation, renderer);
+    new SWController1D(simulation, renderer);
 
 };

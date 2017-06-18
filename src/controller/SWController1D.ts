@@ -2,6 +2,9 @@ import {RenderLoop} from "../rendering/RenderLoop";
 import {SWRenderer1D} from "../rendering/SWRenderer1D";
 import {SWSimulation1D} from "../simulation/SWSimulation1D";
 
+/**
+ * Contains render loop, updates simulation, calls the renderer and handles user input.
+ */
 export class SWController1D {
 
     private renderLoop : RenderLoop;
@@ -65,6 +68,7 @@ export class SWController1D {
         this.sldSmoothing.value = "" + this.simulation.smoothingLength;
         this.divSmoothing.innerText = "" + this.simulation.smoothingLength;
 
+        this.renderer.visualizationSmoothingLength = this.simulation.smoothingLength;
         this.sldSmoothingVisu.value = "" + this.renderer.visualizationSmoothingLength;
         this.divSmoothingVisu.innerText = "" + this.renderer.visualizationSmoothingLength;
 
