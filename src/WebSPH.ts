@@ -1,6 +1,6 @@
-import {RenderLoop} from "./rendering2/RenderLoop";
-import {ShallowWater1D} from "./rendering2/ShallowWater1D";
-import {GLCanvas} from "./rendering2/GLCanvas";
+import {RenderLoop} from "./rendering/RenderLoop";
+import {ShallowWater1D} from "./rendering/ShallowWater1D";
+import {GLCanvas} from "./rendering/GLCanvas";
 /**
  * Main browser entry point.
  */

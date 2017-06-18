@@ -1,6 +1,6 @@
-import {GLContext} from "../rendering/GLContext";
 import {GLTexture} from "./GLTexture";
-import {GLBuffer} from "../rendering2/GLBuffer";
+import {GLBuffer} from "../rendering/GLBuffer";
+import {GLCanvas} from "../rendering/GLCanvas";
 
 export class DrawTexture {
 
@@ -12,7 +12,7 @@ export class DrawTexture {
     private quadVertPosBuffer : GLBuffer;
     private quadTexPosBuffer : GLBuffer;
 
-    public constructor(glContext : GLContext) {
+    public constructor(glContext : GLCanvas) {
         // shaders
         // TODO
 
