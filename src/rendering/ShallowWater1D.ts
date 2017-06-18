@@ -63,7 +63,6 @@ export class ShallowWater1D {
         this.glProgram.enableVertexAttribArray("aVertexPosition");
         this.glProgram.enableVertexAttribArray("aVertexColor");
 
-
         // matrices
         this.mvMatrix = new GLMatrixStack(glCanvas.gl, this.glProgram.getUnifLoc("uMVMatrix"));
         this.pMatrix = new GLMatrixStack(glCanvas.gl, this.glProgram.getUnifLoc("uPMatrix"));
@@ -113,6 +112,11 @@ export class ShallowWater1D {
         }
 
 
+    }
+
+    public setPointSize(size : number) {
+        let uPointSizeLoc = this.glProgram.getUnifLoc("uPointSize");
+        this.glCanvas.gl.uniform1f(uPointSizeLoc, size);
     }
 
 

@@ -45,6 +45,8 @@ export let main = function() {
     let divDt = document.getElementById("websph-div-dt");
     let optEuler = <HTMLInputElement> document.getElementById("websph-opt-euler");
     let optHeun = <HTMLInputElement> document.getElementById("websph-opt-heun");
+    let sldPointSize = <HTMLInputElement> document.getElementById("websph-sld-point-size");
+    let divPointSize = <HTMLInputElement> document.getElementById("websph-div-point-size");
 
     // UI default values
     sldSmoothing.value = "" + scene.smoothingLength;
@@ -52,6 +54,10 @@ export let main = function() {
 
     sldSmoothingVisu.value = "" + scene.visualizationSmoothingLength;
     divSmoothingVisu.innerText = "" + scene.visualizationSmoothingLength;
+
+    sldPointSize.value = "" + 3;
+    divPointSize.innerText = "" + 3;
+    scene.setPointSize(3);
 
     sldDt.value = "" + scene.dt;
     divDt.innerText = "" + scene.dt;
@@ -116,6 +122,12 @@ export let main = function() {
     };
     optEuler.onclick = optHeun.onclick;
 
+
+    sldPointSize.onchange = function() {
+        divPointSize.innerText = "" + parseFloat(sldPointSize.value);
+        scene.setPointSize(parseFloat(sldPointSize.value));
+        scene.render();
+    }
 
 
 
