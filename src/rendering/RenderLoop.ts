@@ -1,16 +1,15 @@
 import {Timing} from "../util/Timing";
-import {ShallowWater1D} from "./ShallowWater1D";
 
 export class RenderLoop {
 
     private static numberOfFramesToAvgFPS = 10;
-    private scene : ShallowWater1D;
+    private callback : (dt : number) => void;
     private timing : Timing;
     private fpsElement : HTMLElement;
     private running : boolean;
 
-    public constructor(scene : ShallowWater1D, fpsElm? : HTMLElement) {
-        this.scene = scene;
+    public constructor(callback : (dt : number) => void, fpsElm? : HTMLElement) {
+        this.callback = callback;
         this.timing = new Timing(RenderLoop.numberOfFramesToAvgFPS);
         this.fpsElement = fpsElm;
         this.running = false;
@@ -39,8 +38,7 @@ export class RenderLoop {
         // is running -> next frame
         this.timing.nextFrame();
 
-        this.scene.update(this.timing.getLastFrameDuration());
-        this.scene.render();
+        this.callback(this.timing.getLastFrameDuration());
         window.requestAnimationFrame(() => {this.loop()});
 
         if (this.fpsElement) {

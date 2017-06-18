@@ -2,7 +2,7 @@ import {Bounds} from "../util/Bounds";
 import {Particle} from "./Particle";
 import {SmoothingKernel} from "./SmoothingKernel";
 
-export class Environment1D {
+export class SWEnvironment1D {
 
     public particles : Array<Particle>;
     public bounds : Bounds;
