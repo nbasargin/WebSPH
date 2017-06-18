@@ -1,25 +1,12 @@
 import {RenderLoop} from "../rendering/RenderLoop";
-import {SWEnvironment1D} from "../simulation/SWEnvironment1D";
 import {SWRenderer1D} from "../rendering/SWRenderer1D";
-import {IntegratorHeun} from "../simulation/integrator/IntegratorHeun";
-import {IntegratorEuler} from "../simulation/integrator/IntegratorEuler";
+import {SWSimulation1D} from "../simulation/SWSimulation1D";
 
 export class SWController1D {
 
     private renderLoop : RenderLoop;
-
-    // Simulation
-    private env : SWEnvironment1D;
-    private euler : IntegratorEuler;
-    private heun : IntegratorHeun;
-
-    public dt = 0.001;
-    public smoothingLength = 0.03;
-    public useHeun = true;
-
-    // renderer
-    private swRend : SWRenderer1D;
-
+    private simulation : SWSimulation1D;
+    private renderer : SWRenderer1D;
 
     // UI
     private btnAnim : HTMLElement;
@@ -36,38 +23,26 @@ export class SWController1D {
     private sldPointSize : HTMLInputElement;
     private divPointSize : HTMLInputElement;
 
-    public constructor(swEnv : SWEnvironment1D, swRend : SWRenderer1D) {
+    public constructor(swSim : SWSimulation1D, swRend : SWRenderer1D) {
 
-        this.env = swEnv;
-        this.euler = new IntegratorEuler(swEnv);
-        this.heun = new IntegratorHeun(swEnv);
-
-        this.swRend = swRend;
+        this.simulation = swSim;
+        this.renderer = swRend;
 
 
-        //this.swScene = swScene;
         this.renderLoop = new RenderLoop(
-            () => { this.oneFrame();  },
+            () => {
+                this.simulation.update();
+                this.renderer.render();
+            },
             document.getElementById("websph-fps")
         );
         this.findHTMLElements();
         this.defaultValues();
         this.initListeners();
 
-
-        this.oneFrame();
-    }
-
-    private oneFrame() {
-        // simulation
-        if (this.useHeun) {
-            this.heun.integrate(this.dt, this.smoothingLength);
-        } else {
-            this.euler.integrate(this.dt, this.smoothingLength);
-        }
-
-        // render
-        this.swRend.render();
+        // keep particles in place
+        this.simulation.update(0);
+        this.renderer.render();
     }
 
     private findHTMLElements() {
@@ -87,19 +62,19 @@ export class SWController1D {
     }
 
     private defaultValues() {
-        this.sldSmoothing.value = "" + this.smoothingLength;
-        this.divSmoothing.innerText = "" + this.smoothingLength;
+        this.sldSmoothing.value = "" + this.simulation.smoothingLength;
+        this.divSmoothing.innerText = "" + this.simulation.smoothingLength;
 
-        this.sldSmoothingVisu.value = "" + this.swRend.visualizationSmoothingLength;
-        this.divSmoothingVisu.innerText = "" + this.swRend.visualizationSmoothingLength;
+        this.sldSmoothingVisu.value = "" + this.renderer.visualizationSmoothingLength;
+        this.divSmoothingVisu.innerText = "" + this.renderer.visualizationSmoothingLength;
 
         this.sldPointSize.value = "" + 3;
         this.divPointSize.innerText = "" + 3;
-        this.swRend.setPointSize(3);
-        this.swRend.render();
+        this.renderer.setPointSize(3);
+        this.renderer.render();
 
-        this.sldDt.value = "" + this.dt;
-        this.divDt.innerText = "" + this.dt;
+        this.sldDt.value = "" + this.simulation.dt;
+        this.divDt.innerText = "" + this.simulation.dt;
 
         this.optHeun.checked = true;
     }
@@ -107,7 +82,7 @@ export class SWController1D {
     private initListeners() {
         let me = this;
 
-        // UI listeners
+        // ANIMATION
         this.btnAnim.onclick = function() {
             if (!me.renderLoop.isRunning()) {
                 me.btnAnim.innerText = "Stop";
@@ -120,55 +95,51 @@ export class SWController1D {
             }
         };
 
+        // ONE STEP
         this.btnOneStep.onclick = function() {
-            me.oneFrame();
+            me.simulation.update();
+            me.renderer.render();
         };
 
+        // SMOOTHING
         this.sldSmoothing.onchange = function () {
+            me.simulation.smoothingLength = parseFloat(me.sldSmoothing.value);
+            me.divSmoothing.innerText = "" + me.simulation.smoothingLength;
 
-            me.smoothingLength = parseFloat(me.sldSmoothing.value);
-            me.divSmoothing.innerText = "" + me.smoothingLength;
-
-            me.swRend.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
+            me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
             me.sldSmoothingVisu.value = me.sldSmoothing.value;
-            me.divSmoothingVisu.innerText = "" + me.swRend.visualizationSmoothingLength;
+            me.divSmoothingVisu.innerText = "" + me.renderer.visualizationSmoothingLength;
 
-            // super hacky way to keep particles in place
-            let oldDT = me.dt;
-            me.dt = 0;
-            me.euler.integrate(0, me.smoothingLength);
-            me.swRend.render();
-            me.dt = oldDT;
-
+            // keep particles in place, dt = 0
+            me.simulation.update(0);
+            me.renderer.render();
         };
 
+        // SMOOTHING VISUALIZATION
         this.sldSmoothingVisu.onchange = function () {
-            me.swRend.visualizationSmoothingLength = parseFloat(me.sldSmoothingVisu.value);
-            me.divSmoothingVisu.innerText = "" + me.swRend.visualizationSmoothingLength;
+            me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothingVisu.value);
+            me.divSmoothingVisu.innerText = "" + me.renderer.visualizationSmoothingLength;
 
-            // super hacky way to keep particles in place
-            let oldDT = me.dt;
-            me.dt = 0;
-            me.euler.integrate(0, me.smoothingLength);
-            me.swRend.render();
-            me.dt = oldDT;
+            me.renderer.render();
         };
 
+        // DT
         this.sldDt.onchange = function() {
-            me.dt = parseFloat(me.sldDt.value);
-            me.divDt.innerText = "" + me.dt;
+            me.simulation.dt = parseFloat(me.sldDt.value);
+            me.divDt.innerText = "" + me.simulation.dt;
         };
 
+        // INTEGRATOR
         this.optHeun.onclick = function() {
-            me.useHeun = me.optHeun.checked;
+            me.simulation.useHeun = me.optHeun.checked;
         };
         this.optEuler.onclick = me.optHeun.onclick;
 
-
+        // POINT SIZE
         this.sldPointSize.onchange = function() {
             me.divPointSize.innerText = "" + parseFloat(me.sldPointSize.value);
-            me.swRend.setPointSize(parseFloat(me.sldPointSize.value));
-            me.swRend.render();
+            me.renderer.setPointSize(parseFloat(me.sldPointSize.value));
+            me.renderer.render();
         }
     }
 
