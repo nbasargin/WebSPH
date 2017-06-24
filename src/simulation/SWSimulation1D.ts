@@ -39,4 +39,19 @@ export class SWSimulation1D {
         this.update(0);
     }
 
+    /**
+     * Calculate maximal time step:
+     * dt = smoothing length / max speed / 2
+     */
+    public getMaxTimeStep(smoothingLength : number = this.smoothingLength) {
+        let maxSpeed = 0;
+        for (let i = 0; i < this.env.particles.length; i++) {
+            maxSpeed = Math.max(maxSpeed, Math.abs(this.env.particles[i].speed[0]));
+        }
+        if (maxSpeed > 0) {
+            return smoothingLength / maxSpeed / 2;
+        }
+        return 0.001; // no speed (could be initial condition) -> allow a small time step to get some real speed
+    }
+
 }

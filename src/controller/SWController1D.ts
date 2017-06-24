@@ -16,6 +16,7 @@ export class SWController1D {
     private divTotalTime : HTMLElement;
     private btnOneStep : HTMLElement;
     private trOneStep : HTMLElement;
+    private divMaxTimeStep : HTMLElement;
     private btnReset : HTMLElement;
     private trReset : HTMLElement;
     private sldSmoothing : HTMLInputElement;
@@ -37,9 +38,7 @@ export class SWController1D {
 
         this.renderLoop = new RenderLoop(
             () => {
-                this.simulation.update();
-                this.renderer.render();
-                this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
+                this.oneStep();
             },
             document.getElementById("websph-fps")
         );
@@ -52,6 +51,13 @@ export class SWController1D {
         this.renderer.render();
     }
 
+    private oneStep() {
+        this.simulation.update();
+        this.renderer.render();
+        this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
+        this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
+    }
+
     private findHTMLElements() {
         this.btnAnim = document.getElementById("websph-btn-animation");
         this.divTotalTime = document.getElementById("websph-total-time");
@@ -59,6 +65,7 @@ export class SWController1D {
         this.trOneStep = document.getElementById("websph-tr-onestep");
         this.btnReset = document.getElementById("websph-btn-reset");
         this.trReset = document.getElementById("websph-tr-reset");
+        this.divMaxTimeStep = document.getElementById("websph-max-time-step");
         this.sldSmoothing = <HTMLInputElement> document.getElementById("websph-sld-smoothing");
         this.divSmoothing = document.getElementById("websph-div-smoothing");
         this.sldSmoothingVisu = <HTMLInputElement> document.getElementById("websph-sld-smoothing-visu");
@@ -76,6 +83,7 @@ export class SWController1D {
         this.divSmoothing.innerText = "" + this.simulation.smoothingLength;
 
         this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
+        this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
 
         this.renderer.visualizationSmoothingLength = this.simulation.smoothingLength;
         this.sldSmoothingVisu.value = "" + this.renderer.visualizationSmoothingLength;
@@ -112,9 +120,7 @@ export class SWController1D {
 
         // ONE STEP
         this.btnOneStep.onclick = function() {
-            me.simulation.update();
-            me.renderer.render();
-            me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
+            me.oneStep();
         };
 
         // RESET
@@ -122,6 +128,7 @@ export class SWController1D {
             me.simulation.reset();
             me.renderer.render();
             me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
+            me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
         };
 
         // SMOOTHING
@@ -136,6 +143,8 @@ export class SWController1D {
             // keep particles in place, dt = 0
             me.simulation.update(0);
             me.renderer.render();
+
+            me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
         };
 
         // SMOOTHING VISUALIZATION
