@@ -13,6 +13,7 @@ export class SWController1D {
 
     // UI
     private btnAnim : HTMLElement;
+    private divTotalTime : HTMLElement;
     private btnOneStep : HTMLElement;
     private trOneStep : HTMLElement;
     private sldSmoothing : HTMLInputElement;
@@ -36,6 +37,7 @@ export class SWController1D {
             () => {
                 this.simulation.update();
                 this.renderer.render();
+                this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
             },
             document.getElementById("websph-fps")
         );
@@ -50,6 +52,7 @@ export class SWController1D {
 
     private findHTMLElements() {
         this.btnAnim = document.getElementById("websph-btn-animation");
+        this.divTotalTime = document.getElementById("websph-total-time");
         this.btnOneStep = document.getElementById("websph-btn-onestep");
         this.trOneStep = document.getElementById("websph-tr-onestep");
         this.sldSmoothing = <HTMLInputElement> document.getElementById("websph-sld-smoothing");
@@ -103,6 +106,7 @@ export class SWController1D {
         this.btnOneStep.onclick = function() {
             me.simulation.update();
             me.renderer.render();
+            me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
         };
 
         // SMOOTHING

@@ -16,6 +16,8 @@ export class SWSimulation1D {
     public smoothingLength = 0.02;
     public useHeun = true;
 
+    public totalTime = 0;
+
     public constructor(numParticles : number, bounds : Bounds) {
         this.env = new SWEnvironment1D(numParticles, bounds, 1, 9.81);
         this.euler = new IntegratorEuler(this.env);
@@ -23,6 +25,7 @@ export class SWSimulation1D {
     }
 
     public update(dt : number = this.dt, smoothingLength : number = this.smoothingLength) {
+        this.totalTime += dt;
         if (this.useHeun) {
             this.heun.integrate(dt, smoothingLength);
         } else {
