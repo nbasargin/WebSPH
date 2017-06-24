@@ -16,6 +16,8 @@ export class SWController1D {
     private divTotalTime : HTMLElement;
     private btnOneStep : HTMLElement;
     private trOneStep : HTMLElement;
+    private btnReset : HTMLElement;
+    private trReset : HTMLElement;
     private sldSmoothing : HTMLInputElement;
     private divSmoothing : HTMLElement;
     private sldSmoothingVisu : HTMLInputElement;
@@ -55,6 +57,8 @@ export class SWController1D {
         this.divTotalTime = document.getElementById("websph-total-time");
         this.btnOneStep = document.getElementById("websph-btn-onestep");
         this.trOneStep = document.getElementById("websph-tr-onestep");
+        this.btnReset = document.getElementById("websph-btn-reset");
+        this.trReset = document.getElementById("websph-tr-reset");
         this.sldSmoothing = <HTMLInputElement> document.getElementById("websph-sld-smoothing");
         this.divSmoothing = document.getElementById("websph-div-smoothing");
         this.sldSmoothingVisu = <HTMLInputElement> document.getElementById("websph-sld-smoothing-visu");
@@ -70,6 +74,8 @@ export class SWController1D {
     private defaultValues() {
         this.sldSmoothing.value = "" + this.simulation.smoothingLength;
         this.divSmoothing.innerText = "" + this.simulation.smoothingLength;
+
+        this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
 
         this.renderer.visualizationSmoothingLength = this.simulation.smoothingLength;
         this.sldSmoothingVisu.value = "" + this.renderer.visualizationSmoothingLength;
@@ -94,10 +100,12 @@ export class SWController1D {
             if (!me.renderLoop.isRunning()) {
                 me.btnAnim.innerText = "Stop";
                 me.trOneStep.style.visibility = "hidden";
+                me.trReset.style.visibility = "hidden";
                 me.renderLoop.start();
             } else {
                 me.btnAnim.innerText = "Start";
                 me.trOneStep.style.visibility = "visible";
+                me.trReset.style.visibility = "visible";
                 me.renderLoop.stop();
             }
         };
@@ -105,6 +113,13 @@ export class SWController1D {
         // ONE STEP
         this.btnOneStep.onclick = function() {
             me.simulation.update();
+            me.renderer.render();
+            me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
+        };
+
+        // RESET
+        this.btnReset.onclick = function() {
+            me.simulation.reset();
             me.renderer.render();
             me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
         };

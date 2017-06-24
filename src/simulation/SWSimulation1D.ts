@@ -33,4 +33,10 @@ export class SWSimulation1D {
         }
     }
 
+    public reset() {
+        this.totalTime = 0;
+        this.env.resetParticles();
+        this.update(0);
+    }
+
 }

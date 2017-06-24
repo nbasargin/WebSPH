@@ -16,15 +16,24 @@ export class SWEnvironment1D {
         for (let i = 0; i < numParticles; i++) {
             this.particles[i] = new Particle();
         }
-        let numStackedParticles = Math.floor(numParticles / 10);
-        let lastID = numParticles - numStackedParticles - 1;
-        this.distributeParticles(bounds.xMin, bounds.xMax, 0, lastID);
-        this.distributeParticles(0, 0.2, lastID + 1, numParticles - 1);
-
 
         this.bounds = bounds;
         this.fluidVolume = fluidVolume || 1;
         this.gravity = gravity || 9.81;
+
+        this.resetParticles();
+    }
+
+    //region particle distribution
+
+    /**
+     * Resets particles to the initial state.
+     */
+    public resetParticles() {
+        let numStackedParticles = Math.floor(this.particles.length / 10);
+        let lastID = this.particles.length - numStackedParticles - 1;
+        this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, lastID);
+        this.distributeParticles(0, 0.2, lastID + 1, this.particles.length - 1);
     }
 
     /**
@@ -47,6 +56,7 @@ export class SWEnvironment1D {
         }
     }
 
+    //endregion
 
     //region position & distance
 
