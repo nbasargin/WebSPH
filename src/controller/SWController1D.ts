@@ -23,12 +23,16 @@ export class SWController1D {
     private divSmoothing : HTMLElement;
     private sldSmoothingVisu : HTMLInputElement;
     private divSmoothingVisu : HTMLElement;
+    private trDt : HTMLElement;
     private sldDt : HTMLInputElement;
     private divDt : HTMLElement;
     private optEuler : HTMLInputElement;
     private optHeun : HTMLInputElement;
     private sldPointSize : HTMLInputElement;
     private divPointSize : HTMLInputElement;
+
+    private chkLimitMaxDt : HTMLInputElement;
+    private chkUseMaxDt : HTMLInputElement;
 
     public constructor(swSim : SWSimulation1D, swRend : SWRenderer1D) {
 
@@ -49,10 +53,20 @@ export class SWController1D {
         // keep particles in place
         this.simulation.update(0);
         this.renderer.render();
+        this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
     }
 
     private oneStep() {
-        this.simulation.update();
+
+        // update
+        if (this.chkUseMaxDt.checked) {
+            let dt = this.simulation.getMaxTimeStep();
+            if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
+            this.simulation.update(dt);
+        } else {
+            this.simulation.update();
+        }
+
         this.renderer.render();
         this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
         this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
@@ -70,12 +84,16 @@ export class SWController1D {
         this.divSmoothing = document.getElementById("websph-div-smoothing");
         this.sldSmoothingVisu = <HTMLInputElement> document.getElementById("websph-sld-smoothing-visu");
         this.divSmoothingVisu = document.getElementById("websph-div-smoothing-visu");
+        this.trDt = document.getElementById("websph-tr-dt");
         this.sldDt = <HTMLInputElement> document.getElementById("websph-sld-dt");
         this.divDt = document.getElementById("websph-div-dt");
         this.optEuler = <HTMLInputElement> document.getElementById("websph-opt-euler");
         this.optHeun = <HTMLInputElement> document.getElementById("websph-opt-heun");
         this.sldPointSize = <HTMLInputElement> document.getElementById("websph-sld-point-size");
         this.divPointSize = <HTMLInputElement> document.getElementById("websph-div-point-size");
+
+        this.chkLimitMaxDt = <HTMLInputElement> document.getElementById("websph-chk-limit-max-dt");
+        this.chkUseMaxDt = <HTMLInputElement> document.getElementById("websph-chk-use-max-dt");
     }
 
     private defaultValues() {
@@ -98,6 +116,7 @@ export class SWController1D {
         this.divDt.innerText = "" + this.simulation.dt;
 
         this.optHeun.checked = true;
+        this.chkUseMaxDt.checked = false;
     }
 
     private initListeners() {
@@ -129,6 +148,11 @@ export class SWController1D {
             me.renderer.render();
             me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
             me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
+        };
+
+        // USE MAX DT
+        this.chkUseMaxDt.onclick = function() {
+            me.trDt.style.visibility = me.chkUseMaxDt.checked ? "hidden" : "visible";
         };
 
         // SMOOTHING

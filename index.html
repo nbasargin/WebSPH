@@ -83,9 +83,14 @@
                         </td>
                     </tr>
                     <tr>
-                        <td> Max time step: </td> <td> <div id="websph-max-time-step">?</div> </td>
+                        <td> Max time step: </td>
+                        <td>
+                            <div id="websph-max-time-step" style="display: inline">?</div>
+                            <input id="websph-chk-limit-max-dt" type="checkbox" checked="checked" style="display: inline"> Limit to 0.01
+                            <input id="websph-chk-use-max-dt" type="checkbox" style="display: inline"> Use
+                        </td>
                     </tr>
-                    <tr>
+                    <tr id="websph-tr-dt">
                         <td> Time step: </td>
                         <td>
                             <input id="websph-sld-dt" style="border: black" type="range" min="0.0001" max="0.01" step ="0.0001"/>

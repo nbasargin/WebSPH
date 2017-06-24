@@ -49,7 +49,8 @@ export class SWSimulation1D {
             maxSpeed = Math.max(maxSpeed, Math.abs(this.env.particles[i].speed[0]));
         }
         if (maxSpeed > 0) {
-            return smoothingLength / maxSpeed / 2;
+            let dt = smoothingLength / maxSpeed / 2;
+            return dt * 0.9;
         }
         return 0.001; // no speed (could be initial condition) -> allow a small time step to get some real speed
     }
