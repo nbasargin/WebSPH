@@ -1,11 +1,15 @@
 import {RenderLoop} from "../rendering/RenderLoop";
 import {SWRenderer1D} from "../rendering/SWRenderer1D";
 import {SWSimulation1D} from "../simulation/SWSimulation1D";
+import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 
 /**
  * Contains render loop, updates simulation, calls the renderer and handles user input.
  */
 export class SWController1D {
+
+    private numParticles : number;
+    private canvas : GLCanvas;
 
     private renderLoop : RenderLoop;
     private simulation : SWSimulation1D;
@@ -19,6 +23,8 @@ export class SWController1D {
     private divMaxTimeStep : HTMLElement;
     private btnReset : HTMLElement;
     private trReset : HTMLElement;
+    private sldNumParticles : HTMLInputElement;
+    private divNumParticles : HTMLElement;
     private sldSmoothing : HTMLInputElement;
     private divSmoothing : HTMLElement;
     private sldSmoothingVisu : HTMLInputElement;
@@ -34,11 +40,10 @@ export class SWController1D {
     private chkLimitMaxDt : HTMLInputElement;
     private chkUseMaxDt : HTMLInputElement;
 
-    public constructor(swSim : SWSimulation1D, swRend : SWRenderer1D) {
+    public constructor(glCanvas : GLCanvas, numParticles : number) {
 
-        this.simulation = swSim;
-        this.renderer = swRend;
-
+        this.canvas = glCanvas;
+        this.numParticles = numParticles;
 
         this.renderLoop = new RenderLoop(
             () => {
@@ -47,13 +52,26 @@ export class SWController1D {
             document.getElementById("websph-fps")
         );
         this.findHTMLElements();
-        this.defaultValues();
+
+        this.initSimulationAndRenderer();
+        this.defaultUIValues();
+        this.updateSimAndRendFromUI();
         this.initListeners();
 
         // keep particles in place
         this.simulation.update(0);
         this.renderer.render();
         this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
+    }
+
+    private initSimulationAndRenderer() {
+        // simulation
+        let bounds = this.canvas.getOrthographicBounds();
+        this.simulation = new SWSimulation1D(this.numParticles, bounds);
+
+        // renderer
+        this.renderer = new SWRenderer1D(this.canvas, this.simulation.env);
+
     }
 
     private oneStep() {
@@ -79,6 +97,8 @@ export class SWController1D {
         this.trOneStep = document.getElementById("websph-tr-onestep");
         this.btnReset = document.getElementById("websph-btn-reset");
         this.trReset = document.getElementById("websph-tr-reset");
+        this.sldNumParticles = <HTMLInputElement> document.getElementById("websph-sld-num-part");
+        this.divNumParticles = document.getElementById("websph-div-num-part");
         this.divMaxTimeStep = document.getElementById("websph-max-time-step");
         this.sldSmoothing = <HTMLInputElement> document.getElementById("websph-sld-smoothing");
         this.divSmoothing = document.getElementById("websph-div-smoothing");
@@ -96,27 +116,38 @@ export class SWController1D {
         this.chkUseMaxDt = <HTMLInputElement> document.getElementById("websph-chk-use-max-dt");
     }
 
-    private defaultValues() {
-        this.sldSmoothing.value = "" + this.simulation.smoothingLength;
-        this.divSmoothing.innerText = "" + this.simulation.smoothingLength;
+    private defaultUIValues() {
+        let defaultSmoothingLength = 0.02;
+        this.sldSmoothing.value = "" + defaultSmoothingLength;
+        this.divSmoothing.innerText = "" + defaultSmoothingLength;
+
+        this.sldNumParticles.value = "" + this.numParticles;
+        this.divNumParticles.innerText = "" + this.numParticles;
 
         this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
         this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
 
-        this.renderer.visualizationSmoothingLength = this.simulation.smoothingLength;
-        this.sldSmoothingVisu.value = "" + this.renderer.visualizationSmoothingLength;
-        this.divSmoothingVisu.innerText = "" + this.renderer.visualizationSmoothingLength;
+        this.sldSmoothingVisu.value = "" + defaultSmoothingLength;
+        this.divSmoothingVisu.innerText = "" + defaultSmoothingLength;
 
         this.sldPointSize.value = "" + 3;
         this.divPointSize.innerText = "" + 3;
-        this.renderer.setPointSize(3);
-        this.renderer.render();
 
         this.sldDt.value = "" + this.simulation.dt;
         this.divDt.innerText = "" + this.simulation.dt;
 
         this.optHeun.checked = true;
         this.chkUseMaxDt.checked = false;
+    }
+
+    private updateSimAndRendFromUI() {
+        this.simulation.smoothingLength = parseFloat(this.sldSmoothing.value);
+        this.simulation.dt = parseFloat(this.sldDt.value);
+        this.simulation.useHeun = this.optHeun.checked;
+
+        this.renderer.visualizationSmoothingLength = parseFloat(this.sldSmoothingVisu.value);
+        this.renderer.setPointSize(parseFloat(this.sldPointSize.value));
+
     }
 
     private initListeners() {
@@ -144,10 +175,20 @@ export class SWController1D {
 
         // RESET
         this.btnReset.onclick = function() {
-            me.simulation.reset();
+            me.numParticles = parseFloat(me.sldNumParticles.value);
+
+            me.initSimulationAndRenderer();
+            me.updateSimAndRendFromUI();
+
+            me.simulation.update(0);
             me.renderer.render();
+
             me.divTotalTime.innerText = me.simulation.totalTime.toFixed(3);
             me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
+        };
+
+        this.sldNumParticles.onchange = function () {
+            me.divNumParticles.innerText = me.sldNumParticles.value;
         };
 
         // USE MAX DT
