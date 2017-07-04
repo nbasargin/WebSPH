@@ -51,8 +51,8 @@ export class SWEnvironment1D {
         let width = xMax - xMin;
 
         for (let i = firstID; i <= lastID; i++) {
-            this.particles[i].pos[0] = xMin + width  *  (i - firstID) / (lastID - firstID + 1);
-            this.particles[i].speed[0] = 0;
+            this.particles[i].posX = xMin + width  *  (i - firstID) / (lastID - firstID + 1);
+            this.particles[i].speedX = 0;
         }
     }
 
@@ -124,7 +124,7 @@ export class SWEnvironment1D {
         let height = 0;
 
         for (let i = 0; i < particles.length; i++) {
-            let dist = this.xDistCyclic(x, particles[i].pos[0]);
+            let dist = this.xDistCyclic(x, particles[i].posX);
             height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
         }
 
@@ -134,7 +134,7 @@ export class SWEnvironment1D {
 
 
     /**
-     * Calculates the fluid acceleration at specified x position.
+     * Calculates the fluid accX at specified x position.
      *
      * @param x                     position
      * @param smoothingLength       SPH smoothing length
@@ -146,7 +146,7 @@ export class SWEnvironment1D {
         let acc = 0;
 
         for (let i = 0; i < particles.length; i++) {
-            let dist = this.xDistCyclic(x, particles[i].pos[0]);
+            let dist = this.xDistCyclic(x, particles[i].posX);
             acc += SmoothingKernel.dCubic1D(dist, smoothingLength); // dW
         }
 

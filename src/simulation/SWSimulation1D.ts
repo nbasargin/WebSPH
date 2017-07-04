@@ -36,11 +36,11 @@ export class SWSimulation1D {
         }
     }
 
-    public reset() {
+    /*public reset() {
         this.totalTime = 0;
         this.env.resetParticles();
         this.update(0);
-    }
+    }*/
 
     /**
      * Calculate maximal time step:
@@ -49,7 +49,7 @@ export class SWSimulation1D {
     public getMaxTimeStep(smoothingLength : number = this.smoothingLength) : number {
         let maxSpeed = 0;
         for (let i = 0; i < this.env.particles.length; i++) {
-            maxSpeed = Math.max(maxSpeed, Math.abs(this.env.particles[i].speed[0]));
+            maxSpeed = Math.max(maxSpeed, Math.abs(this.env.particles[i].speedX));
         }
         let ci = Math.sqrt(this.acceleration * smoothingLength); // wave propagation speed
         if (maxSpeed > 0) {

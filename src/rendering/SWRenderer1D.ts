@@ -119,8 +119,8 @@ export class SWRenderer1D {
 
         for (let i = 0; i < particles.length; i++) {
             // position
-            particlePosXY[i*2]   = particles[i].pos[0];
-            particlePosXY[i*2+1] = particles[i].pos[1];
+            particlePosXY[i*2]   = particles[i].posX;
+            particlePosXY[i*2+1] = particles[i].posY;
 
             // color
             particleColRGBA[i*4]   = particles[i].color[0];
