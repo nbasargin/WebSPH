@@ -2,7 +2,12 @@ import {SWEnvironment1D} from "../SWEnvironment1D";
 import {Particle} from "../Particle";
 import {SWIntegrator1D} from "./SWIntegrator1D";
 
-export class IntegratorHeun extends SWIntegrator1D {
+/**
+ * Original Heun's method: Predicts position and acceleration
+ * for the next step and takes the average of predicted acceleration
+ * and current acceleration.
+ */
+export class HeunOriginal extends SWIntegrator1D {
 
     private prediction : Array<Particle>;
 

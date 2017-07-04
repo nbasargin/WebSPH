@@ -34,6 +34,8 @@ export class SWController1D {
     private divDt : HTMLElement;
     private optEuler : HTMLInputElement;
     private optHeun : HTMLInputElement;
+    private optHeunNaive : HTMLInputElement;
+    private optHeunReduced : HTMLInputElement;
     private sldPointSize : HTMLInputElement;
     private divPointSize : HTMLInputElement;
 
@@ -109,6 +111,8 @@ export class SWController1D {
         this.divDt = document.getElementById("websph-div-dt");
         this.optEuler = <HTMLInputElement> document.getElementById("websph-opt-euler");
         this.optHeun = <HTMLInputElement> document.getElementById("websph-opt-heun");
+        this.optHeunNaive = <HTMLInputElement> document.getElementById("websph-opt-heun-naive");
+        this.optHeunReduced = <HTMLInputElement> document.getElementById("websph-opt-heun-reduced");
         this.sldPointSize = <HTMLInputElement> document.getElementById("websph-sld-point-size");
         this.divPointSize = <HTMLInputElement> document.getElementById("websph-div-point-size");
 
@@ -143,7 +147,9 @@ export class SWController1D {
     private updateSimAndRendFromUI() {
         this.simulation.smoothingLength = parseFloat(this.sldSmoothing.value);
         this.simulation.dt = parseFloat(this.sldDt.value);
-        this.simulation.useHeun = this.optHeun.checked;
+        this.simulation.useIntegrator = this.optEuler.checked       ? 0 :
+                                        this.optHeun.checked        ? 1 :
+                                        this.optHeunNaive.checked   ? 2 : 3;
 
         this.renderer.visualizationSmoothingLength = parseFloat(this.sldSmoothingVisu.value);
         this.renderer.setPointSize(parseFloat(this.sldPointSize.value));
@@ -228,9 +234,13 @@ export class SWController1D {
 
         // INTEGRATOR
         this.optHeun.onclick = function() {
-            me.simulation.useHeun = me.optHeun.checked;
+            me.simulation.useIntegrator =   me.optEuler.checked       ? 0 :
+                                            me.optHeun.checked        ? 1 :
+                                            me.optHeunNaive.checked   ? 2 : 3;
         };
         this.optEuler.onclick = me.optHeun.onclick;
+        this.optHeunNaive.onclick = me.optHeun.onclick;
+        this.optHeunReduced.onclick = me.optHeun.onclick;
 
         // POINT SIZE
         this.sldPointSize.onchange = function() {
