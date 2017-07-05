@@ -272,6 +272,8 @@ export class SWController1D {
             me.simulation.useIntegrator =   me.optEuler.checked       ? 0 :
                                             me.optHeun.checked        ? 1 :
                                             me.optHeunNaive.checked   ? 2 : 3;
+
+            me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
         };
         this.optEuler.onclick = me.optHeun.onclick;
         this.optHeunNaive.onclick = me.optHeun.onclick;
