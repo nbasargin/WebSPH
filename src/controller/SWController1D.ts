@@ -15,6 +15,8 @@ export class SWController1D {
     private simulation : SWSimulation1D;
     private renderer : SWRenderer1D;
 
+    private maxTime = 0.1;
+
     // UI
     private btnAnim : HTMLElement;
     private divTotalTime : HTMLElement;
@@ -41,6 +43,9 @@ export class SWController1D {
 
     private chkLimitMaxDt : HTMLInputElement;
     private chkUseMaxDt : HTMLInputElement;
+
+    private divMaxTime : HTMLElement;
+    private txtMaxTime : HTMLInputElement;
 
     public constructor(glCanvas : GLCanvas, numParticles : number) {
 
@@ -79,13 +84,20 @@ export class SWController1D {
     private oneStep() {
 
         // update
+        let dt = this.simulation.dt;
         if (this.chkUseMaxDt.checked) {
-            let dt = this.simulation.getMaxTimeStep();
+            dt = this.simulation.getMaxTimeStep();
             if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
-            this.simulation.update(dt);
-        } else {
-            this.simulation.update();
         }
+        if (this.simulation.totalTime + dt > this.maxTime) {
+            dt = this.maxTime - this.simulation.totalTime;
+        }
+        if (dt <= 0 && this.renderLoop.isRunning()) {
+            this.btnAnim.onclick(null);
+            return;
+        }
+
+        this.simulation.update(dt);
 
         this.renderer.render();
         this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
@@ -118,6 +130,9 @@ export class SWController1D {
 
         this.chkLimitMaxDt = <HTMLInputElement> document.getElementById("websph-chk-limit-max-dt");
         this.chkUseMaxDt = <HTMLInputElement> document.getElementById("websph-chk-use-max-dt");
+
+        this.divMaxTime = document.getElementById("websph-div-max-time");
+        this.txtMaxTime = <HTMLInputElement> document.getElementById("websph-txt-max-time");
     }
 
     private defaultUIValues() {
@@ -142,6 +157,9 @@ export class SWController1D {
 
         this.optHeun.checked = true;
         this.chkUseMaxDt.checked = false;
+
+        this.txtMaxTime.value = "";
+        this.divMaxTime.innerText = "(not used)";
     }
 
     private updateSimAndRendFromUI() {
@@ -154,6 +172,14 @@ export class SWController1D {
         this.renderer.visualizationSmoothingLength = parseFloat(this.sldSmoothingVisu.value);
         this.renderer.setPointSize(parseFloat(this.sldPointSize.value));
 
+        this.maxTime = parseFloat(this.txtMaxTime.value);
+        if (isNaN(this.maxTime)) {
+            this.maxTime = Number.MAX_VALUE;
+            this.divMaxTime.innerText = "(not used)";
+        } else {
+            this.divMaxTime.innerText = "(used: " + this.maxTime + ")";
+        }
+
     }
 
     private initListeners() {
@@ -162,6 +188,11 @@ export class SWController1D {
         // ANIMATION
         this.btnAnim.onclick = function() {
             if (!me.renderLoop.isRunning()) {
+                if (me.simulation.totalTime >= me.maxTime) {
+                    alert("Max time reached");
+                    return;
+                }
+
                 me.btnAnim.innerText = "Stop";
                 me.trOneStep.style.visibility = "hidden";
                 me.trReset.style.visibility = "hidden";
@@ -176,6 +207,10 @@ export class SWController1D {
 
         // ONE STEP
         this.btnOneStep.onclick = function() {
+            if (me.simulation.totalTime >= me.maxTime) {
+                alert("Max time reached");
+                return;
+            }
             me.oneStep();
         };
 
@@ -247,7 +282,18 @@ export class SWController1D {
             me.divPointSize.innerText = "" + parseFloat(me.sldPointSize.value);
             me.renderer.setPointSize(parseFloat(me.sldPointSize.value));
             me.renderer.render();
-        }
+        };
+
+        // MAX TIME
+        this.txtMaxTime.oninput  = function () {
+            me.maxTime = parseFloat(me.txtMaxTime.value);
+            if (isNaN(me.maxTime)) {
+                me.maxTime = Number.MAX_VALUE;
+                me.divMaxTime.innerText = "(not used)";
+            } else {
+                me.divMaxTime.innerText = "(used: " + me.maxTime + ")";
+            }
+        };
     }
 
 
