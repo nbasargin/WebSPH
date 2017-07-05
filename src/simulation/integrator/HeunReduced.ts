@@ -87,7 +87,7 @@ export class HeunReduced extends SWIntegrator1D {
         let ci = Math.sqrt(gAcceleration * smoothingLength); // wave propagation speed
         if (maxSpeed > 0) {
             let dt = smoothingLength / (maxSpeed * 0.2 + ci);
-            return dt * 0.13;
+            return dt * 0.11;
         }
         return 0.001; // no speed (could be initial condition) -> allow a small time step to get some real speed
     }
