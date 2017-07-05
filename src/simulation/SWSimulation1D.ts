@@ -53,27 +53,24 @@ export class SWSimulation1D {
         }
     }
 
-    /*public reset() {
-        this.totalTime = 0;
-        this.env.resetParticles();
-        this.update(0);
-    }*/
-
     /**
-     * Calculate maximal time step:
-     * dt = factor * smoothing length / (max particle speed + wave propagation speed)
+     * Calculate maximal time step. The step depends on the integrator.
      */
     public getMaxTimeStep(smoothingLength : number = this.smoothingLength) : number {
-        let maxSpeed = 0;
-        for (let i = 0; i < this.env.particles.length; i++) {
-            maxSpeed = Math.max(maxSpeed, Math.abs(this.env.particles[i].speedX));
+
+        switch (this.useIntegrator) {
+            case 0:
+                return this.euler.getMaxTimeStep(smoothingLength, this.acceleration);
+            case 1:
+                return this.heun.getMaxTimeStep(smoothingLength, this.acceleration);
+            case 2:
+                return this.heunNaive.getMaxTimeStep(smoothingLength, this.acceleration);
+            case 3:
+                return this.heunReduced.getMaxTimeStep(smoothingLength, this.acceleration);
         }
-        let ci = Math.sqrt(this.acceleration * smoothingLength); // wave propagation speed
-        if (maxSpeed > 0) {
-            let dt = smoothingLength / (maxSpeed + ci);
-            return dt * 0.20;
-        }
-        return 0.001; // no speed (could be initial condition) -> allow a small time step to get some real speed
+
+
+
     }
 
 }
