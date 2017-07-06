@@ -29,6 +29,9 @@ export abstract class SWIntegrator1D {
 
         let ci = Math.sqrt(gAcceleration * smoothingLength); // wave propagation speed
         let dt = smoothingLength / (maxSpeed + ci);
+        if (maxSpeed == 0) {
+            return dt * 0.10;
+        }
         return dt * 0.20;
     }
 
