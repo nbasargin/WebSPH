@@ -21,19 +21,31 @@ export class SWEnvironment1D {
         this.fluidVolume = fluidVolume || 1;
         this.gravity = gravity || 9.81;
 
-        this.resetParticles();
+        //this.resetParticlesToWaterColumn();
+        this.resetParticlesToDamBreak();
     }
 
     //region particle distribution
 
     /**
-     * Resets particles to the initial state.
+     * Resets particles to the initial state of a water column.
      */
-    public resetParticles() {
+    public resetParticlesToWaterColumn() {
         let numStackedParticles = Math.floor(this.particles.length / 10);
         let lastID = this.particles.length - numStackedParticles - 1;
         this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, lastID);
         this.distributeParticles(0, 0.2, lastID + 1, this.particles.length - 1);
+
+    }
+    /**
+     * Resets particles to the initial state of a dam break.
+     */
+    public resetParticlesToDamBreak() {
+        let numStackedParticles = Math.floor(this.particles.length / 3);
+        let lastID = this.particles.length - numStackedParticles - 1;
+
+        this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, lastID);
+        this.distributeParticles(this.bounds.xMin, 0.5, lastID + 1, this.particles.length - 1);
     }
 
     /**
