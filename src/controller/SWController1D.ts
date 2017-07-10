@@ -99,6 +99,7 @@ export class SWController1D {
 
         this.simulation.update(dt);
 
+        this.renderer.TIME = this.simulation.totalTime;
         this.renderer.render();
         this.divTotalTime.innerText = this.simulation.totalTime.toFixed(3);
         this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);

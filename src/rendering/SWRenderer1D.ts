@@ -5,6 +5,7 @@ import {GLMatrixStack} from "./glUtil/GLMatrixStack";
 import {GLProgram} from "./glUtil/GLProgram";
 import {ShaderLoader} from "./ShaderLoader";
 import {Coloring} from "./Coloring";
+import {AnalyticalDamBreak} from "../simulation/validation/AnalyticalDamBreak";
 
 /**
  * Renders the state of the environment to the canvas.
@@ -14,12 +15,15 @@ export class SWRenderer1D {
     // environment
     public env : SWEnvironment1D;
 
+    public TIME = 0; // temporary used for validation
+
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
     private drawBaseSquare = false;
     public visualizationSmoothingLength = 0.03;
     private waterHeightSamples = 500;
+    private validationSamples = 1000;
 
     // buffers
     private glParticlePosBuffer : GLBuffer;
@@ -28,6 +32,8 @@ export class SWRenderer1D {
     private glLineColBuffer : GLBuffer;
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
+    private glDamBreakValidationPosBuffer : GLBuffer;
+    private glDamBreakValidationColBuffer : GLBuffer;
 
     // gl stuff
     public mvMatrix : GLMatrixStack;
@@ -45,6 +51,7 @@ export class SWRenderer1D {
         this.initParticleBuffers();
         this.initBorderLines();
         this.initWaterHeightBuffers();
+        this.initDamBreakValidationBuffers();
     }
 
     private initShaders() {
@@ -90,6 +97,29 @@ export class SWRenderer1D {
             waterHeightColRGBA[i*4 + 3] = 1; // a
         }
         this.glWaterHeightColBuffer = new GLBuffer(this.glCanvas.gl, waterHeightColRGBA, 4);
+    }
+
+    private initDamBreakValidationBuffers() {
+        let bounds = this.env.bounds;
+        // position
+        let validationPosXY = new Float32Array(this.validationSamples * 2);
+        for (let i = 0; i < this.validationSamples; i++) {
+            let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.validationSamples - 1);
+            validationPosXY[i*2    ] = x;
+            validationPosXY[i*2 + 1] = 0; // y
+        }
+        this.glDamBreakValidationPosBuffer = new GLBuffer(this.glCanvas.gl, validationPosXY, 2);
+        // color
+        let validationColorRGBA = new Float32Array(this.validationSamples * 4);
+        for (let i = 0; i < this.validationSamples; i++) {
+            validationColorRGBA[i*4    ] = 1; // r
+            validationColorRGBA[i*4 + 1] = 1; // g
+            validationColorRGBA[i*4 + 2] = 0; // b
+            validationColorRGBA[i*4 + 3] = 1; // a
+        }
+        this.glDamBreakValidationColBuffer = new GLBuffer(this.glCanvas.gl, validationColorRGBA, 4);
+
+
     }
 
     private initBorderLines() {
@@ -145,6 +175,16 @@ export class SWRenderer1D {
         this.glWaterHeightPosBuffer.flushData();
     }
 
+    private updateDamBreakValidation() {
+        let t = this.TIME;
+        let validator = new AnalyticalDamBreak(9.81);
+        let validationPosXY = this.glDamBreakValidationPosBuffer.getData();
+        for (let i = 0; i < this.validationSamples; i++) {
+            let x = validationPosXY[i*2]; // x
+            validationPosXY[i*2 + 1] = validator.h(x, t);
+        }
+        this.glDamBreakValidationPosBuffer.flushData();
+    }
 
 
     public setPointSize(size : number) {
@@ -219,6 +259,22 @@ export class SWRenderer1D {
             mvMatrix.updateUniform();
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
         }
+
+        // validation
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+        this.updateDamBreakValidation();
+        // pos
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationPosBuffer.buffer);
+        gl.vertexAttribPointer(vertexPositionAttribute, this.glDamBreakValidationPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        // color
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationColBuffer.buffer);
+        gl.vertexAttribPointer(vertexColorAttribute, this.glDamBreakValidationColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        // matrix setup + draw
+        pMatrix.updateUniform();
+        mvMatrix.updateUniform();
+        gl.drawArrays(gl.LINE_STRIP, 0, this.glDamBreakValidationPosBuffer.numItems);
+
+
     }
 
 

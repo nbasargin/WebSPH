@@ -24,7 +24,7 @@ export class SWSimulation1D {
     public totalTime = 0;
 
     private acceleration = 9.81;
-    private fluidVolume = 1; //2.5; // 2.5 for dam break scenario
+    private fluidVolume = 2.5; // 2.5 for dam break scenario
 
     public constructor(numParticles : number, bounds : Bounds) {
         this.env = new SWEnvironment1D(numParticles, bounds, this.fluidVolume, this.acceleration);
