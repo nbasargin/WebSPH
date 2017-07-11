@@ -41,11 +41,11 @@ export class SWEnvironment1D {
      * Resets particles to the initial state of a dam break.
      */
     public resetParticlesToDamBreak() {
-        let numStackedParticles = Math.floor(this.particles.length / 3);
-        let lastID = this.particles.length - numStackedParticles - 1;
 
-        this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, lastID);
-        this.distributeParticles(this.bounds.xMin, 0.5, lastID + 1, this.particles.length - 1);
+        let lastID = Math.floor(this.particles.length * 2 / 3) - 1;
+
+        this.distributeParticles(this.bounds.xMin, 0.5, 0, lastID);
+        this.distributeParticles(0.5, this.bounds.xMax, lastID + 1, this.particles.length - 1);
     }
 
     /**
