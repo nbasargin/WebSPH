@@ -21,7 +21,6 @@ export class SWSimulation1D {
     //public useHeun = true;
     public useIntegrator : number = 1;
 
-    public totalTime = 0;
 
     private acceleration = 9.81;
     private fluidVolume = 2.5; // 2.5 for dam break scenario
@@ -35,7 +34,7 @@ export class SWSimulation1D {
     }
 
     public update(dt : number = this.dt, smoothingLength : number = this.smoothingLength) {
-        this.totalTime += dt;
+        this.env.totalTime += dt;
 
         switch (this.useIntegrator) {
             case 0:

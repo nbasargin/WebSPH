@@ -8,6 +8,7 @@ export class SWEnvironment1D {
     public bounds : Bounds;
     public fluidVolume : number;
     public gravity : number;
+    public totalTime = 0;
 
 
     public constructor(numParticles : number, bounds : Bounds, fluidVolume : number, gravity : number) {

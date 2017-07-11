@@ -15,8 +15,6 @@ export class SWRenderer1D {
     // environment
     public env : SWEnvironment1D;
 
-    public TIME = 0; // temporary used for validation
-
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
@@ -176,7 +174,7 @@ export class SWRenderer1D {
     }
 
     private updateDamBreakValidation() {
-        let t = this.TIME;
+        let t = this.env.totalTime;
         let validator = new AnalyticalDamBreak(9.81);
         let validationPosXY = this.glDamBreakValidationPosBuffer.getData();
         for (let i = 0; i < this.validationSamples; i++) {
