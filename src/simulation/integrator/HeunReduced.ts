@@ -68,26 +68,4 @@ export class HeunReduced extends SWIntegrator1D {
 
     }
 
-    /**
-     * Calculate special time step for this integrator.
-     * Maximal particle speed has less influence on the time step. Fast moving particles
-     * create oscillations, that are damped with higher time steps.
-     *
-     * Base formula:
-     *      dt = factor * smoothing length / (max particle speed + wave propagation speed)
-     * New adapted formula:
-     *      dt = factor * smoothing length / (max particle speed * 0.2 + wave propagation speed)
-     */
-    public getMaxTimeStep(smoothingLength : number, gAcceleration : number) : number {
-        let maxSpeed = 0;
-        for (let i = 0; i < this.env.particles.length; i++) {
-            maxSpeed = Math.max(maxSpeed, Math.abs(this.env.particles[i].speedX));
-        }
-
-        let ci = Math.sqrt(gAcceleration * smoothingLength); // wave propagation speed
-        let dt = smoothingLength / (maxSpeed * 0.2 + ci);
-        if (maxSpeed == 0) return dt * 0.055;
-        return dt * 0.11;
-    }
-
 }

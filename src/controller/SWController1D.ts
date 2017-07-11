@@ -22,7 +22,8 @@ export class SWController1D {
     private divTotalTime : HTMLElement;
     private btnOneStep : HTMLElement;
     private trOneStep : HTMLElement;
-    private divMaxTimeStep : HTMLElement;
+    private divDtDynStable : HTMLElement;
+    private divDtDynFast : HTMLElement;
     private btnReset : HTMLElement;
     private trReset : HTMLElement;
     private sldNumParticles : HTMLInputElement;
@@ -31,9 +32,8 @@ export class SWController1D {
     private divSmoothing : HTMLElement;
     private sldSmoothingVisu : HTMLInputElement;
     private divSmoothingVisu : HTMLElement;
-    private trDt : HTMLElement;
-    private sldDt : HTMLInputElement;
-    private divDt : HTMLElement;
+    private sldDtFixed : HTMLInputElement;
+    private divDtFixed : HTMLElement;
     private optEuler : HTMLInputElement;
     private optHeun : HTMLInputElement;
     private optHeunNaive : HTMLInputElement;
@@ -42,10 +42,13 @@ export class SWController1D {
     private divPointSize : HTMLInputElement;
 
     private chkLimitMaxDt : HTMLInputElement;
-    private chkUseMaxDt : HTMLInputElement;
 
     private divMaxTime : HTMLElement;
     private txtMaxTime : HTMLInputElement;
+
+    private optDtFixed : HTMLInputElement;
+    private optDtDynStable : HTMLInputElement;
+    private optDtDynFast : HTMLInputElement;
 
     public constructor(glCanvas : GLCanvas, numParticles : number) {
 
@@ -68,7 +71,8 @@ export class SWController1D {
         // keep particles in place
         this.simulation.update(0);
         this.renderer.render();
-        this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
+        this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
+        this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
     }
 
     private initSimulationAndRenderer() {
@@ -84,11 +88,9 @@ export class SWController1D {
     private oneStep() {
 
         // update
-        let dt = this.simulation.dt;
-        if (this.chkUseMaxDt.checked) {
-            dt = this.simulation.getMaxTimeStep();
-            if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
-        }
+        let dt = this.simulation.getMaxTimeStep();
+        if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
+
         if (this.simulation.env.totalTime + dt > this.maxTime) {
             dt = this.maxTime - this.simulation.env.totalTime;
         }
@@ -100,7 +102,8 @@ export class SWController1D {
         this.simulation.update(dt);
         this.renderer.render();
         this.divTotalTime.innerText = this.simulation.env.totalTime.toFixed(3);
-        this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
+        this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
+        this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
     }
 
     private findHTMLElements() {
@@ -112,14 +115,14 @@ export class SWController1D {
         this.trReset = document.getElementById("websph-tr-reset");
         this.sldNumParticles = <HTMLInputElement> document.getElementById("websph-sld-num-part");
         this.divNumParticles = document.getElementById("websph-div-num-part");
-        this.divMaxTimeStep = document.getElementById("websph-max-time-step");
+        this.divDtDynStable = document.getElementById("websph-div-dt-dyn-stable");
+        this.divDtDynFast = document.getElementById("websph-div-dt-dyn-fast");
         this.sldSmoothing = <HTMLInputElement> document.getElementById("websph-sld-smoothing");
         this.divSmoothing = document.getElementById("websph-div-smoothing");
         this.sldSmoothingVisu = <HTMLInputElement> document.getElementById("websph-sld-smoothing-visu");
         this.divSmoothingVisu = document.getElementById("websph-div-smoothing-visu");
-        this.trDt = document.getElementById("websph-tr-dt");
-        this.sldDt = <HTMLInputElement> document.getElementById("websph-sld-dt");
-        this.divDt = document.getElementById("websph-div-dt");
+        this.sldDtFixed = <HTMLInputElement> document.getElementById("websph-sld-dt");
+        this.divDtFixed = document.getElementById("websph-div-dt-fixed");
         this.optEuler = <HTMLInputElement> document.getElementById("websph-opt-euler");
         this.optHeun = <HTMLInputElement> document.getElementById("websph-opt-heun");
         this.optHeunNaive = <HTMLInputElement> document.getElementById("websph-opt-heun-naive");
@@ -128,10 +131,13 @@ export class SWController1D {
         this.divPointSize = <HTMLInputElement> document.getElementById("websph-div-point-size");
 
         this.chkLimitMaxDt = <HTMLInputElement> document.getElementById("websph-chk-limit-max-dt");
-        this.chkUseMaxDt = <HTMLInputElement> document.getElementById("websph-chk-use-max-dt");
 
         this.divMaxTime = document.getElementById("websph-div-max-time");
         this.txtMaxTime = <HTMLInputElement> document.getElementById("websph-txt-max-time");
+
+        this.optDtFixed = <HTMLInputElement> document.getElementById("websph-opt-dt-fixed");
+        this.optDtDynStable = <HTMLInputElement> document.getElementById("websph-opt-dt-dyn-stable");
+        this.optDtDynFast = <HTMLInputElement> document.getElementById("websph-opt-dt-dyn-fast");
     }
 
     private defaultUIValues() {
@@ -143,7 +149,8 @@ export class SWController1D {
         this.divNumParticles.innerText = "" + this.numParticles;
 
         this.divTotalTime.innerText = this.simulation.env.totalTime.toFixed(3);
-        this.divMaxTimeStep.innerText = this.simulation.getMaxTimeStep().toFixed(5);
+        this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
+        this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
 
         this.sldSmoothingVisu.value = "" + defaultSmoothingLength;
         this.divSmoothingVisu.innerText = "" + defaultSmoothingLength;
@@ -151,11 +158,11 @@ export class SWController1D {
         this.sldPointSize.value = "" + 3;
         this.divPointSize.innerText = "" + 3;
 
-        this.sldDt.value = "" + this.simulation.dt;
-        this.divDt.innerText = "" + this.simulation.dt;
+        this.sldDtFixed.value = "" + this.simulation.dt;
+        this.divDtFixed.innerText = this.simulation.dt.toFixed(5);
 
         this.optHeun.checked = true;
-        this.chkUseMaxDt.checked = false;
+        this.optDtFixed.checked = true;
 
         this.txtMaxTime.value = "";
         this.divMaxTime.innerText = "(not used)";
@@ -163,10 +170,14 @@ export class SWController1D {
 
     private updateSimAndRendFromUI() {
         this.simulation.smoothingLength = parseFloat(this.sldSmoothing.value);
-        this.simulation.dt = parseFloat(this.sldDt.value);
+        this.simulation.dt = parseFloat(this.sldDtFixed.value);
         this.simulation.useIntegrator = this.optEuler.checked       ? 0 :
                                         this.optHeun.checked        ? 1 :
                                         this.optHeunNaive.checked   ? 2 : 3;
+
+
+        this.simulation.useTimeSteppingMode =   this.optDtFixed.checked ? 0 :
+                                                this.optDtDynStable.checked ? 1 : 2;
 
         this.renderer.visualizationSmoothingLength = parseFloat(this.sldSmoothingVisu.value);
         this.renderer.setPointSize(parseFloat(this.sldPointSize.value));
@@ -224,17 +235,21 @@ export class SWController1D {
             me.renderer.render();
 
             me.divTotalTime.innerText = me.simulation.env.totalTime.toFixed(3);
-            me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
+            me.divDtDynStable.innerText = me.simulation.getMaxTimeStep(1).toFixed(5);
+            me.divDtDynFast.innerText = me.simulation.getMaxTimeStep(2).toFixed(5);
         };
 
         this.sldNumParticles.onchange = function () {
             me.divNumParticles.innerText = me.sldNumParticles.value;
         };
 
-        // USE MAX DT
-        this.chkUseMaxDt.onclick = function() {
-            me.trDt.style.visibility = me.chkUseMaxDt.checked ? "hidden" : "visible";
+        // TIME STEPPING MODE
+        this.optDtFixed.onclick = function() {
+            me.simulation.useTimeSteppingMode = me.optDtFixed.checked ? 0 :
+                                                me.optDtDynStable.checked ? 1 : 2;
         };
+        this.optDtDynStable.onclick = this.optDtFixed.onclick;
+        this.optDtDynFast.onclick = this.optDtFixed.onclick;
 
         // SMOOTHING
         this.sldSmoothing.onchange = function () {
@@ -249,7 +264,8 @@ export class SWController1D {
             me.simulation.update(0);
             me.renderer.render();
 
-            me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
+            me.divDtDynStable.innerText = me.simulation.getMaxTimeStep(1).toFixed(5);
+            me.divDtDynFast.innerText = me.simulation.getMaxTimeStep(2).toFixed(5);
         };
 
         // SMOOTHING VISUALIZATION
@@ -261,9 +277,9 @@ export class SWController1D {
         };
 
         // DT
-        this.sldDt.onchange = function() {
-            me.simulation.dt = parseFloat(me.sldDt.value);
-            me.divDt.innerText = "" + me.simulation.dt;
+        this.sldDtFixed.onchange = function() {
+            me.simulation.dt = parseFloat(me.sldDtFixed.value);
+            me.divDtFixed.innerText = me.simulation.dt.toFixed(5);
         };
 
         // INTEGRATOR
@@ -271,8 +287,6 @@ export class SWController1D {
             me.simulation.useIntegrator =   me.optEuler.checked       ? 0 :
                                             me.optHeun.checked        ? 1 :
                                             me.optHeunNaive.checked   ? 2 : 3;
-
-            me.divMaxTimeStep.innerText = me.simulation.getMaxTimeStep().toFixed(5);
         };
         this.optEuler.onclick = me.optHeun.onclick;
         this.optHeunNaive.onclick = me.optHeun.onclick;

@@ -4,6 +4,7 @@ import {IntegratorEuler} from "./integrator/IntegratorEuler";
 import {HeunOriginal} from "./integrator/HeunOriginal";
 import {HeunNaive} from "./integrator/HeunNaive";
 import {HeunReduced} from "./integrator/HeunReduced";
+import {TimeStepping} from "./TimeStepping";
 
 /**
  * Main simulation class, contains the integrator and the environment.
@@ -18,8 +19,9 @@ export class SWSimulation1D {
 
     public dt = 0.001;
     public smoothingLength = 0.02;
-    //public useHeun = true;
-    public useIntegrator : number = 1;
+
+    public useIntegrator : number = 1; // 0: euler,    1: heun,    2: heunNaive,    3: heunReduced
+    public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
 
 
     private acceleration = 9.81;
@@ -53,22 +55,20 @@ export class SWSimulation1D {
     }
 
     /**
-     * Calculate maximal time step. The step depends on the integrator.
+     * Calculate maximal time step depending on the mode.
+     * 0: fixed dt,    1: dynamic stable,     2: dynamic fast
      */
-    public getMaxTimeStep(smoothingLength : number = this.smoothingLength) : number {
-
-        switch (this.useIntegrator) {
+    public getMaxTimeStep(mode : number = this.useTimeSteppingMode, smoothingLength : number = this.smoothingLength) : number {
+        switch(mode) {
             case 0:
-                return this.euler.getMaxTimeStep(smoothingLength, this.acceleration);
+                return this.dt;
             case 1:
-                return this.heun.getMaxTimeStep(smoothingLength, this.acceleration);
+                return TimeStepping.getMaxTimeStepStable(this.env.particles, smoothingLength, this.acceleration);
             case 2:
-                return this.heunNaive.getMaxTimeStep(smoothingLength, this.acceleration);
-            case 3:
-                return this.heunReduced.getMaxTimeStep(smoothingLength, this.acceleration);
+                return TimeStepping.getMaxTimeStepFast(this.env.particles, smoothingLength, this.acceleration);
+            default:
+                return 0;
         }
-
-
 
     }
 

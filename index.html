@@ -82,26 +82,46 @@
                     <tr id="websph-tr-reset">
                         <td> Reset: </td>
                         <td>
-                            <button class="button" id="websph-btn-reset" type="button">Reset</button>
+                            <button class="button" id="websph-btn-reset" type="button">Reset</button> Particles:
                             <input id="websph-sld-num-part" style="border: black; display: inline" type="range" min="10" max="2000" step ="1"/>
                             <div id="websph-div-num-part" style="display: inline"> XX </div>
                         </td>
                     </tr>
                     <tr>
-                        <td> Max time step: </td>
+                        <td> Time stepping: </td>
                         <td>
-                            <div id="websph-max-time-step" style="display: inline">?</div>
-                            <input id="websph-chk-limit-max-dt" type="checkbox" checked="checked" style="display: inline"> Limit to 0.01
-                            <input id="websph-chk-use-max-dt" type="checkbox" style="display: inline"> Use
+                            <input id="websph-opt-dt-fixed" type="radio" name="timestepping">
+                            <div style="display: inline-block; width: 125px;">Fixed: </div>
+                            <div id="websph-div-dt-fixed" style="display: inline"> </div>
+                            <input id="websph-sld-dt" style="border: black; display: inline" type="range" min="0.0001" max="0.01" step ="0.0001"/>
+                            <br>
+
+                            <input id="websph-opt-dt-dyn-stable" type="radio" name="timestepping">
+                            <div style="display: inline-block; width: 125px;">Dynamic, stable: </div>
+                            <div id="websph-div-dt-dyn-stable" style="display: inline"> </div>
+                            <br>
+
+                            <input id="websph-opt-dt-dyn-fast" type="radio" name="timestepping">
+                            <div style="display: inline-block; width: 125px;">Dynamic, fast: </div>
+                            <div id="websph-div-dt-dyn-fast" style="display: inline"> </div>
+                            <br>
+
+                            <input id="websph-chk-limit-max-dt" type="checkbox" checked="checked">
+                            <div style="display: inline-block; width: 125px;">Limit to 0.01 </div>
+
                         </td>
                     </tr>
-                    <tr id="websph-tr-dt">
-                        <td> Time step: </td>
+
+                    <tr>
+                        <td> Integrator: </td>
                         <td>
-                            <input id="websph-sld-dt" style="border: black" type="range" min="0.0001" max="0.01" step ="0.0001"/>
-                            <div id="websph-div-dt" style="display: inline"> </div>
+                            <input id="websph-opt-euler" type="radio" name="integrator"> Euler
+                            <input id="websph-opt-heun"  type="radio" name="integrator"> Heun original
+                            <input id="websph-opt-heun-naive"  type="radio" name="integrator"> Heun naive
+                            <input id="websph-opt-heun-reduced"  type="radio" name="integrator"> Heun reduced
                         </td>
                     </tr>
+
                     <tr>
                         <td> Simulation <i>h</i>: </td>
                         <td style="white-space: nowrap;">
@@ -124,15 +144,6 @@
                         </td>
                     </tr>
 
-                    <tr>
-                        <td> Integrator: </td>
-                        <td>
-                            <input id="websph-opt-euler" type="radio" name="integrator"> Euler
-                            <input id="websph-opt-heun"  type="radio" name="integrator"> Heun original
-                            <input id="websph-opt-heun-naive"  type="radio" name="integrator"> Heun naive
-                            <input id="websph-opt-heun-reduced"  type="radio" name="integrator"> Heun reduced
-                        </td>
-                    </tr>
                     <tr style="display: none">
                         <td> Number of particles: </td>
                         <td>
