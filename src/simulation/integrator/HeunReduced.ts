@@ -38,7 +38,7 @@ export class HeunReduced extends SWIntegrator1D {
 			pred.posX = this.envPred.mapXInsideDomainCyclic(pos);
 		}
 
-		// UPDATE PRED BOUNDARY HERE
+		this.envPred.cyclicBoundary.updateBoundary(smoothingLength);
 
 		// given: pos_1 -> calc: acc_1
 		for (let i = 0; i < particlesPred.length; i++) {
@@ -59,6 +59,8 @@ export class HeunReduced extends SWIntegrator1D {
 			let pos = part.posX + part.speedX * dt;
 			part.posX = env.mapXInsideDomainCyclic(pos);
 		}
+
+		this.env.cyclicBoundary.updateBoundary(smoothingLength);
 
 		// water height
 		for (let i = 0; i < particles.length; i++) {

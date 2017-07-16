@@ -169,7 +169,7 @@ export class SWController1D {
     }
 
     private updateSimAndRendFromUI() {
-        this.simulation.smoothingLength = parseFloat(this.sldSmoothing.value);
+        this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
         this.simulation.dt = parseFloat(this.sldDtFixed.value);
         this.simulation.useIntegrator = this.optEuler.checked       ? 0 :
                                         this.optHeun.checked        ? 1 :
@@ -253,8 +253,8 @@ export class SWController1D {
 
         // SMOOTHING
         this.sldSmoothing.onchange = function () {
-            me.simulation.smoothingLength = parseFloat(me.sldSmoothing.value);
-            me.divSmoothing.innerText = "" + me.simulation.smoothingLength;
+            me.simulation.setSmoothingLength(parseFloat(me.sldSmoothing.value));
+            me.divSmoothing.innerText = "" + me.simulation.getSmoothingLength();
 
             me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
             me.sldSmoothingVisu.value = me.sldSmoothing.value;

@@ -18,7 +18,7 @@ export class SWSimulation1D {
     private heunReduced : HeunReduced;
 
     public dt = 0.001;
-    public smoothingLength = 0.02;
+    private smoothingLength = 0.02;
 
     public useIntegrator : number = 1; // 0: euler,    1: heun,    2: heunNaive,    3: heunReduced
     public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
@@ -26,6 +26,7 @@ export class SWSimulation1D {
 
     private acceleration = 9.81;
     private fluidVolume = 2.5; // 2.5 for dam break scenario
+
 
     public constructor(numParticles : number, bounds : Bounds) {
         this.env = new SWEnvironment1D(numParticles, bounds, this.fluidVolume, this.acceleration);
@@ -71,5 +72,16 @@ export class SWSimulation1D {
         }
 
     }
+
+
+
+	public getSmoothingLength() : number {
+		return this.smoothingLength;
+	}
+
+	public setSmoothingLength(smoothingLength : number) {
+    	this.smoothingLength = smoothingLength;
+    	this.env.cyclicBoundary.updateBoundary(smoothingLength);
+	}
 
 }
