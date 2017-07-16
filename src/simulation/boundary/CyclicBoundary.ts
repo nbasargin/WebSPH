@@ -1,0 +1,66 @@
+import {SWBoundary1D} from "./SWBoundary1D";
+import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Particle} from "../Particle";
+
+export class CyclicBoundary extends SWBoundary1D {
+
+	public constructor(env : SWEnvironment1D) {
+		super(env);
+	}
+
+	public updateBoundary(smoothingLength : number) {
+		let xMax = this.env.bounds.xMax;
+		let xMin = this.env.bounds.xMin;
+		let width = xMax - xMin;
+		let ps = this.env.particles;
+
+		// clear boundary
+		this.particlesLeft = [];
+		this.particlesRight = [];
+
+		// copy particles
+		for (let i = 0; i < ps.length; i++) {
+			if (ps[i].posX > xMax - 2 * smoothingLength) {
+				// inside right inner boundary
+				// -> copy to the left outer boundary
+				let p = new Particle();
+				p.posX = ps[i].posX - width;
+				this.particlesLeft[this.particlesLeft.length] = p;
+			} else if (ps[i].posX < xMin + 2 * smoothingLength) {
+				// inside left inner boundary
+				// -> copy to the right outer boundary
+				let p = new Particle();
+				p.posX = ps[i].posX + width;
+				this.particlesRight[this.particlesLeft.length] = p;
+			}
+
+		}
+
+	}
+
+
+	/**
+	 * Check if x position is inside this domain.
+	 * If not, move x inside the domain (cyclic field).
+	 *
+	 * Note: will produce a valid position only if the
+	 * distance to the bounds of this domain is less than
+	 * the domain width (performance reasons).
+	 *
+	 * @param xPos             x position
+	 * @returns {number}    modified x position inside the domain
+	 */
+	public mapPositionInsideEnv(xPos: number): number {
+		let xMax = this.env.bounds.xMax;
+		let xMin = this.env.bounds.xMin;
+
+		if (xPos > xMax) {
+			xPos -= xMax - xMin;
+		} else if (xPos < xMin) {
+			xPos += xMax - xMin;
+		}
+		return xPos;
+
+	}
+
+}
