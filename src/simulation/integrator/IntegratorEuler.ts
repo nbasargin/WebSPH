@@ -21,7 +21,7 @@ export class IntegratorEuler extends SWIntegrator1D {
             particles[i].posX = env.mapXInsideDomainCyclic(newPos);
         }
 
-        // UPDATE BOUNDARY HERE
+        env.cyclicBoundary.updateBoundary(smoothingLength);
 
         // force computation
         for (let i = 0; i < particles.length; i++) {

@@ -1,6 +1,7 @@
 import {Bounds} from "../util/Bounds";
 import {Particle} from "./Particle";
 import {SmoothingKernel} from "./SmoothingKernel";
+import {CyclicBoundary} from "./boundary/CyclicBoundary";
 
 export class SWEnvironment1D {
 
@@ -9,6 +10,8 @@ export class SWEnvironment1D {
     public fluidVolume : number;
     public gravity : number;
     public totalTime = 0;
+
+    public cyclicBoundary : CyclicBoundary;
 
 
     public constructor(numParticles : number, bounds : Bounds, fluidVolume : number, gravity : number) {
@@ -19,6 +22,7 @@ export class SWEnvironment1D {
         }
 
         this.bounds = bounds;
+        this.cyclicBoundary = new CyclicBoundary(this);
         this.fluidVolume = fluidVolume || 1;
         this.gravity = gravity || 9.81;
 
@@ -37,6 +41,8 @@ export class SWEnvironment1D {
         this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, lastID);
         this.distributeParticles(0, 0.2, lastID + 1, this.particles.length - 1);
 
+		// update boundary with maximal possible smoothing length
+		this.cyclicBoundary.updateBoundary(this.bounds.xMax - this.bounds.xMin);
     }
     /**
      * Resets particles to the initial state of a dam break.
@@ -47,6 +53,9 @@ export class SWEnvironment1D {
 
         this.distributeParticles(this.bounds.xMin, 0.5, 0, lastID);
         this.distributeParticles(0.5, this.bounds.xMax, lastID + 1, this.particles.length - 1);
+
+        // update boundary with maximal possible smoothing length
+        this.cyclicBoundary.updateBoundary(this.bounds.xMax - this.bounds.xMin);
     }
 
     /**
@@ -85,6 +94,9 @@ export class SWEnvironment1D {
         let width = this.bounds.xMax - this.bounds.xMin;
 
         let distNormal = x1 - x2;
+        return distNormal;
+
+        /*
         let distCyclic;
         if (x1 < x2) {
             distCyclic = (x1 + width) - x2;
@@ -96,7 +108,7 @@ export class SWEnvironment1D {
             return distNormal;
         }
         return distCyclic;
-
+		*/
     }
 
     /**
@@ -111,12 +123,15 @@ export class SWEnvironment1D {
      * @returns {number}    modified x position inside the domain
      */
     public mapXInsideDomainCyclic(x : number) : number {
+    	return this.cyclicBoundary.mapPositionInsideEnv(x);
+    	/*
         if (x > this.bounds.xMax) {
             x -= this.bounds.xMax - this.bounds.xMin;
         } else if (x < this.bounds.xMin) {
             x += this.bounds.xMax - this.bounds.xMin;
         }
         return x;
+        */
     }
 
     //endregion
@@ -139,6 +154,21 @@ export class SWEnvironment1D {
             let dist = this.xDistCyclic(x, particles[i].posX);
             height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
         }
+        // boundaries
+        if (this.cyclicBoundary.isInsideLeftInnerBoundary(x, smoothingLength) ) {
+        	let lps = this.cyclicBoundary.particlesLeft;
+        	for (let i = 0; i < lps.length; i++) {
+				let dist = this.xDistCyclic(x, lps[i].posX);
+				height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
+			}
+
+		} else if (this.cyclicBoundary.isInsideRightInnerBoundary(x, smoothingLength)) {
+        	let rps = this.cyclicBoundary.particlesRight;
+        	for (let i = 0; i < rps.length; i++) {
+				let dist = this.xDistCyclic(x, rps[i].posX);
+				height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
+			}
+		}
 
         let pVolume = this.fluidVolume / particles.length;
         return height * pVolume;
@@ -160,6 +190,23 @@ export class SWEnvironment1D {
             let dist = this.xDistCyclic(x, particles[i].posX);
             acc += SmoothingKernel.dCubic1D(dist, smoothingLength); // dW
         }
+		// boundaries
+		if (this.cyclicBoundary.isInsideLeftInnerBoundary(x, smoothingLength) ) {
+			let lps = this.cyclicBoundary.particlesLeft;
+			for (let i = 0; i < lps.length; i++) {
+				let dist = this.xDistCyclic(x, lps[i].posX);
+				acc += SmoothingKernel.dCubic1D(dist, smoothingLength);  // dW
+			}
+		} else if (this.cyclicBoundary.isInsideRightInnerBoundary(x, smoothingLength)) {
+			let rps = this.cyclicBoundary.particlesRight;
+			for (let i = 0; i < rps.length; i++) {
+				let dist = this.xDistCyclic(x, rps[i].posX);
+				acc += SmoothingKernel.dCubic1D(dist, smoothingLength);  // dW
+			}
+		}
+
+
+
 
         let pVolume = this.fluidVolume / particles.length;
         return acc * pVolume * this.gravity;

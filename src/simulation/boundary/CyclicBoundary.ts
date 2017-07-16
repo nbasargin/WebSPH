@@ -20,18 +20,20 @@ export class CyclicBoundary extends SWBoundary1D {
 
 		// copy particles
 		for (let i = 0; i < ps.length; i++) {
-			if (ps[i].posX > xMax - 2 * smoothingLength) {
+			if (this.isInsideRightInnerBoundary(ps[i].posX, smoothingLength)) {
 				// inside right inner boundary
 				// -> copy to the left outer boundary
 				let p = new Particle();
 				p.posX = ps[i].posX - width;
 				this.particlesLeft[this.particlesLeft.length] = p;
-			} else if (ps[i].posX < xMin + 2 * smoothingLength) {
+			}
+
+			if (this.isInsideLeftInnerBoundary(ps[i].posX, smoothingLength)) {
 				// inside left inner boundary
 				// -> copy to the right outer boundary
 				let p = new Particle();
 				p.posX = ps[i].posX + width;
-				this.particlesRight[this.particlesLeft.length] = p;
+				this.particlesRight[this.particlesRight.length] = p;
 			}
 
 		}
