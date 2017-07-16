@@ -67,14 +67,14 @@ export class SWRenderer1D {
     }
 
     private initParticleBuffers() {
-        let particlePosXY = new Float32Array(this.env.particles.length * 2);
-        let particleColRGBA = new Float32Array(this.env.particles.length * 4);
+        let particlePosXY = new Float32Array(this.env.getParticles().length * 2);
+        let particleColRGBA = new Float32Array(this.env.getParticles().length * 4);
         this.glParticlePosBuffer = new GLBuffer(this.glCanvas.gl, particlePosXY, 2);
         this.glParticleColBuffer = new GLBuffer(this.glCanvas.gl, particleColRGBA, 4);
     }
 
     private initWaterHeightBuffers() {
-        let bounds = this.env.bounds;
+        let bounds = this.env.getBounds();
         // position
         let waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
         for (let i = 0; i < this.waterHeightSamples; i++) {
@@ -98,7 +98,7 @@ export class SWRenderer1D {
     }
 
     private initDamBreakValidationBuffers() {
-        let bounds = this.env.bounds;
+        let bounds = this.env.getBounds();
         // position
         let validationPosXY = new Float32Array(this.validationSamples * 2);
         for (let i = 0; i < this.validationSamples; i++) {
@@ -138,7 +138,7 @@ export class SWRenderer1D {
      * Transfer position & color to the GPU
      */
     private updateParticleBuffers() {
-        let particles = this.env.particles;
+        let particles = this.env.getParticles();
 
         Coloring.speedColoring(particles);
 
@@ -174,7 +174,7 @@ export class SWRenderer1D {
     }
 
     private updateDamBreakValidation() {
-        let t = this.env.totalTime;
+        let t = this.env.getTotalTime();
         let validator = new AnalyticalDamBreak(9.81);
         let validationPosXY = this.glDamBreakValidationPosBuffer.getData();
         for (let i = 0; i < this.validationSamples; i++) {

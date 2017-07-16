@@ -9,10 +9,10 @@ export class CyclicBoundary extends SWBoundary1D {
 	}
 
 	public updateBoundary() {
-		let xMax = this.env.bounds.xMax;
-		let xMin = this.env.bounds.xMin;
+		let xMax = this.env.getBounds().xMax;
+		let xMin = this.env.getBounds().xMin;
 		let width = xMax - xMin;
-		let ps = this.env.particles;
+		let ps = this.env.getParticles();
 
 		// clear boundary
 		this.particlesLeft = [];
@@ -53,8 +53,8 @@ export class CyclicBoundary extends SWBoundary1D {
 	 * @returns {number}    modified x position inside the domain
 	 */
 	public mapPositionInsideEnv(xPos: number): number {
-		let xMax = this.env.bounds.xMax;
-		let xMin = this.env.bounds.xMin;
+		let xMax = this.env.getBounds().xMax;
+		let xMin = this.env.getBounds().xMin;
 
 		if (xPos > xMax) {
 			xPos -= xMax - xMin;

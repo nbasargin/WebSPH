@@ -9,7 +9,7 @@ export class IntegratorEuler extends SWIntegrator1D {
 
     public integrate(dt : number) {
         let env = this.getEnvironment();
-        let particles = env.particles;
+        let particles = env.getParticles();
 
         // position & speed update
         for (let i = 0; i < particles.length; i++) {
@@ -18,10 +18,10 @@ export class IntegratorEuler extends SWIntegrator1D {
             pi.speedX += pi.accX * dt;
             // position
             let newPos = pi.posX + pi.speedX * dt;
-            particles[i].posX = env.mapXInsideDomainCyclic(newPos);
+            particles[i].posX = env.getBoundary().mapPositionInsideEnv(newPos);
         }
 
-        env.cyclicBoundary.updateBoundary();
+        env.getBoundary().updateBoundary();
 
         // force computation
         for (let i = 0; i < particles.length; i++) {

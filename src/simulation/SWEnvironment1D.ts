@@ -2,19 +2,20 @@ import {Bounds} from "../util/Bounds";
 import {Particle} from "./Particle";
 import {SmoothingKernel} from "./SmoothingKernel";
 import {CyclicBoundary} from "./boundary/CyclicBoundary";
+import {SWBoundary1D} from "./boundary/SWBoundary1D";
 
 export class SWEnvironment1D {
 
-    public particles : Array<Particle>;
-    public bounds : Bounds;
-    public fluidVolume : number;
-    public gravity : number;
-    public totalTime = 0;
+	// read only
+    private particles : Array<Particle>;
+    private bounds : Bounds;
+	private cyclicBoundary : CyclicBoundary;
+    private fluidVolume : number;
+    private gravity : number;
 
+    // read write
+    private totalTime = 0;
     private smoothingLength : number;
-
-    public cyclicBoundary : CyclicBoundary;
-
 
     public constructor(numParticles : number, bounds : Bounds, smoothingLength : number, fluidVolume : number, gravity : number) {
 
@@ -34,7 +35,19 @@ export class SWEnvironment1D {
         this.resetParticlesToDamBreak();
     }
 
-    //region smoothing length
+    public copy() : SWEnvironment1D {
+		let numPs = this.getParticles().length;
+		let bounds = this.getBounds();
+		let h = this.getSmoothingLength();
+		let v = this.getFluidVolume();
+		let g = this.getGravity();
+
+		return new SWEnvironment1D(numPs, bounds, h, v, g);
+	}
+
+    //region getter & setter
+
+	// smoothing length
 	public getSmoothingLength() : number {
     	return this.smoothingLength;
 	}
@@ -45,6 +58,39 @@ export class SWEnvironment1D {
     	this.smoothingLength = smoothingLength;
     	this.cyclicBoundary.updateBoundary();
 	}
+
+	// particles
+	public getParticles() : Array<Particle> {
+    	return this.particles;
+	}
+
+	// bounds
+	public getBounds() : Bounds {
+		return this.bounds;
+	}
+	public getBoundary() : SWBoundary1D {
+    	return this.cyclicBoundary;
+	}
+
+	// fluid volume
+	public getFluidVolume() : number {
+    	return this.fluidVolume;
+	};
+
+    // gravity
+	public getGravity() : number {
+		return this.gravity;
+	};
+
+	// total time
+	public getTotalTime() : number {
+		return this.totalTime;
+	};
+	public setTotalTime(newTime : number) {
+		this.totalTime = newTime;
+	}
+
+
 
 	//endregion
 
@@ -94,33 +140,6 @@ export class SWEnvironment1D {
             this.particles[i].posX = xMin + width  *  (i - firstID) / (lastID - firstID + 1);
             this.particles[i].speedX = 0;
         }
-    }
-
-    //endregion
-
-    //region position
-
-    /**
-     * Check if x position is inside this domain.
-     * If not, move x inside the domain (cyclic field).
-     *
-     * Note: will produce a valid position only if the
-     * distance to the bounds of this domain is less than
-     * the domain width (performance reasons).
-     *
-     * @param x             x position
-     * @returns {number}    modified x position inside the domain
-     */
-    public mapXInsideDomainCyclic(x : number) : number {
-    	return this.cyclicBoundary.mapPositionInsideEnv(x);
-    	/*
-        if (x > this.bounds.xMax) {
-            x -= this.bounds.xMax - this.bounds.xMin;
-        } else if (x < this.bounds.xMin) {
-            x += this.bounds.xMax - this.bounds.xMin;
-        }
-        return x;
-        */
     }
 
     //endregion

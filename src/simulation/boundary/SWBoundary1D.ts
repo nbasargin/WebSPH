@@ -19,10 +19,10 @@ export abstract class SWBoundary1D {
 	public abstract mapPositionInsideEnv(xPos : number) : number;
 
 	public isInsideLeftInnerBoundary(xPos : number) {
-		return xPos < (this.env.bounds.xMin + 2 * this.env.getSmoothingLength());
+		return xPos < (this.env.getBounds().xMin + 2 * this.env.getSmoothingLength());
 	}
 	public isInsideRightInnerBoundary(xPos : number) {
-		return xPos > (this.env.bounds.xMax - 2 * this.env.getSmoothingLength());
+		return xPos > (this.env.getBounds().xMax - 2 * this.env.getSmoothingLength());
 	}
 
 }

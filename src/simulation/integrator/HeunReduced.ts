@@ -13,16 +13,16 @@ export class HeunReduced extends SWIntegrator1D {
 	public constructor(env : SWEnvironment1D) {
 		super(env);
 
-		this.envPred = new SWEnvironment1D(env.particles.length, env.bounds, env.getSmoothingLength(), env.fluidVolume, env.gravity);
+		this.envPred = env.copy();
 	}
 
 
 	public integrate(dt : number) {// check if prediction has the same size as particles
 
 		let env = this.getEnvironment();
-		let particles = env.particles;
+		let particles = env.getParticles();
 
-		let particlesPred = this.envPred.particles;
+		let particlesPred = this.envPred.getParticles();
 
 		if (particles.length != particlesPred.length) {
 			console.log("Invalid number of particles!");
@@ -35,10 +35,10 @@ export class HeunReduced extends SWIntegrator1D {
 			let pred = particlesPred[i];
 			// calc: pos_1          = pos_0 + speed_0 * dt
 			let pos = part.posX + part.speedX * dt;
-			pred.posX = this.envPred.mapXInsideDomainCyclic(pos);
+			pred.posX = this.envPred.getBoundary().mapPositionInsideEnv(pos);
 		}
 
-		this.envPred.cyclicBoundary.updateBoundary();
+		this.envPred.getBoundary().updateBoundary();
 
 		// given: pos_1 -> calc: acc_1
 		for (let i = 0; i < particlesPred.length; i++) {
@@ -57,10 +57,10 @@ export class HeunReduced extends SWIntegrator1D {
 
 			// calc: NEW pos_0      = OLD pos_0  +  NEW speed_0 * dt
 			let pos = part.posX + part.speedX * dt;
-			part.posX = env.mapXInsideDomainCyclic(pos);
+			part.posX = env.getBoundary().mapPositionInsideEnv(pos);
 		}
 
-		this.env.cyclicBoundary.updateBoundary();
+		this.env.getBoundary().updateBoundary();
 
 		// water height
 		for (let i = 0; i < particles.length; i++) {

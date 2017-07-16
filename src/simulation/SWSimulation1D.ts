@@ -22,13 +22,11 @@ export class SWSimulation1D {
     public useIntegrator : number = 1; // 0: euler,    1: heun,    2: heunNaive,    3: heunReduced
     public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
 
-
-    private acceleration = 9.81;
-    private fluidVolume = 2.5; // 2.5 for dam break scenario
-
-
     public constructor(numParticles : number, bounds : Bounds, smoothingLength : number) {
-        this.env = new SWEnvironment1D(numParticles, bounds, smoothingLength, this.fluidVolume, this.acceleration);
+        let acceleration = 9.81;
+        let fluidVolume = 2.5;
+
+        this.env = new SWEnvironment1D(numParticles, bounds, smoothingLength, fluidVolume, acceleration);
         this.euler = new IntegratorEuler(this.env);
         this.heun = new HeunOriginal(this.env);
         this.heunNaive = new HeunNaive(this.env);
@@ -36,7 +34,7 @@ export class SWSimulation1D {
     }
 
     public update(dt : number = this.dt) {
-        this.env.totalTime += dt;
+        this.env.setTotalTime(this.env.getTotalTime() + dt);
 
         switch (this.useIntegrator) {
             case 0:
@@ -63,9 +61,9 @@ export class SWSimulation1D {
             case 0:
                 return this.dt;
             case 1:
-                return TimeStepping.getMaxTimeStepStable(this.env.particles, this.env.getSmoothingLength(), this.acceleration);
+                return TimeStepping.getMaxTimeStepStable(this.env.getParticles(), this.env.getSmoothingLength(), this.env.getGravity());
             case 2:
-                return TimeStepping.getMaxTimeStepFast(this.env.particles, this.env.getSmoothingLength(), this.acceleration);
+                return TimeStepping.getMaxTimeStepFast(this.env.getParticles(), this.env.getSmoothingLength(), this.env.getGravity());
             default:
                 return 0;
         }

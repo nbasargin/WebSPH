@@ -91,8 +91,8 @@ export class SWController1D {
         let dt = this.simulation.getMaxTimeStep();
         if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
 
-        if (this.simulation.env.totalTime + dt > this.maxTime) {
-            dt = this.maxTime - this.simulation.env.totalTime;
+        if (this.simulation.env.getTotalTime() + dt > this.maxTime) {
+            dt = this.maxTime - this.simulation.env.getTotalTime();
         }
         if (dt <= 0 && this.renderLoop.isRunning()) {
             this.btnAnim.onclick(null);
@@ -101,7 +101,7 @@ export class SWController1D {
 
         this.simulation.update(dt);
         this.renderer.render();
-        this.divTotalTime.innerText = this.simulation.env.totalTime.toFixed(3);
+        this.divTotalTime.innerText = this.simulation.env.getTotalTime().toFixed(3);
         this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
         this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
     }
@@ -148,7 +148,7 @@ export class SWController1D {
         this.sldNumParticles.value = "" + this.numParticles;
         this.divNumParticles.innerText = "" + this.numParticles;
 
-        this.divTotalTime.innerText = this.simulation.env.totalTime.toFixed(3);
+        this.divTotalTime.innerText = this.simulation.env.getTotalTime().toFixed(3);
         this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
         this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
 
@@ -198,7 +198,7 @@ export class SWController1D {
         // ANIMATION
         this.btnAnim.onclick = function() {
             if (!me.renderLoop.isRunning()) {
-                if (me.simulation.env.totalTime >= me.maxTime) {
+                if (me.simulation.env.getTotalTime() >= me.maxTime) {
                     alert("Max time reached");
                     return;
                 }
@@ -217,7 +217,7 @@ export class SWController1D {
 
         // ONE STEP
         this.btnOneStep.onclick = function() {
-            if (me.simulation.env.totalTime >= me.maxTime) {
+            if (me.simulation.env.getTotalTime() >= me.maxTime) {
                 alert("Max time reached");
                 return;
             }
@@ -234,7 +234,7 @@ export class SWController1D {
             me.simulation.update(0);
             me.renderer.render();
 
-            me.divTotalTime.innerText = me.simulation.env.totalTime.toFixed(3);
+            me.divTotalTime.innerText = me.simulation.env.getTotalTime().toFixed(3);
             me.divDtDynStable.innerText = me.simulation.getMaxTimeStep(1).toFixed(5);
             me.divDtDynFast.innerText = me.simulation.getMaxTimeStep(2).toFixed(5);
         };
