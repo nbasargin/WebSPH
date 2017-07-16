@@ -23,10 +23,7 @@ export class SWSimulation1D {
     public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
 
     public constructor(numParticles : number, bounds : Bounds, smoothingLength : number) {
-        let acceleration = 9.81;
-        let fluidVolume = 2.5;
-
-        this.env = new SWEnvironment1D(numParticles, bounds, smoothingLength, fluidVolume, acceleration);
+        this.env = new SWEnvironment1D(numParticles, bounds, smoothingLength);
         this.euler = new IntegratorEuler(this.env);
         this.heun = new HeunOriginal(this.env);
         this.heunNaive = new HeunNaive(this.env);

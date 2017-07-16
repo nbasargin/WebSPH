@@ -17,7 +17,7 @@ export class SWEnvironment1D {
     private totalTime = 0;
     private smoothingLength : number;
 
-    public constructor(numParticles : number, bounds : Bounds, smoothingLength : number, fluidVolume : number, gravity : number) {
+    public constructor(numParticles : number, bounds : Bounds, smoothingLength : number, fluidVolume? : number, gravity? : number) {
 
         this.particles = [];
         for (let i = 0; i < numParticles; i++) {
@@ -28,7 +28,7 @@ export class SWEnvironment1D {
         this.cyclicBoundary = new CyclicBoundary(this);
         this.smoothingLength = smoothingLength;
 
-        this.fluidVolume = fluidVolume || 1;
+        this.fluidVolume = fluidVolume || 2.5;
         this.gravity = gravity || 9.81;
 
         //this.resetParticlesToWaterColumn();
