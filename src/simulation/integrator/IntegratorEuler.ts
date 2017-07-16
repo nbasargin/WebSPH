@@ -21,16 +21,18 @@ export class IntegratorEuler extends SWIntegrator1D {
             particles[i].posX = env.mapXInsideDomainCyclic(newPos);
         }
 
+        // UPDATE BOUNDARY HERE
+
         // force computation
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
-            pi.accX = env.getFluidAcc(pi.posX, smoothingLength, particles);
+            pi.accX = env.getFluidAcc(pi.posX, smoothingLength);
         }
 
         // water height
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
-            pi.posY = env.getFluidHeight(pi.posX, smoothingLength, particles);
+            pi.posY = env.getFluidHeight(pi.posX, smoothingLength);
         }
 
     }

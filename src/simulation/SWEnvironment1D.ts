@@ -128,11 +128,10 @@ export class SWEnvironment1D {
      *
      * @param x                     position
      * @param smoothingLength       SPH smoothing length
-     * @param particles             (optional) if not set, particles from this environment will be used
      * @returns {number}            fluid height at the position
      */
-    public getFluidHeight(x : number, smoothingLength : number, particles? : Array<Particle>) : number {
-        if (!particles) particles = this.particles;
+    public getFluidHeight(x : number, smoothingLength : number) : number {
+        let particles = this.particles;
 
         let height = 0;
 
@@ -151,11 +150,10 @@ export class SWEnvironment1D {
      *
      * @param x                     position
      * @param smoothingLength       SPH smoothing length
-     * @param particles             (optional) if not set, particles from this environment will be used
      * @returns {number}            fluid height at the position
      */
-    public getFluidAcc(x : number, smoothingLength : number, particles? : Array<Particle>) : number {
-        if (!particles) particles = this.particles;
+    public getFluidAcc(x : number, smoothingLength : number) : number {
+        let particles = this.particles;
         let acc = 0;
 
         for (let i = 0; i < particles.length; i++) {

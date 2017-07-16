@@ -167,7 +167,7 @@ export class SWRenderer1D {
         // update water height
         for (let i = 0; i < this.waterHeightSamples; i++) {
             let x = waterHeightPosXY[i * 4]; // x ground
-            let height = this.env.getFluidHeight(x, this.visualizationSmoothingLength, this.env.particles);
+            let height = this.env.getFluidHeight(x, this.visualizationSmoothingLength);
             waterHeightPosXY[i * 4 + 3] = height; // y water
         }
         this.glWaterHeightPosBuffer.flushData();
