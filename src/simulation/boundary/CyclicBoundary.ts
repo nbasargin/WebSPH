@@ -8,7 +8,7 @@ export class CyclicBoundary extends SWBoundary1D {
 		super(env);
 	}
 
-	public updateBoundary(smoothingLength : number) {
+	public updateBoundary() {
 		let xMax = this.env.bounds.xMax;
 		let xMin = this.env.bounds.xMin;
 		let width = xMax - xMin;
@@ -20,7 +20,7 @@ export class CyclicBoundary extends SWBoundary1D {
 
 		// copy particles
 		for (let i = 0; i < ps.length; i++) {
-			if (this.isInsideRightInnerBoundary(ps[i].posX, smoothingLength)) {
+			if (this.isInsideRightInnerBoundary(ps[i].posX)) {
 				// inside right inner boundary
 				// -> copy to the left outer boundary
 				let p = new Particle();
@@ -28,7 +28,7 @@ export class CyclicBoundary extends SWBoundary1D {
 				this.particlesLeft[this.particlesLeft.length] = p;
 			}
 
-			if (this.isInsideLeftInnerBoundary(ps[i].posX, smoothingLength)) {
+			if (this.isInsideLeftInnerBoundary(ps[i].posX)) {
 				// inside left inner boundary
 				// -> copy to the right outer boundary
 				let p = new Particle();

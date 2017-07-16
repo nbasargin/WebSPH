@@ -15,6 +15,6 @@ export abstract class SWIntegrator1D {
         return this.env;
     }
 
-    public abstract integrate(dt : number, smoothingLength : number);
+    public abstract integrate(dt : number);
 
 }

@@ -15,11 +15,11 @@ export class HeunNaive extends SWIntegrator1D {
 	public constructor(env : SWEnvironment1D) {
 		super(env);
 
-		this.envPred1 = new SWEnvironment1D(env.particles.length, env.bounds, env.fluidVolume, env.gravity);
-		this.envPred2 = new SWEnvironment1D(env.particles.length, env.bounds, env.fluidVolume, env.gravity);
+		this.envPred1 = new SWEnvironment1D(env.particles.length, env.bounds, env.getSmoothingLength(), env.fluidVolume, env.gravity);
+		this.envPred2 = new SWEnvironment1D(env.particles.length, env.bounds, env.getSmoothingLength(), env.fluidVolume, env.gravity);
 	}
 
-	public integrate(dt: number, smoothingLength: number) {
+	public integrate(dt: number) {
 
 		let env = this.getEnvironment();
 		let particles = env.particles;
@@ -35,7 +35,7 @@ export class HeunNaive extends SWIntegrator1D {
 			let pi = particles[i];
 
 			// acc_0 = ShallowWaterPhysics1D.getAcc(particles)
-			pi.accX = env.getFluidAcc(pi.posX, smoothingLength);
+			pi.accX = env.getFluidAcc(pi.posX);
 
 			// pos_1 = pos_0 + speed_0 * dt
 			this.envPred1.particles[i].posX = pi.posX + pi.speedX * dt;
@@ -44,14 +44,14 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_1 = speed_0 + acc_0 * dt
 			this.envPred1.particles[i].speedX = pi.speedX + pi.accX * dt;
 		}
-		this.envPred1.cyclicBoundary.updateBoundary(smoothingLength);
+		this.envPred1.cyclicBoundary.updateBoundary();
 
 
 		// EULER STEP 2
 		for (let i = 0; i < particles.length; i++) {
 
 			// acc_1 = ShallowWaterPhysics1D.getAcc(prediction1)
-			this.envPred1.particles[i].accX = this.envPred1.getFluidAcc(this.envPred1.particles[i].posX, smoothingLength);
+			this.envPred1.particles[i].accX = this.envPred1.getFluidAcc(this.envPred1.particles[i].posX);
 
 			// pos_2 = pos_1 + speed_1 * dt
 			this.envPred2.particles[i].posX = this.envPred1.particles[i].posX + this.envPred1.particles[i].speedX * dt;
@@ -60,7 +60,7 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_2 = speed_1 + acc_1 * dt
 			this.envPred2.particles[i].speedX = this.envPred1.particles[i].speedX + this.envPred1.particles[i].accX * dt;
 		}
-		this.envPred2.cyclicBoundary.updateBoundary(smoothingLength);
+		this.envPred2.cyclicBoundary.updateBoundary();
 
 		// AVERAGING
 		for (let i = 0; i < particles.length; i++) {
@@ -70,12 +70,12 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_new = (speed_0 + speed_2) / 2
 			particles[i].speedX = (particles[i].speedX + this.envPred2.particles[i].speedX) / 2;
 		}
-		env.cyclicBoundary.updateBoundary(smoothingLength);
+		env.cyclicBoundary.updateBoundary();
 
 		// water height
 		for (let i = 0; i < particles.length; i++) {
 			let pi = particles[i];
-			pi.posY = env.getFluidHeight(pi.posX, smoothingLength);
+			pi.posY = env.getFluidHeight(pi.posX);
 		}
 
 

@@ -11,10 +11,12 @@ export class SWEnvironment1D {
     public gravity : number;
     public totalTime = 0;
 
+    private smoothingLength : number;
+
     public cyclicBoundary : CyclicBoundary;
 
 
-    public constructor(numParticles : number, bounds : Bounds, fluidVolume : number, gravity : number) {
+    public constructor(numParticles : number, bounds : Bounds, smoothingLength : number, fluidVolume : number, gravity : number) {
 
         this.particles = [];
         for (let i = 0; i < numParticles; i++) {
@@ -23,12 +25,28 @@ export class SWEnvironment1D {
 
         this.bounds = bounds;
         this.cyclicBoundary = new CyclicBoundary(this);
+        this.smoothingLength = smoothingLength;
+
         this.fluidVolume = fluidVolume || 1;
         this.gravity = gravity || 9.81;
 
         //this.resetParticlesToWaterColumn();
         this.resetParticlesToDamBreak();
     }
+
+    //region smoothing length
+	public getSmoothingLength() : number {
+    	return this.smoothingLength;
+	}
+	public setSmoothingLength(smoothingLength : number) {
+    	if (smoothingLength == this.smoothingLength) return;
+    	if (smoothingLength <= 0) return;
+
+    	this.smoothingLength = smoothingLength;
+    	this.cyclicBoundary.updateBoundary();
+	}
+
+	//endregion
 
     //region particle distribution
 
@@ -42,7 +60,7 @@ export class SWEnvironment1D {
         this.distributeParticles(0, 0.2, lastID + 1, this.particles.length - 1);
 
 		// update boundary with maximal possible smoothing length
-		this.cyclicBoundary.updateBoundary(this.bounds.xMax - this.bounds.xMin);
+		this.cyclicBoundary.updateBoundary();
     }
     /**
      * Resets particles to the initial state of a dam break.
@@ -55,7 +73,7 @@ export class SWEnvironment1D {
         this.distributeParticles(0.5, this.bounds.xMax, lastID + 1, this.particles.length - 1);
 
         // update boundary with maximal possible smoothing length
-        this.cyclicBoundary.updateBoundary(this.bounds.xMax - this.bounds.xMin);
+        this.cyclicBoundary.updateBoundary();
     }
 
     /**
@@ -80,36 +98,7 @@ export class SWEnvironment1D {
 
     //endregion
 
-    //region position & distance
-
-    /**
-     * Calculates the x distance between two given x positions. Cyclic field
-     * is taken into account.
-     * @param x1        first position
-     * @param x2        second position
-     * @returns {number}
-     */
-    public xDistCyclic(x1 : number, x2 : number) : number {
-
-        let width = this.bounds.xMax - this.bounds.xMin;
-
-        let distNormal = x1 - x2;
-        return distNormal;
-
-        /*
-        let distCyclic;
-        if (x1 < x2) {
-            distCyclic = (x1 + width) - x2;
-        } else {
-            distCyclic = (x1 - width) - x2;
-        }
-
-        if (Math.abs(distNormal) < Math.abs(distCyclic)) {
-            return distNormal;
-        }
-        return distCyclic;
-		*/
-    }
+    //region position
 
     /**
      * Check if x position is inside this domain.
@@ -142,31 +131,30 @@ export class SWEnvironment1D {
      * Calculates the fluid height at specified x position.
      *
      * @param x                     position
-     * @param smoothingLength       SPH smoothing length
      * @returns {number}            fluid height at the position
      */
-    public getFluidHeight(x : number, smoothingLength : number) : number {
+    public getFluidHeight(x : number) : number {
         let particles = this.particles;
 
         let height = 0;
 
         for (let i = 0; i < particles.length; i++) {
-            let dist = this.xDistCyclic(x, particles[i].posX);
-            height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
+            let dist = x - particles[i].posX;
+            height += SmoothingKernel.cubic1D(dist, this.smoothingLength);  // W
         }
         // boundaries
-        if (this.cyclicBoundary.isInsideLeftInnerBoundary(x, smoothingLength) ) {
+        if (this.cyclicBoundary.isInsideLeftInnerBoundary(x) ) {
         	let lps = this.cyclicBoundary.particlesLeft;
         	for (let i = 0; i < lps.length; i++) {
-				let dist = this.xDistCyclic(x, lps[i].posX);
-				height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
+				let dist = x - lps[i].posX;
+				height += SmoothingKernel.cubic1D(dist, this.smoothingLength);  // W
 			}
 
-		} else if (this.cyclicBoundary.isInsideRightInnerBoundary(x, smoothingLength)) {
+		} else if (this.cyclicBoundary.isInsideRightInnerBoundary(x)) {
         	let rps = this.cyclicBoundary.particlesRight;
         	for (let i = 0; i < rps.length; i++) {
-				let dist = this.xDistCyclic(x, rps[i].posX);
-				height += SmoothingKernel.cubic1D(dist, smoothingLength);  // W
+				let dist = x - rps[i].posX;
+				height += SmoothingKernel.cubic1D(dist, this.smoothingLength);  // W
 			}
 		}
 
@@ -174,34 +162,41 @@ export class SWEnvironment1D {
         return height * pVolume;
     }
 
+    public getFluidHeightForSpecificSmoothingLength(x : number, newSmoothingLength : number) : number {
+    	let previosSmoothingLength = this.smoothingLength;
+    	this.setSmoothingLength(newSmoothingLength);
+    	let height = this.getFluidHeight(x);
+    	this.setSmoothingLength(previosSmoothingLength);
+		return height;
+	}
+
 
     /**
      * Calculates the fluid accX at specified x position.
      *
      * @param x                     position
-     * @param smoothingLength       SPH smoothing length
      * @returns {number}            fluid height at the position
      */
-    public getFluidAcc(x : number, smoothingLength : number) : number {
+    public getFluidAcc(x : number) : number {
         let particles = this.particles;
         let acc = 0;
 
         for (let i = 0; i < particles.length; i++) {
-            let dist = this.xDistCyclic(x, particles[i].posX);
-            acc += SmoothingKernel.dCubic1D(dist, smoothingLength); // dW
+            let dist = x - particles[i].posX;
+            acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength); // dW
         }
 		// boundaries
-		if (this.cyclicBoundary.isInsideLeftInnerBoundary(x, smoothingLength) ) {
+		if (this.cyclicBoundary.isInsideLeftInnerBoundary(x) ) {
 			let lps = this.cyclicBoundary.particlesLeft;
 			for (let i = 0; i < lps.length; i++) {
-				let dist = this.xDistCyclic(x, lps[i].posX);
-				acc += SmoothingKernel.dCubic1D(dist, smoothingLength);  // dW
+				let dist = x - lps[i].posX;
+				acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength);  // dW
 			}
-		} else if (this.cyclicBoundary.isInsideRightInnerBoundary(x, smoothingLength)) {
+		} else if (this.cyclicBoundary.isInsideRightInnerBoundary(x)) {
 			let rps = this.cyclicBoundary.particlesRight;
 			for (let i = 0; i < rps.length; i++) {
-				let dist = this.xDistCyclic(x, rps[i].posX);
-				acc += SmoothingKernel.dCubic1D(dist, smoothingLength);  // dW
+				let dist = x - rps[i].posX;
+				acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength);  // dW
 			}
 		}
 

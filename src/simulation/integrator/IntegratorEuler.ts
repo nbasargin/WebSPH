@@ -7,7 +7,7 @@ export class IntegratorEuler extends SWIntegrator1D {
         super(env);
     }
 
-    public integrate(dt : number, smoothingLength : number) {
+    public integrate(dt : number) {
         let env = this.getEnvironment();
         let particles = env.particles;
 
@@ -21,18 +21,18 @@ export class IntegratorEuler extends SWIntegrator1D {
             particles[i].posX = env.mapXInsideDomainCyclic(newPos);
         }
 
-        env.cyclicBoundary.updateBoundary(smoothingLength);
+        env.cyclicBoundary.updateBoundary();
 
         // force computation
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
-            pi.accX = env.getFluidAcc(pi.posX, smoothingLength);
+            pi.accX = env.getFluidAcc(pi.posX);
         }
 
         // water height
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
-            pi.posY = env.getFluidHeight(pi.posX, smoothingLength);
+            pi.posY = env.getFluidHeight(pi.posX);
         }
 
     }

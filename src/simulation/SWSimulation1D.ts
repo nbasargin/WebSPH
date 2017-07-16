@@ -18,7 +18,6 @@ export class SWSimulation1D {
     private heunReduced : HeunReduced;
 
     public dt = 0.001;
-    private smoothingLength = 0.02;
 
     public useIntegrator : number = 1; // 0: euler,    1: heun,    2: heunNaive,    3: heunReduced
     public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
@@ -28,29 +27,29 @@ export class SWSimulation1D {
     private fluidVolume = 2.5; // 2.5 for dam break scenario
 
 
-    public constructor(numParticles : number, bounds : Bounds) {
-        this.env = new SWEnvironment1D(numParticles, bounds, this.fluidVolume, this.acceleration);
+    public constructor(numParticles : number, bounds : Bounds, smoothingLength : number) {
+        this.env = new SWEnvironment1D(numParticles, bounds, smoothingLength, this.fluidVolume, this.acceleration);
         this.euler = new IntegratorEuler(this.env);
         this.heun = new HeunOriginal(this.env);
         this.heunNaive = new HeunNaive(this.env);
         this.heunReduced = new HeunReduced(this.env);
     }
 
-    public update(dt : number = this.dt, smoothingLength : number = this.smoothingLength) {
+    public update(dt : number = this.dt) {
         this.env.totalTime += dt;
 
         switch (this.useIntegrator) {
             case 0:
-                this.euler.integrate(dt, smoothingLength);
+                this.euler.integrate(dt);
                 break;
             case 1:
-                this.heun.integrate(dt, smoothingLength);
+                this.heun.integrate(dt);
                 break;
             case 2:
-                this.heunNaive.integrate(dt, smoothingLength);
+                this.heunNaive.integrate(dt);
                 break;
             case 3:
-                this.heunReduced.integrate(dt, smoothingLength);
+                this.heunReduced.integrate(dt);
                 break;
         }
     }
@@ -59,29 +58,19 @@ export class SWSimulation1D {
      * Calculate maximal time step depending on the mode.
      * 0: fixed dt,    1: dynamic stable,     2: dynamic fast
      */
-    public getMaxTimeStep(mode : number = this.useTimeSteppingMode, smoothingLength : number = this.smoothingLength) : number {
+    public getMaxTimeStep(mode : number = this.useTimeSteppingMode) : number {
         switch(mode) {
             case 0:
                 return this.dt;
             case 1:
-                return TimeStepping.getMaxTimeStepStable(this.env.particles, smoothingLength, this.acceleration);
+                return TimeStepping.getMaxTimeStepStable(this.env.particles, this.env.getSmoothingLength(), this.acceleration);
             case 2:
-                return TimeStepping.getMaxTimeStepFast(this.env.particles, smoothingLength, this.acceleration);
+                return TimeStepping.getMaxTimeStepFast(this.env.particles, this.env.getSmoothingLength(), this.acceleration);
             default:
                 return 0;
         }
 
     }
 
-
-
-	public getSmoothingLength() : number {
-		return this.smoothingLength;
-	}
-
-	public setSmoothingLength(smoothingLength : number) {
-    	this.smoothingLength = smoothingLength;
-    	this.env.cyclicBoundary.updateBoundary(smoothingLength);
-	}
 
 }

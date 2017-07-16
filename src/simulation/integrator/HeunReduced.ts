@@ -13,11 +13,11 @@ export class HeunReduced extends SWIntegrator1D {
 	public constructor(env : SWEnvironment1D) {
 		super(env);
 
-		this.envPred = new SWEnvironment1D(env.particles.length, env.bounds, env.fluidVolume, env.gravity);
+		this.envPred = new SWEnvironment1D(env.particles.length, env.bounds, env.getSmoothingLength(), env.fluidVolume, env.gravity);
 	}
 
 
-	public integrate(dt : number, smoothingLength : number) {// check if prediction has the same size as particles
+	public integrate(dt : number) {// check if prediction has the same size as particles
 
 		let env = this.getEnvironment();
 		let particles = env.particles;
@@ -38,13 +38,13 @@ export class HeunReduced extends SWIntegrator1D {
 			pred.posX = this.envPred.mapXInsideDomainCyclic(pos);
 		}
 
-		this.envPred.cyclicBoundary.updateBoundary(smoothingLength);
+		this.envPred.cyclicBoundary.updateBoundary();
 
 		// given: pos_1 -> calc: acc_1
 		for (let i = 0; i < particlesPred.length; i++) {
 			let pred = particlesPred[i];
 			// calc: acc_1          = ShallowWaterPhysics1D.getAcc ( prediction )
-			pred.accX = this.envPred.getFluidAcc(pred.posX, smoothingLength);
+			pred.accX = this.envPred.getFluidAcc(pred.posX);
 		}
 
 		// given: acc_1, speed_0, pos_0 -> calc: new speed_0, new pos_0
@@ -60,12 +60,12 @@ export class HeunReduced extends SWIntegrator1D {
 			part.posX = env.mapXInsideDomainCyclic(pos);
 		}
 
-		this.env.cyclicBoundary.updateBoundary(smoothingLength);
+		this.env.cyclicBoundary.updateBoundary();
 
 		// water height
 		for (let i = 0; i < particles.length; i++) {
 			let pi = particles[i];
-			pi.posY = env.getFluidHeight(pi.posX, smoothingLength);
+			pi.posY = env.getFluidHeight(pi.posX);
 		}
 
 	}
