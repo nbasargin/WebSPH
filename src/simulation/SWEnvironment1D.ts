@@ -15,7 +15,7 @@ export class SWEnvironment1D {
 
     // read write
     private totalTime = 0;
-    private smoothingLength : number;
+    private smoothingLength : number = -1;
 
     public constructor(numParticles : number, bounds : Bounds, smoothingLength : number, fluidVolume? : number, gravity? : number) {
 

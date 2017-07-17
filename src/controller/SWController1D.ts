@@ -63,8 +63,8 @@ export class SWController1D {
         );
         this.findHTMLElements();
 
-        this.initSimulationAndRenderer();
         this.defaultUIValues();
+        this.initSimulationAndRenderer();
         this.updateSimAndRendFromUI();
         this.initListeners();
 
@@ -148,18 +148,14 @@ export class SWController1D {
         this.sldNumParticles.value = "" + this.numParticles;
         this.divNumParticles.innerText = "" + this.numParticles;
 
-        this.divTotalTime.innerText = this.simulation.env.getTotalTime().toFixed(3);
-        this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
-        this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
-
         this.sldSmoothingVisu.value = "" + defaultSmoothingLength;
         this.divSmoothingVisu.innerText = "" + defaultSmoothingLength;
 
         this.sldPointSize.value = "" + 3;
         this.divPointSize.innerText = "" + 3;
 
-        this.sldDtFixed.value = "" + this.simulation.dt;
-        this.divDtFixed.innerText = this.simulation.dt.toFixed(5);
+        this.sldDtFixed.value = "0.00100";
+        this.divDtFixed.innerText = "0.00100";
 
         this.optHeun.checked = true;
         this.optDtFixed.checked = true;
@@ -254,6 +250,7 @@ export class SWController1D {
         // SMOOTHING
         this.sldSmoothing.onchange = function () {
             me.simulation.env.setSmoothingLength(parseFloat(me.sldSmoothing.value));
+            console.log("!! SMOOTH onchange : " + parseFloat(me.sldSmoothing.value));
             me.divSmoothing.innerText = "" + me.simulation.env.getSmoothingLength();
 
             me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
