@@ -23,6 +23,11 @@ export class HeunOriginal extends SWIntegrator1D {
 			console.log("Invalid number of particles!");
 			return;
 		}
+        if (this.env.getSmoothingLength() != this.envPred.getSmoothingLength()) {
+            this.envPred.setSmoothingLength(this.env.getSmoothingLength());
+        }
+
+
 
 		// given: pos_0, speed_0 -> calc: acc_0, pos_1
 		for (let i = 0; i < particles.length; i++) {

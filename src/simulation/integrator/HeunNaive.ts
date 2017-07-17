@@ -28,6 +28,10 @@ export class HeunNaive extends SWIntegrator1D {
 			console.log("Invalid number of particles!");
 			return;
 		}
+		if (this.env.getSmoothingLength() != this.envPred1.getSmoothingLength()) {
+			this.envPred1.setSmoothingLength(this.env.getSmoothingLength());
+			this.envPred2.setSmoothingLength(this.env.getSmoothingLength());
+		}
 
 
 		// EULER STEP 1
