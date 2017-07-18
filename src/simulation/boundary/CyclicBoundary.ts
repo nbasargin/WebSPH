@@ -41,27 +41,15 @@ export class CyclicBoundary extends SWBoundary1D {
 	}
 
 
-	/**
-	 * Check if x position is inside this domain.
-	 * If not, move x inside the domain (cyclic field).
-	 *
-	 * Note: will produce a valid position only if the
-	 * distance to the bounds of this domain is less than
-	 * the domain width (performance reasons).
-	 *
-	 * @param xPos             x position
-	 * @returns {number}    modified x position inside the domain
-	 */
-	public mapPositionInsideEnv(xPos: number): number {
+	public mapParticleInsideEnv(p : Particle) {
 		let xMax = this.env.getBounds().xMax;
 		let xMin = this.env.getBounds().xMin;
 
-		if (xPos > xMax) {
-			xPos -= xMax - xMin;
-		} else if (xPos < xMin) {
-			xPos += xMax - xMin;
+		if (p.posX > xMax) {
+			p.posX -= xMax - xMin;
+		} else if (p.posX < xMin) {
+			p.posX += xMax - xMin;
 		}
-		return xPos;
 
 	}
 

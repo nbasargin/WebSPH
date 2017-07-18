@@ -73,10 +73,13 @@ export class HeunNaive extends SWIntegrator1D {
 			let p2i = this.envPred2.getParticles()[i];
 
 			// pos_new = (pos_0 + pos_2) / 2
-			particles[i].posX = env.getBoundary().mapPositionInsideEnv((particles[i].posX + p2i.posX) / 2);
+			particles[i].posX = (particles[i].posX + p2i.posX) / 2;
 
 			// speed_new = (speed_0 + speed_2) / 2
 			particles[i].speedX = (particles[i].speedX + p2i.speedX) / 2;
+
+			// map particle into environment
+			env.getBoundary().mapParticleInsideEnv(particles[i]);
 		}
 		env.getBoundary().updateBoundary();
 

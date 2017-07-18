@@ -36,8 +36,8 @@ export class HeunOriginal extends SWIntegrator1D {
 			// calc: acc_0          = ShallowWaterPhysics1D.getAcc (particles)
 			part.accX = env.getFluidAcc(part.posX);
 			// calc: pos_1          = pos_0 + speed_0 * dt
-			let pos = part.posX + part.speedX * dt;
-			pred.posX = this.envPred.getBoundary().mapPositionInsideEnv(pos);
+			pred.posX = part.posX + part.speedX * dt;
+			this.envPred.getBoundary().mapParticleInsideEnv(pred);
 		}
 
 		this.envPred.getBoundary().updateBoundary();
@@ -58,8 +58,8 @@ export class HeunOriginal extends SWIntegrator1D {
 			part.speedX += 0.5 * (part.accX + pred.accX) * dt;
 
 			// calc: NEW pos_0      = OLD pos_0  +  NEW speed_0 * dt
-			let pos = part.posX + part.speedX * dt;
-			part.posX = env.getBoundary().mapPositionInsideEnv(pos);
+			part.posX = part.posX + part.speedX * dt;
+			env.getBoundary().mapParticleInsideEnv(part);
 		}
 
 		this.env.getBoundary().updateBoundary();

@@ -37,8 +37,8 @@ export class HeunReduced extends SWIntegrator1D {
 			let part = particles[i];
 			let pred = particlesPred[i];
 			// calc: pos_1          = pos_0 + speed_0 * dt
-			let pos = part.posX + part.speedX * dt;
-			pred.posX = this.envPred.getBoundary().mapPositionInsideEnv(pos);
+			pred.posX = part.posX + part.speedX * dt;
+			this.envPred.getBoundary().mapParticleInsideEnv(pred);
 		}
 
 		this.envPred.getBoundary().updateBoundary();
@@ -59,8 +59,8 @@ export class HeunReduced extends SWIntegrator1D {
 			part.speedX += pred.accX * dt;
 
 			// calc: NEW pos_0      = OLD pos_0  +  NEW speed_0 * dt
-			let pos = part.posX + part.speedX * dt;
-			part.posX = env.getBoundary().mapPositionInsideEnv(pos);
+			part.posX = part.posX + part.speedX * dt;
+			env.getBoundary().mapParticleInsideEnv(part);
 		}
 
 		this.env.getBoundary().updateBoundary();
