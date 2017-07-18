@@ -41,7 +41,7 @@ export class HeunReduced extends SWIntegrator1D {
 			this.envPred.getBoundary().mapParticleInsideEnv(pred);
 		}
 
-		this.envPred.getBoundary().updateBoundary();
+		this.envPred.getBoundary().updateBoundary(this.envPred);
 
 		// given: pos_1 -> calc: acc_1
 		for (let i = 0; i < particlesPred.length; i++) {
@@ -63,7 +63,7 @@ export class HeunReduced extends SWIntegrator1D {
 			env.getBoundary().mapParticleInsideEnv(part);
 		}
 
-		this.env.getBoundary().updateBoundary();
+		this.env.getBoundary().updateBoundary(this.env);
 
 		// water height
 		for (let i = 0; i < particles.length; i++) {

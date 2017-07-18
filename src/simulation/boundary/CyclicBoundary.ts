@@ -1,11 +1,12 @@
 import {SWBoundary1D} from "./SWBoundary1D";
-import {SWEnvironment1D} from "../SWEnvironment1D";
 import {Particle} from "../Particle";
+import {Bounds} from "../../util/Bounds";
+import {SWEnvironment1D} from "../SWEnvironment1D";
 
 export class CyclicBoundary extends SWBoundary1D {
 
-	public constructor(env : SWEnvironment1D) {
-		super(env);
+	public constructor(bounds : Bounds) {
+		super(bounds);
 	}
 
 
@@ -17,11 +18,12 @@ export class CyclicBoundary extends SWBoundary1D {
 	 * - from left inner to right outer boundary
 	 * - from right inner to left outer boundary
 	 */
-	public updateBoundary() {
-		let xMax = this.env.getBounds().xMax;
-		let xMin = this.env.getBounds().xMin;
+	public updateBoundary(env : SWEnvironment1D) {
+		let xMax = this.xMax;
+		let xMin = this.xMin;
 		let width = xMax - xMin;
-		let ps = this.env.getParticles();
+		let ps = env.getParticles();
+		let h = env.getSmoothingLength();
 
 		// clear boundary
 		this.particlesLeft = [];
@@ -29,7 +31,7 @@ export class CyclicBoundary extends SWBoundary1D {
 
 		// copy particles
 		for (let i = 0; i < ps.length; i++) {
-			if (this.isInsideRightInnerBoundary(ps[i].posX)) {
+			if (this.isInsideRightInnerBoundary(ps[i].posX, h)) {
 				// inside right inner boundary
 				// -> copy to the left outer boundary
 				let p = new Particle();
@@ -37,7 +39,7 @@ export class CyclicBoundary extends SWBoundary1D {
 				this.particlesLeft[this.particlesLeft.length] = p;
 			}
 
-			if (this.isInsideLeftInnerBoundary(ps[i].posX)) {
+			if (this.isInsideLeftInnerBoundary(ps[i].posX, h)) {
 				// inside left inner boundary
 				// -> copy to the right outer boundary
 				let p = new Particle();
@@ -51,8 +53,8 @@ export class CyclicBoundary extends SWBoundary1D {
 
 
 	public mapParticleInsideEnv(p : Particle) {
-		let xMax = this.env.getBounds().xMax;
-		let xMin = this.env.getBounds().xMin;
+		let xMax = this.xMax;
+		let xMin = this.xMin;
 
 		if (p.posX > xMax) {
 			p.posX -= xMax - xMin;

@@ -26,7 +26,7 @@ export class SWEnvironment1D {
         }
 
         this.bounds = bounds;
-        this.boundary = new SolidBoundary(this); //CyclicBoundary(this);
+        this.boundary = new SolidBoundary(bounds); //CyclicBoundary(this);
         this.smoothingLength = smoothingLength;
 
         this.fluidVolume = fluidVolume || 2.5;
@@ -58,7 +58,7 @@ export class SWEnvironment1D {
     	if (smoothingLength <= 0) return;
 
     	this.smoothingLength = smoothingLength;
-    	this.boundary.updateBoundary();
+    	this.boundary.updateBoundary(this);
 	}
 
 	// particles
@@ -108,7 +108,7 @@ export class SWEnvironment1D {
         this.distributeParticles(0, 0.2, lastID + 1, this.particles.length - 1);
 
 		// update boundary with maximal possible smoothing length
-		this.boundary.updateBoundary();
+		this.boundary.updateBoundary(this);
     }
 
     /**
@@ -122,7 +122,7 @@ export class SWEnvironment1D {
         this.distributeParticles(0.5, this.bounds.xMax, lastID + 1, this.particles.length - 1);
 
         // update boundary with maximal possible smoothing length
-        this.boundary.updateBoundary();
+        this.boundary.updateBoundary(this);
     }
 
 	/**
@@ -130,7 +130,7 @@ export class SWEnvironment1D {
 	 */
 	public resetParticlesToSameLevel() {
 		this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, this.particles.length - 1);
-		this.boundary.updateBoundary();
+		this.boundary.updateBoundary(this);
 	}
 
     /**
@@ -173,14 +173,14 @@ export class SWEnvironment1D {
             height += SmoothingKernel.cubic1D(dist, this.smoothingLength);  // W
         }
         // boundaries
-        if (this.boundary.isInsideLeftInnerBoundary(x) ) {
+        if (this.boundary.isInsideLeftInnerBoundary(x, this.smoothingLength) ) {
         	let lps = this.boundary.particlesLeft;
         	for (let i = 0; i < lps.length; i++) {
 				let dist = x - lps[i].posX;
 				height += SmoothingKernel.cubic1D(dist, this.smoothingLength);  // W
 			}
 
-		} else if (this.boundary.isInsideRightInnerBoundary(x)) {
+		} else if (this.boundary.isInsideRightInnerBoundary(x, this.smoothingLength)) {
         	let rps = this.boundary.particlesRight;
         	for (let i = 0; i < rps.length; i++) {
 				let dist = x - rps[i].posX;
@@ -216,13 +216,13 @@ export class SWEnvironment1D {
             acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength); // dW
         }
 		// boundaries
-		if (this.boundary.isInsideLeftInnerBoundary(x) ) {
+		if (this.boundary.isInsideLeftInnerBoundary(x, this.smoothingLength) ) {
 			let lps = this.boundary.particlesLeft;
 			for (let i = 0; i < lps.length; i++) {
 				let dist = x - lps[i].posX;
 				acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength);  // dW
 			}
-		} else if (this.boundary.isInsideRightInnerBoundary(x)) {
+		} else if (this.boundary.isInsideRightInnerBoundary(x, this.smoothingLength)) {
 			let rps = this.boundary.particlesRight;
 			for (let i = 0; i < rps.length; i++) {
 				let dist = x - rps[i].posX;

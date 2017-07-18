@@ -1,7 +1,13 @@
 import {SWBoundary1D} from "./SWBoundary1D";
 import {Particle} from "../Particle";
+import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Bounds} from "../../util/Bounds";
 
 export class SolidBoundary extends SWBoundary1D {
+
+	public constructor(bounds : Bounds) {
+		super(bounds);
+	}
 
 
 	/**
@@ -9,10 +15,11 @@ export class SolidBoundary extends SWBoundary1D {
 	 * returned to the particles next to the wall. This is done by creating
 	 * a copy of next-to-wall particles.
 	 */
-	public updateBoundary() {
-		let xMax = this.env.getBounds().xMax;
-		let xMin = this.env.getBounds().xMin;
-		let ps = this.env.getParticles();
+	public updateBoundary(env : SWEnvironment1D) {
+		let xMax = this.xMax;
+		let xMin = this.xMin;
+		let ps = env.getParticles();
+		let h = env.getSmoothingLength();
 
 		// clear boundary
 		this.particlesLeft = [];
@@ -20,7 +27,7 @@ export class SolidBoundary extends SWBoundary1D {
 
 		// copy particles
 		for (let i = 0; i < ps.length; i++) {
-			if (this.isInsideRightInnerBoundary(ps[i].posX)) {
+			if (this.isInsideRightInnerBoundary(ps[i].posX, h)) {
 				// inside right inner boundary
 				// -> mirror at the boundary to the outer part
 				let p = new Particle();
@@ -28,7 +35,7 @@ export class SolidBoundary extends SWBoundary1D {
 				this.particlesRight[this.particlesRight.length] = p;
 			}
 
-			if (this.isInsideLeftInnerBoundary(ps[i].posX)) {
+			if (this.isInsideLeftInnerBoundary(ps[i].posX, h)) {
 				// inside left inner boundary
 				// -> mirror at the boundary to the outer part
 				let p = new Particle();
@@ -42,8 +49,8 @@ export class SolidBoundary extends SWBoundary1D {
 	}
 
 	public mapParticleInsideEnv(p: Particle) {
-		let xMax = this.env.getBounds().xMax;
-		let xMin = this.env.getBounds().xMin;
+		let xMax = this.xMax;
+		let xMin = this.xMin;
 
 		// position outside boundary -> move inside and flip speed & acceleration
 		if (p.posX > xMax) {

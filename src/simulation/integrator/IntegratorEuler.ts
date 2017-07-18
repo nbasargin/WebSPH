@@ -21,7 +21,7 @@ export class IntegratorEuler extends SWIntegrator1D {
             env.getBoundary().mapParticleInsideEnv(particles[i]);
         }
 
-        env.getBoundary().updateBoundary();
+        env.getBoundary().updateBoundary(env);
 
         // force computation
         for (let i = 0; i < particles.length; i++) {
