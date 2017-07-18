@@ -8,6 +8,15 @@ export class CyclicBoundary extends SWBoundary1D {
 		super(env);
 	}
 
+
+	/**
+	 * Simulates cyclic field. Particles on the left boundary
+	 * affect particles on the right boundary.
+	 *
+	 * Copy particles:
+	 * - from left inner to right outer boundary
+	 * - from right inner to left outer boundary
+	 */
 	public updateBoundary() {
 		let xMax = this.env.getBounds().xMax;
 		let xMin = this.env.getBounds().xMin;
