@@ -28,7 +28,7 @@ export abstract class SWBoundary1D implements Bounds {
 	 * Copies all particles near the boundary into boundary arrays.
 	 * This is needed each time the position of the particles is changed.
 	 */
-	public abstract updateBoundary(env : SWEnvironment1D);
+	public abstract update(env : SWEnvironment1D);
 
 	/**
 	 * Maps the particle into the environment if its outside the boundary.
@@ -39,7 +39,7 @@ export abstract class SWBoundary1D implements Bounds {
 	 *
 	 * @param p Particle
 	 */
-	public abstract mapParticleInsideEnv(p : Particle);
+	public abstract mapParticleInsideBoundary(p : Particle);
 
 
 	public isInsideLeftInnerBoundary(xPos : number, smoothingLength : number) {

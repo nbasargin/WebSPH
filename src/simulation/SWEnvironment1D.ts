@@ -9,7 +9,6 @@ export class SWEnvironment1D {
 
 	// read only
     private particles : Array<Particle>;
-    private bounds : Bounds;
 	private boundary : SWBoundary1D;
     private fluidVolume : number;
     private gravity : number;
@@ -25,7 +24,6 @@ export class SWEnvironment1D {
             this.particles[i] = new Particle();
         }
 
-        this.bounds = bounds;
         this.boundary = new SolidBoundary(bounds); //CyclicBoundary(this);
         this.smoothingLength = smoothingLength;
 
@@ -39,7 +37,7 @@ export class SWEnvironment1D {
 
     public copy() : SWEnvironment1D {
 		let numPs = this.getParticles().length;
-		let bounds = this.getBounds();
+		let bounds = this.getBoundary();
 		let h = this.getSmoothingLength();
 		let v = this.getFluidVolume();
 		let g = this.getGravity();
@@ -58,7 +56,7 @@ export class SWEnvironment1D {
     	if (smoothingLength <= 0) return;
 
     	this.smoothingLength = smoothingLength;
-    	this.boundary.updateBoundary(this);
+    	this.boundary.update(this);
 	}
 
 	// particles
@@ -66,13 +64,6 @@ export class SWEnvironment1D {
     	return this.particles;
 	}
 
-	// bounds
-	public getBounds() : Bounds {
-		return this.bounds;
-	}
-	public getBoundary() : SWBoundary1D {
-    	return this.boundary;
-	}
 
 	// fluid volume
 	public getFluidVolume() : number {
@@ -96,6 +87,16 @@ export class SWEnvironment1D {
 
 	//endregion
 
+
+	// boundary
+	public getBoundary() : SWBoundary1D {
+		return this.boundary;
+	}
+	public updateBoundary() {
+		this.boundary.update(this);
+	}
+
+
     //region particle distribution
 
     /**
@@ -104,11 +105,11 @@ export class SWEnvironment1D {
     public resetParticlesToWaterColumn() {
         let numStackedParticles = Math.floor(this.particles.length / 10);
         let lastID = this.particles.length - numStackedParticles - 1;
-        this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, lastID);
+        this.distributeParticles(this.boundary.xMin, this.boundary.xMax, 0, lastID);
         this.distributeParticles(0, 0.2, lastID + 1, this.particles.length - 1);
 
 		// update boundary with maximal possible smoothing length
-		this.boundary.updateBoundary(this);
+		this.boundary.update(this);
     }
 
     /**
@@ -118,19 +119,19 @@ export class SWEnvironment1D {
 
         let lastID = Math.floor(this.particles.length * 2 / 3) - 1;
 
-        this.distributeParticles(this.bounds.xMin, 0.5, 0, lastID);
-        this.distributeParticles(0.5, this.bounds.xMax, lastID + 1, this.particles.length - 1);
+        this.distributeParticles(this.boundary.xMin, 0.5, 0, lastID);
+        this.distributeParticles(0.5, this.boundary.xMax, lastID + 1, this.particles.length - 1);
 
         // update boundary with maximal possible smoothing length
-        this.boundary.updateBoundary(this);
+        this.boundary.update(this);
     }
 
 	/**
 	 * Resets particles to the same water level.
 	 */
 	public resetParticlesToSameLevel() {
-		this.distributeParticles(this.bounds.xMin, this.bounds.xMax, 0, this.particles.length - 1);
-		this.boundary.updateBoundary(this);
+		this.distributeParticles(this.boundary.xMin, this.boundary.xMax, 0, this.particles.length - 1);
+		this.boundary.update(this);
 	}
 
     /**

@@ -15,7 +15,7 @@ export class SolidBoundary extends SWBoundary1D {
 	 * returned to the particles next to the wall. This is done by creating
 	 * a copy of next-to-wall particles.
 	 */
-	public updateBoundary(env : SWEnvironment1D) {
+	public update(env : SWEnvironment1D) {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 		let ps = env.getParticles();
@@ -48,7 +48,7 @@ export class SolidBoundary extends SWBoundary1D {
 
 	}
 
-	public mapParticleInsideEnv(p: Particle) {
+	public mapParticleInsideBoundary(p: Particle) {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 

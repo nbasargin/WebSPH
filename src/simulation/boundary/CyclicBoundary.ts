@@ -18,7 +18,7 @@ export class CyclicBoundary extends SWBoundary1D {
 	 * - from left inner to right outer boundary
 	 * - from right inner to left outer boundary
 	 */
-	public updateBoundary(env : SWEnvironment1D) {
+	public update(env : SWEnvironment1D) {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 		let width = xMax - xMin;
@@ -52,7 +52,7 @@ export class CyclicBoundary extends SWBoundary1D {
 	}
 
 
-	public mapParticleInsideEnv(p : Particle) {
+	public mapParticleInsideBoundary(p : Particle) {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 

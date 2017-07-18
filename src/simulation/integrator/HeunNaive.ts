@@ -48,7 +48,7 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_1 = speed_0 + acc_0 * dt
 			this.envPred1.getParticles()[i].speedX = pi.speedX + pi.accX * dt;
 		}
-		this.envPred1.getBoundary().updateBoundary(this.envPred1);
+		this.envPred1.updateBoundary();
 
 
 		// EULER STEP 2
@@ -66,7 +66,7 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_2 = speed_1 + acc_1 * dt
 			p2i.speedX = p1i.speedX + p1i.accX * dt;
 		}
-		this.envPred2.getBoundary().updateBoundary(this.envPred2);
+		this.envPred2.updateBoundary();
 
 		// AVERAGING
 		for (let i = 0; i < particles.length; i++) {
@@ -79,9 +79,9 @@ export class HeunNaive extends SWIntegrator1D {
 			particles[i].speedX = (particles[i].speedX + p2i.speedX) / 2;
 
 			// map particle into environment
-			env.getBoundary().mapParticleInsideEnv(particles[i]);
+			env.getBoundary().mapParticleInsideBoundary(particles[i]);
 		}
-		env.getBoundary().updateBoundary(env);
+		env.updateBoundary();
 
 		// water height
 		for (let i = 0; i < particles.length; i++) {

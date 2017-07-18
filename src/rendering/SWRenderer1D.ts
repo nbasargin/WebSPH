@@ -74,7 +74,7 @@ export class SWRenderer1D {
     }
 
     private initWaterHeightBuffers() {
-        let bounds = this.env.getBounds();
+        let bounds = this.env.getBoundary();
         // position
         let waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
         for (let i = 0; i < this.waterHeightSamples; i++) {
@@ -98,7 +98,7 @@ export class SWRenderer1D {
     }
 
     private initDamBreakValidationBuffers() {
-        let bounds = this.env.getBounds();
+        let bounds = this.env.getBoundary();
         // position
         let validationPosXY = new Float32Array(this.validationSamples * 2);
         for (let i = 0; i < this.validationSamples; i++) {
