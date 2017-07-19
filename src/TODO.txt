@@ -1,7 +1,2 @@
-Completely replace bounds with Boundary in SWEnvironment1D
--> Boundary will get the functionality of bounds (and also have getBounds)
-
-Implement closed boundary
-
 [Optional]:
 Move particle water height calculation to renderer

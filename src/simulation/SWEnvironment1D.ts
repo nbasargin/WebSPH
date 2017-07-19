@@ -24,8 +24,8 @@ export class SWEnvironment1D {
             this.particles[i] = new Particle();
         }
 
-		//this.boundary = new SolidBoundary(bounds);
-		this.boundary = new CyclicBoundary(bounds);
+		this.boundary = new SolidBoundary(bounds);
+		//this.boundary = new CyclicBoundary(bounds);
         this.smoothingLength = smoothingLength;
 
         this.fluidVolume = fluidVolume || 2.5;
