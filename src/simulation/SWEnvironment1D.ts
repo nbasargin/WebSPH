@@ -90,6 +90,17 @@ export class SWEnvironment1D {
 
 
 	// boundary
+	public setBoundaryType(type : number) {
+		if (type == 0) {
+			this.boundary = new CyclicBoundary(this.getBoundary());
+			this.boundary.update(this);
+		} else if (type == 1) {
+			this.boundary = new SolidBoundary(this.getBoundary());
+			this.boundary.update(this);
+		} else {
+			console.log("invalid boundary type");
+		}
+	}
 	public getBoundary() : SWBoundary1D {
 		return this.boundary;
 	}

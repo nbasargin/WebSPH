@@ -50,6 +50,9 @@ export class SWController1D {
     private optDtDynStable : HTMLInputElement;
     private optDtDynFast : HTMLInputElement;
 
+	private optBoundaryCyclic : HTMLInputElement;
+	private optBoundarySolid : HTMLInputElement;
+
     public constructor(glCanvas : GLCanvas, numParticles : number) {
 
         this.canvas = glCanvas;
@@ -138,6 +141,9 @@ export class SWController1D {
         this.optDtFixed = <HTMLInputElement> document.getElementById("websph-opt-dt-fixed");
         this.optDtDynStable = <HTMLInputElement> document.getElementById("websph-opt-dt-dyn-stable");
         this.optDtDynFast = <HTMLInputElement> document.getElementById("websph-opt-dt-dyn-fast");
+
+		this.optBoundaryCyclic = <HTMLInputElement> document.getElementById("websph-opt-cyclic");
+		this.optBoundarySolid = <HTMLInputElement> document.getElementById("websph-opt-solid");
     }
 
     private defaultUIValues() {
@@ -162,6 +168,8 @@ export class SWController1D {
 
         this.txtMaxTime.value = "";
         this.divMaxTime.innerText = "(not used)";
+
+        this.optBoundaryCyclic.checked = true;
     }
 
     private updateSimAndRendFromUI() {
@@ -170,6 +178,8 @@ export class SWController1D {
         this.simulation.useIntegrator = this.optEuler.checked       ? 0 :
                                         this.optHeun.checked        ? 1 :
                                         this.optHeunNaive.checked   ? 2 : 3;
+
+        this.simulation.env.setBoundaryType(this.optBoundaryCyclic.checked ? 0 : 1);
 
 
         this.simulation.useTimeSteppingMode =   this.optDtFixed.checked ? 0 :
@@ -306,6 +316,14 @@ export class SWController1D {
                 me.divMaxTime.innerText = "(used: " + me.maxTime + ")";
             }
         };
+
+        // BOUNDARY
+		this.optBoundaryCyclic.onclick = function () {
+			me.simulation.env.setBoundaryType(me.optBoundaryCyclic.checked ? 0 : 1);
+			me.simulation.update(0);
+			me.renderer.render();
+		};
+		this.optBoundarySolid.onclick = this.optBoundaryCyclic.onclick;
     }
 
 
