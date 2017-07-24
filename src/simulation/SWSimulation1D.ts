@@ -5,6 +5,7 @@ import {HeunOriginal} from "./integrator/HeunOriginal";
 import {HeunNaive} from "./integrator/HeunNaive";
 import {HeunReduced} from "./integrator/HeunReduced";
 import {TimeStepping} from "./TimeStepping";
+import {SWIntegrator1D} from "./integrator/SWIntegrator1D";
 
 /**
  * Main simulation class, contains the integrator and the environment.
@@ -12,41 +13,23 @@ import {TimeStepping} from "./TimeStepping";
 export class SWSimulation1D {
 
     private env : SWEnvironment1D;
-    private euler : IntegratorEuler;
-    private heun : HeunOriginal;
-    private heunNaive : HeunNaive;
-    private heunReduced : HeunReduced;
+    private integrator : SWIntegrator1D;
+    private integratorType : number; // 0: euler,    1: heun,    2: heunNaive,    3: heunReduced
 
     public dt = 0.001;
 
-    public useIntegrator : number = 1; // 0: euler,    1: heun,    2: heunNaive,    3: heunReduced
     public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
 
     public constructor(numParticles : number, bounds : Bounds, smoothingLength : number) {
         this.env = new SWEnvironment1D(numParticles, bounds, smoothingLength);
-        this.euler = new IntegratorEuler(this.env);
-        this.heun = new HeunOriginal(this.env);
-        this.heunNaive = new HeunNaive(this.env);
-        this.heunReduced = new HeunReduced(this.env);
+        this.integratorType = 1;
+        this.setIntegratorType(this.integratorType);
     }
 
     public update(dt : number = this.dt) {
         this.env.setTotalTime(this.env.getTotalTime() + dt);
+        this.integrator.integrate(dt);
 
-        switch (this.useIntegrator) {
-            case 0:
-                this.euler.integrate(dt);
-                break;
-            case 1:
-                this.heun.integrate(dt);
-                break;
-            case 2:
-                this.heunNaive.integrate(dt);
-                break;
-            case 3:
-                this.heunReduced.integrate(dt);
-                break;
-        }
     }
 
     /**
@@ -67,19 +50,33 @@ export class SWSimulation1D {
 
     }
 
+    public setIntegratorType(type : number) {
+        switch(type) {
+            case 0:
+                this.integrator = new IntegratorEuler(this.env);
+                break;
+            case 1:
+                this.integrator = new HeunOriginal(this.env);
+                break;
+            case 2:
+                this.integrator = new HeunNaive(this.env);
+                break;
+            case 3:
+                this.integrator = new HeunReduced(this.env);
+                break;
+        }
+    }
+    public getIntegratorType() {
+        return this.integratorType;
+    }
+
 
     public setBoundaryType(type : number) {
-        this.euler.setBoundaryType(type);
-        this.heun.setBoundaryType(type);
-        this.heunNaive .setBoundaryType(type);
-        this.heunReduced.setBoundaryType(type);
+        this.integrator.setBoundaryType(type);
     }
 
     public setSmoothingLength(h : number) {
-        this.euler.setSmoothingLength(h);
-        this.heun.setSmoothingLength(h);
-        this.heunNaive.setSmoothingLength(h);
-        this.heunReduced.setSmoothingLength(h);
+        this.integrator.setSmoothingLength(h);
     }
 
     public getSmoothingLength() : number {

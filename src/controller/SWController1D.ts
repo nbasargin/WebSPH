@@ -175,9 +175,10 @@ export class SWController1D {
     private updateSimAndRendFromUI() {
         this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
         this.simulation.dt = parseFloat(this.sldDtFixed.value);
-        this.simulation.useIntegrator = this.optEuler.checked       ? 0 :
-                                        this.optHeun.checked        ? 1 :
-                                        this.optHeunNaive.checked   ? 2 : 3;
+        this.simulation.setIntegratorType(  this.optEuler.checked ? 0 :
+                                            this.optHeun.checked  ? 1 :
+                                            this.optHeunNaive.checked   ? 2 : 3);
+
 
         this.simulation.setBoundaryType(this.optBoundaryCyclic.checked ? 0 : 1);
 
@@ -291,9 +292,9 @@ export class SWController1D {
 
         // INTEGRATOR
         this.optHeun.onclick = function() {
-            me.simulation.useIntegrator =   me.optEuler.checked       ? 0 :
+            me.simulation.setIntegratorType(me.optEuler.checked       ? 0 :
                                             me.optHeun.checked        ? 1 :
-                                            me.optHeunNaive.checked   ? 2 : 3;
+                                            me.optHeunNaive.checked   ? 2 : 3);
         };
         this.optEuler.onclick = me.optHeun.onclick;
         this.optHeunNaive.onclick = me.optHeun.onclick;
