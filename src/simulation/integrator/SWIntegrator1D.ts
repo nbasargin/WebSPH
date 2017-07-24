@@ -17,4 +17,8 @@ export abstract class SWIntegrator1D {
 
     public abstract integrate(dt : number);
 
+
+    public abstract setBoundaryType(type : number);
+
+    public abstract setSmoothingLength(h : number);
 }

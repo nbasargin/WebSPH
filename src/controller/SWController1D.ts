@@ -84,7 +84,7 @@ export class SWController1D {
         this.simulation = new SWSimulation1D(this.numParticles, bounds, parseFloat(this.sldSmoothing.value));
 
         // renderer
-        this.renderer = new SWRenderer1D(this.canvas, this.simulation.env);
+        this.renderer = new SWRenderer1D(this.canvas, this.simulation.getEnvironment());
 
     }
 
@@ -94,8 +94,8 @@ export class SWController1D {
         let dt = this.simulation.getMaxTimeStep();
         if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
 
-        if (this.simulation.env.getTotalTime() + dt > this.maxTime) {
-            dt = this.maxTime - this.simulation.env.getTotalTime();
+        if (this.simulation.getTotalTime() + dt > this.maxTime) {
+            dt = this.maxTime - this.simulation.getTotalTime();
         }
         if (dt <= 0 && this.renderLoop.isRunning()) {
             this.btnAnim.onclick(null);
@@ -104,7 +104,7 @@ export class SWController1D {
 
         this.simulation.update(dt);
         this.renderer.render();
-        this.divTotalTime.innerText = this.simulation.env.getTotalTime().toFixed(3);
+        this.divTotalTime.innerText = this.simulation.getTotalTime().toFixed(3);
         this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
         this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
     }
@@ -173,13 +173,13 @@ export class SWController1D {
     }
 
     private updateSimAndRendFromUI() {
-        this.simulation.env.setSmoothingLength(parseFloat(this.sldSmoothing.value));
+        this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
         this.simulation.dt = parseFloat(this.sldDtFixed.value);
         this.simulation.useIntegrator = this.optEuler.checked       ? 0 :
                                         this.optHeun.checked        ? 1 :
                                         this.optHeunNaive.checked   ? 2 : 3;
 
-        this.simulation.env.setBoundaryType(this.optBoundaryCyclic.checked ? 0 : 1);
+        this.simulation.setBoundaryType(this.optBoundaryCyclic.checked ? 0 : 1);
 
 
         this.simulation.useTimeSteppingMode =   this.optDtFixed.checked ? 0 :
@@ -204,7 +204,7 @@ export class SWController1D {
         // ANIMATION
         this.btnAnim.onclick = function() {
             if (!me.renderLoop.isRunning()) {
-                if (me.simulation.env.getTotalTime() >= me.maxTime) {
+                if (me.simulation.getTotalTime() >= me.maxTime) {
                     alert("Max time reached");
                     return;
                 }
@@ -223,7 +223,7 @@ export class SWController1D {
 
         // ONE STEP
         this.btnOneStep.onclick = function() {
-            if (me.simulation.env.getTotalTime() >= me.maxTime) {
+            if (me.simulation.getTotalTime() >= me.maxTime) {
                 alert("Max time reached");
                 return;
             }
@@ -240,7 +240,7 @@ export class SWController1D {
             me.simulation.update(0);
             me.renderer.render();
 
-            me.divTotalTime.innerText = me.simulation.env.getTotalTime().toFixed(3);
+            me.divTotalTime.innerText = me.simulation.getTotalTime().toFixed(3);
             me.divDtDynStable.innerText = me.simulation.getMaxTimeStep(1).toFixed(5);
             me.divDtDynFast.innerText = me.simulation.getMaxTimeStep(2).toFixed(5);
         };
@@ -259,9 +259,9 @@ export class SWController1D {
 
         // SMOOTHING
         this.sldSmoothing.onchange = function () {
-            me.simulation.env.setSmoothingLength(parseFloat(me.sldSmoothing.value));
+            me.simulation.setSmoothingLength(parseFloat(me.sldSmoothing.value));
             console.log("!! SMOOTH onchange : " + parseFloat(me.sldSmoothing.value));
-            me.divSmoothing.innerText = "" + me.simulation.env.getSmoothingLength();
+            me.divSmoothing.innerText = "" + me.simulation.getSmoothingLength();
 
             me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
             me.sldSmoothingVisu.value = me.sldSmoothing.value;
@@ -319,7 +319,7 @@ export class SWController1D {
 
         // BOUNDARY
 		this.optBoundaryCyclic.onclick = function () {
-			me.simulation.env.setBoundaryType(me.optBoundaryCyclic.checked ? 0 : 1);
+			me.simulation.setBoundaryType(me.optBoundaryCyclic.checked ? 0 : 1);
 			me.simulation.update(0);
 			me.renderer.render();
 		};

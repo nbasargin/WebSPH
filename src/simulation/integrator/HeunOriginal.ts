@@ -72,4 +72,15 @@ export class HeunOriginal extends SWIntegrator1D {
 
 	}
 
+
+	public setBoundaryType(type: number) {
+		this.env.setBoundaryType(type);
+		this.envPred.setBoundaryType(type);
+	}
+
+	public setSmoothingLength(h: number) {
+		this.env.setSmoothingLength(h);
+		this.envPred.setSmoothingLength(h);
+	}
+
 }

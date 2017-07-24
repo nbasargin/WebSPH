@@ -37,4 +37,13 @@ export class IntegratorEuler extends SWIntegrator1D {
 
     }
 
+
+    public setBoundaryType(type: number) {
+        this.env.setBoundaryType(type);
+    }
+
+    public setSmoothingLength(h: number) {
+        this.env.setSmoothingLength(h);
+    }
+
 }

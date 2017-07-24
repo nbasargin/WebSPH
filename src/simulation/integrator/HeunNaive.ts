@@ -7,7 +7,6 @@ import {SWEnvironment1D} from "../SWEnvironment1D";
  */
 export class HeunNaive extends SWIntegrator1D {
 
-
 	private envPred1 : SWEnvironment1D;
 	private envPred2 : SWEnvironment1D;
 
@@ -91,6 +90,19 @@ export class HeunNaive extends SWIntegrator1D {
 
 
 
+	}
+
+
+	public setBoundaryType(type: number) {
+		this.env.setBoundaryType(type);
+		this.envPred1.setBoundaryType(type);
+		this.envPred2.setBoundaryType(type);
+	}
+
+	public setSmoothingLength(h: number) {
+		this.env.setSmoothingLength(h);
+		this.envPred1.setSmoothingLength(h);
+		this.envPred2.setSmoothingLength(h);
 	}
 
 }

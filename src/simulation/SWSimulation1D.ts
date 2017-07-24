@@ -11,7 +11,7 @@ import {TimeStepping} from "./TimeStepping";
  */
 export class SWSimulation1D {
 
-    public env : SWEnvironment1D;
+    private env : SWEnvironment1D;
     private euler : IntegratorEuler;
     private heun : HeunOriginal;
     private heunNaive : HeunNaive;
@@ -67,5 +67,31 @@ export class SWSimulation1D {
 
     }
 
+
+    public setBoundaryType(type : number) {
+        this.euler.setBoundaryType(type);
+        this.heun.setBoundaryType(type);
+        this.heunNaive .setBoundaryType(type);
+        this.heunReduced.setBoundaryType(type);
+    }
+
+    public setSmoothingLength(h : number) {
+        this.euler.setSmoothingLength(h);
+        this.heun.setSmoothingLength(h);
+        this.heunNaive.setSmoothingLength(h);
+        this.heunReduced.setSmoothingLength(h);
+    }
+
+    public getSmoothingLength() : number {
+        return this.env.getSmoothingLength();
+    }
+
+    public getEnvironment() : SWEnvironment1D {
+        return this.env;
+    }
+
+    public getTotalTime() : number {
+        return this.env.getTotalTime();
+    }
 
 }
