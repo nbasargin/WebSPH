@@ -7,6 +7,13 @@ import {SolidBoundary} from "./boundary/SolidBoundary";
 
 export class SWEnvironment1D {
 
+	public groundHeight(x : number) : number {
+		return 0.3 * Math.sin(x);
+	}
+	public dGroundHeight(x : number) : number {
+		return 0.3 * Math.cos(x);
+	}
+
 	// read only
     private particles : Array<Particle>;
 	private boundary : SWBoundary1D;
@@ -32,8 +39,8 @@ export class SWEnvironment1D {
         this.gravity = gravity || 9.81;
 
         //this.resetParticlesToWaterColumn();
-        this.resetParticlesToDamBreak();
-        //this.resetParticlesToSameLevel();
+        //this.resetParticlesToDamBreak();
+        this.resetParticlesToSameLevel();
     }
 
     public copy() : SWEnvironment1D {
@@ -202,7 +209,7 @@ export class SWEnvironment1D {
 		}
 
         let pVolume = this.fluidVolume / particles.length;
-        return height * pVolume;
+        return height * pVolume + this.groundHeight(x);
     }
 
     public getFluidHeightForSpecificSmoothingLength(x : number, newSmoothingLength : number) : number {
@@ -247,7 +254,7 @@ export class SWEnvironment1D {
 
 
         let pVolume = this.fluidVolume / particles.length;
-        return acc * pVolume * this.gravity;
+        return acc * pVolume * this.gravity - this.dGroundHeight(x) * this.gravity;
     }
 
     //endregion

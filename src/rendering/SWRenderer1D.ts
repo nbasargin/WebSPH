@@ -18,7 +18,7 @@ export class SWRenderer1D {
     // drawing options
     private drawParticles = true;
     private drawWaterHeight = true;
-    private drawBaseSquare = false;
+    private drawBaseSquare = true;
     public visualizationSmoothingLength = 0.03;
     private waterHeightSamples = 500;
     private validationSamples = 1000;
