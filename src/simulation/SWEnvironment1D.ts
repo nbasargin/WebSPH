@@ -4,21 +4,17 @@ import {SmoothingKernel} from "./SmoothingKernel";
 import {CyclicBoundary} from "./boundary/CyclicBoundary";
 import {SWBoundary1D} from "./boundary/SWBoundary1D";
 import {SolidBoundary} from "./boundary/SolidBoundary";
+import {GroundProfile} from "./ground/GroundProfile";
+import {LinearGround} from "./ground/LinearGround";
 
 export class SWEnvironment1D {
-
-	public groundHeight(x : number) : number {
-		return 0.3 * Math.sin(x);
-	}
-	public dGroundHeight(x : number) : number {
-		return 0.3 * Math.cos(x);
-	}
 
 	// read only
     private particles : Array<Particle>;
 	private boundary : SWBoundary1D;
     private fluidVolume : number;
     private gravity : number;
+    private ground : GroundProfile;
 
     // read write
     private totalTime = 0;
@@ -34,6 +30,10 @@ export class SWEnvironment1D {
 		this.boundary = new SolidBoundary(bounds);
 		//this.boundary = new CyclicBoundary(bounds);
         this.smoothingLength = smoothingLength;
+
+        let slope = 0.1;
+        let yIntercept = 0;
+        this.ground = new LinearGround(slope, yIntercept);
 
         this.fluidVolume = fluidVolume || 2.5;
         this.gravity = gravity || 9.81;
@@ -177,9 +177,18 @@ export class SWEnvironment1D {
 
     //region physics
 
+
+	public getGroundHeight(x : number) : number {
+		return this.ground.getGroundHeigth(x);
+	}
+	public getGroundSlope(x : number) : number {
+		return this.ground.getGroundSlope(x);
+	}
+
     /**
      * Calculates the fluid height at specified x position.
-     *
+     * Fluid height is not affected by ground height.
+	 *
      * @param x                     position
      * @returns {number}            fluid height at the position
      */
@@ -209,14 +218,14 @@ export class SWEnvironment1D {
 		}
 
         let pVolume = this.fluidVolume / particles.length;
-        return height * pVolume + this.groundHeight(x);
+        return height * pVolume;
     }
 
     public getFluidHeightForSpecificSmoothingLength(x : number, newSmoothingLength : number) : number {
-    	let previosSmoothingLength = this.smoothingLength;
+    	let previousSmoothingLength = this.smoothingLength;
     	this.setSmoothingLength(newSmoothingLength);
     	let height = this.getFluidHeight(x);
-    	this.setSmoothingLength(previosSmoothingLength);
+    	this.setSmoothingLength(previousSmoothingLength);
 		return height;
 	}
 
@@ -254,7 +263,7 @@ export class SWEnvironment1D {
 
 
         let pVolume = this.fluidVolume / particles.length;
-        return acc * pVolume * this.gravity - this.dGroundHeight(x) * this.gravity;
+        return acc * pVolume * this.gravity - this.getGroundSlope(x) * this.gravity;
     }
 
     //endregion
