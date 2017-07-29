@@ -289,6 +289,8 @@ export class SWRenderer1D {
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
         }
 
+        // ASSUMING CONSTANT GROUND
+
         // draw ground
         // positions
         gl.bindBuffer(gl.ARRAY_BUFFER, this.glGroundHeightPosBuffer.buffer);

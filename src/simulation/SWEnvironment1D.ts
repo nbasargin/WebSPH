@@ -6,6 +6,7 @@ import {SWBoundary1D} from "./boundary/SWBoundary1D";
 import {SolidBoundary} from "./boundary/SolidBoundary";
 import {GroundProfile} from "./ground/GroundProfile";
 import {LinearGround} from "./ground/LinearGround";
+import {SineGround} from "./ground/SineGround";
 
 export class SWEnvironment1D {
 
@@ -31,9 +32,17 @@ export class SWEnvironment1D {
 		//this.boundary = new CyclicBoundary(bounds);
         this.smoothingLength = smoothingLength;
 
-        let slope = 0.1;
+        /*
+        let slope = 0.5;
         let yIntercept = 0;
         this.ground = new LinearGround(slope, yIntercept);
+		*/
+
+		let scale = 0.2;
+		let period = 10;
+	    let phase = Math.PI;
+        this.ground = new SineGround(scale, period, phase);
+
 
         this.fluidVolume = fluidVolume || 2.5;
         this.gravity = gravity || 9.81;
