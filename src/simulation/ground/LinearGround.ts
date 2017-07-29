@@ -12,6 +12,7 @@ export class LinearGround extends GroundProfile {
      * @param yIntercept
      */
     public constructor(slope : number, yIntercept : number) {
+        super();
         this.slope = slope;
         this.yIntercept = yIntercept;
     }

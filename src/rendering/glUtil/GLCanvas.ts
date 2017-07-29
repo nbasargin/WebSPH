@@ -39,12 +39,24 @@ export class GLCanvas {
 
         if (0 < h && h < w) {
             let ratio = w / h;
-            return { xMin : -(ratio - 1) / 2, xMax : 1 + (ratio - 1) / 2, yMin : 0, yMax : 1 + yMore};
+            return {
+                xMin : -(ratio - 1) / 2,
+                xMax : 1 + (ratio - 1) / 2,
+                yMin : - yMore,
+                yMax : 1 + yMore
+            };
+
         } else if (0 < w && w < h) {
             let ratio = h / w;
-            return { xMin : 0, xMax : 1, yMin : -(ratio - 1) / 2, yMax : 1 + Math.max((ratio - 1) / 2, yMore)};
+            return {
+                xMin : 0,
+                xMax : 1,
+                yMin : Math.min(-(ratio - 1) / 2, -yMore),
+                yMax : 1 + Math.max((ratio - 1) / 2, yMore)
+            };
+
         } else {
-            return { xMin : 0, xMax : 1, yMin : 0, yMax : 1 + yMore};
+            return { xMin : 0, xMax : 1, yMin : -yMore, yMax : 1 + yMore};
         }
     }
 

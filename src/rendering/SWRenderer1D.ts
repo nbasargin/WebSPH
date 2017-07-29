@@ -28,8 +28,12 @@ export class SWRenderer1D {
     private glParticleColBuffer : GLBuffer;
     private glLinePosBuffer : GLBuffer;
     private glLineColBuffer : GLBuffer;
+
     private glWaterHeightPosBuffer : GLBuffer;
     private glWaterHeightColBuffer : GLBuffer;
+    private glGroundHeightPosBuffer : GLBuffer;
+    private glGroundHeightColBuffer : GLBuffer;
+
     private glDamBreakValidationPosBuffer : GLBuffer;
     private glDamBreakValidationColBuffer : GLBuffer;
 
@@ -49,6 +53,7 @@ export class SWRenderer1D {
         this.initParticleBuffers();
         this.initBorderLines();
         this.initWaterHeightBuffers();
+        this.initGroundHeightBuffers();
         this.initDamBreakValidationBuffers();
     }
 
@@ -80,9 +85,9 @@ export class SWRenderer1D {
         for (let i = 0; i < this.waterHeightSamples; i++) {
             let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
             waterHeightPosXY[i*4    ] = x;             // x ground
-            waterHeightPosXY[i*4 + 1] = bounds.yMin;   // y ground
+            waterHeightPosXY[i*4 + 1] = this.env.getGroundHeight(x);   // y ground
             waterHeightPosXY[i*4 + 2] = x;             // x water
-            waterHeightPosXY[i*4 + 3] = 0;             // y water
+            waterHeightPosXY[i*4 + 3] = 0;             // y water (undefined)
         }
         this.glWaterHeightPosBuffer = new GLBuffer(this.glCanvas.gl, waterHeightPosXY, 2);
 
@@ -95,6 +100,31 @@ export class SWRenderer1D {
             waterHeightColRGBA[i*4 + 3] = 1; // a
         }
         this.glWaterHeightColBuffer = new GLBuffer(this.glCanvas.gl, waterHeightColRGBA, 4);
+    }
+
+
+    private initGroundHeightBuffers() {
+        let bounds = this.env.getBoundary();
+        // position
+        let groundHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
+        for (let i = 0; i < this.waterHeightSamples; i++) {
+            let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
+            groundHeightPosXY[i*4    ] = x;             // x ground
+            groundHeightPosXY[i*4 + 1] = this.env.getBoundary().yMin;   // y min
+            groundHeightPosXY[i*4 + 2] = x;             // x water
+            groundHeightPosXY[i*4 + 3] = this.env.getGroundHeight(x);  // y ground
+        }
+        this.glGroundHeightPosBuffer = new GLBuffer(this.glCanvas.gl, groundHeightPosXY, 2);
+
+        // color (constant color)
+        let groundHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
+        for (let i = 0; i < groundHeightColRGBA.length / 4; i++) {
+            groundHeightColRGBA[i*4    ] = 0; // r
+            groundHeightColRGBA[i*4 + 1] = 0; // g
+            groundHeightColRGBA[i*4 + 2] = 0; // b
+            groundHeightColRGBA[i*4 + 3] = 1; // a
+        }
+        this.glGroundHeightColBuffer = new GLBuffer(this.glCanvas.gl, groundHeightColRGBA, 4);
     }
 
     private initDamBreakValidationBuffers() {
@@ -168,6 +198,7 @@ export class SWRenderer1D {
         for (let i = 0; i < this.waterHeightSamples; i++) {
             let x = waterHeightPosXY[i * 4]; // x ground
             let height = this.env.getFluidHeightForSpecificSmoothingLength(x, this.visualizationSmoothingLength);
+            height += this.env.getGroundHeight(x);
             waterHeightPosXY[i * 4 + 3] = height; // y water
         }
         this.glWaterHeightPosBuffer.flushData();
@@ -257,6 +288,18 @@ export class SWRenderer1D {
             mvMatrix.updateUniform();
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
         }
+
+        // draw ground
+        // positions
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.glGroundHeightPosBuffer.buffer);
+        gl.vertexAttribPointer(vertexPositionAttribute, this.glGroundHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        // colors
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.glGroundHeightColBuffer.buffer);
+        gl.vertexAttribPointer(vertexColorAttribute, this.glGroundHeightColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glGroundHeightPosBuffer.numItems);
+
+
 
         // validation
         gl.clear(gl.DEPTH_BUFFER_BIT);

@@ -68,7 +68,7 @@ export class HeunReduced extends SWIntegrator1D {
 		// water height
 		for (let i = 0; i < particles.length; i++) {
 			let pi = particles[i];
-			pi.posY = env.getFluidHeight(pi.posX);
+			pi.posY = env.getFluidHeight(pi.posX) + env.getGroundHeight(pi.posX);
 		}
 
 	}
