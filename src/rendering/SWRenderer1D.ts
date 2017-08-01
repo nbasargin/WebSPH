@@ -177,9 +177,10 @@ export class SWRenderer1D {
         let particleColRGBA = this.glParticleColBuffer.getData();
 
         for (let i = 0; i < particles.length; i++) {
+            let pi = particles[i];
             // position
-            particlePosXY[i*2]   = particles[i].posX;
-            particlePosXY[i*2+1] = particles[i].posY;
+            particlePosXY[i*2]   = pi.posX;
+            particlePosXY[i*2+1] = this.env.getFluidHeight(pi.posX) + this.env.getGroundHeight(pi.posX);
 
             // color
             particleColRGBA[i*4]   = particles[i].color[0];

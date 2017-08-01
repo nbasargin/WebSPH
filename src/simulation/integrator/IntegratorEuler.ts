@@ -28,13 +28,6 @@ export class IntegratorEuler extends SWIntegrator1D {
             let pi = particles[i];
             pi.accX = env.getFluidAcc(pi.posX);
         }
-
-        // water height
-        for (let i = 0; i < particles.length; i++) {
-            let pi = particles[i];
-            pi.posY = env.getFluidHeight(pi.posX) + env.getGroundHeight(pi.posX);
-        }
-
     }
 
 

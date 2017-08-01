@@ -2,7 +2,6 @@ export class Particle {
 
     //public pos : Array<number>;
     public posX : number;
-    public posY : number;
     //public speed : Array<number>;
     public speedX : number;
     public accX : number;
@@ -12,7 +11,6 @@ export class Particle {
     public constructor() {
         //this.pos = [0, 0, 0];
         this.posX = 0;
-        this.posY = 0;
         //this.speed = [0, 0, 0];
         this.speedX = 0;
         this.accX = 0;
