@@ -5,8 +5,9 @@ import {CyclicBoundary} from "./boundary/CyclicBoundary";
 import {SWBoundary1D} from "./boundary/SWBoundary1D";
 import {SolidBoundary} from "./boundary/SolidBoundary";
 import {GroundProfile} from "./ground/GroundProfile";
-import {LinearGround} from "./ground/LinearGround";
-import {SineGround} from "./ground/SineGround";
+import {ConstLinearGround} from "./ground/ConstLinearGround";
+import {ConstSineGround} from "./ground/ConstSineGround";
+import {DynamicLinearGround} from "./ground/DynamicLinearGround";
 
 export class SWEnvironment1D {
 
@@ -35,21 +36,28 @@ export class SWEnvironment1D {
         /*
         let slope = 0.5;
         let yIntercept = 0;
-        this.ground = new LinearGround(slope, yIntercept);
+        this.ground = new ConstLinearGround(slope, yIntercept);
 		*/
 
+        /*
 		let scale = 0.2;
 		let period = 10;
 	    let phase = Math.PI;
-        this.ground = new SineGround(scale, period, phase);
+        this.ground = new ConstSineGround(scale, period, phase);
+        */
+
+        let yIntercept = 0.0;
+        let maxSlope = 0.2;
+        let slopeChangeSpeed = 4;
+        this.ground = new DynamicLinearGround(yIntercept, maxSlope, slopeChangeSpeed);
 
 
         this.fluidVolume = fluidVolume || 2.5;
         this.gravity = gravity || 9.81;
 
-        //this.resetParticlesToWaterColumn();
+        this.resetParticlesToWaterColumn();
         //this.resetParticlesToDamBreak();
-        this.resetParticlesToSameLevel();
+        //this.resetParticlesToSameLevel();
     }
 
     public copy() : SWEnvironment1D {
@@ -188,10 +196,10 @@ export class SWEnvironment1D {
 
 
 	public getGroundHeight(x : number) : number {
-		return this.ground.getGroundHeigth(x);
+		return this.ground.getGroundHeigth(x, this.totalTime);
 	}
 	public getGroundSlope(x : number) : number {
-		return this.ground.getGroundSlope(x);
+		return this.ground.getGroundSlope(x, this.totalTime);
 	}
 
     /**

@@ -1,6 +1,6 @@
 import {GroundProfile} from "./GroundProfile";
 
-export class SineGround extends GroundProfile {
+export class ConstSineGround extends GroundProfile {
 
     private scale : number;
     private period : number;
@@ -13,11 +13,11 @@ export class SineGround extends GroundProfile {
         this.phase = phase;
     }
 
-    public getGroundHeigth(x: number) {
+    public getGroundHeigth(x: number, t : number) {
         return this.scale * Math.sin(this.period * x + this.phase);
     }
 
-    public getGroundSlope(x: number) {
+    public getGroundSlope(x: number, t : number) {
         return this.scale * this.period * Math.cos(this.period * x + this.phase);
     }
 

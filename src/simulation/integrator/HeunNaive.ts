@@ -32,6 +32,7 @@ export class HeunNaive extends SWIntegrator1D {
 			this.envPred2.setSmoothingLength(this.env.getSmoothingLength());
 		}
 
+		let totalTime = this.env.getTotalTime();
 
 		// EULER STEP 1
 		for (let i = 0; i < particles.length; i++) {
@@ -47,7 +48,10 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_1 = speed_0 + acc_0 * dt
 			this.envPred1.getParticles()[i].speedX = pi.speedX + pi.accX * dt;
 		}
+		this.envPred1.setTotalTime(totalTime + dt);
 		this.envPred1.updateBoundary();
+
+
 
 
 		// EULER STEP 2
@@ -65,6 +69,7 @@ export class HeunNaive extends SWIntegrator1D {
 			// speed_2 = speed_1 + acc_1 * dt
 			p2i.speedX = p1i.speedX + p1i.accX * dt;
 		}
+		this.envPred2.setTotalTime(totalTime + 2 * dt);
 		this.envPred2.updateBoundary();
 
 		// AVERAGING
@@ -80,6 +85,7 @@ export class HeunNaive extends SWIntegrator1D {
 			// map particle into environment
 			env.getBoundary().mapParticleInsideBoundary(particles[i]);
 		}
+		env.setTotalTime(totalTime + dt);
 		env.updateBoundary();
 
 		// water height

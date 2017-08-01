@@ -20,7 +20,7 @@ export class IntegratorEuler extends SWIntegrator1D {
             particles[i].posX = pi.posX + pi.speedX * dt;
             env.getBoundary().mapParticleInsideBoundary(particles[i]);
         }
-
+        env.setTotalTime(env.getTotalTime() + dt);
         env.updateBoundary();
 
         // force computation

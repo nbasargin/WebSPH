@@ -1,6 +1,6 @@
 import {GroundProfile} from "./GroundProfile";
 
-export class LinearGround extends GroundProfile {
+export class ConstLinearGround extends GroundProfile {
 
     private slope : number;
     private yIntercept : number;
@@ -18,11 +18,11 @@ export class LinearGround extends GroundProfile {
     }
 
 
-    public getGroundHeigth(x: number) {
+    public getGroundHeigth(x: number, t : number) {
         return this.slope * x + this.yIntercept;
     }
 
-    public getGroundSlope(x: number) {
+    public getGroundSlope(x: number, t : number) {
         return this.slope;
     }
 

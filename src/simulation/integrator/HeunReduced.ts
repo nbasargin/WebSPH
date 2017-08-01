@@ -24,6 +24,8 @@ export class HeunReduced extends SWIntegrator1D {
 
 		let particlesPred = this.envPred.getParticles();
 
+		let totalTime = this.env.getTotalTime();
+
 		if (particles.length != particlesPred.length) {
 			console.log("Invalid number of particles!");
 			return;
@@ -41,6 +43,7 @@ export class HeunReduced extends SWIntegrator1D {
 			this.envPred.getBoundary().mapParticleInsideBoundary(pred);
 		}
 
+		this.envPred.setTotalTime(totalTime + dt);
 		this.envPred.updateBoundary();
 
 		// given: pos_1 -> calc: acc_1
@@ -62,7 +65,7 @@ export class HeunReduced extends SWIntegrator1D {
 			part.posX = part.posX + part.speedX * dt;
 			env.getBoundary().mapParticleInsideBoundary(part);
 		}
-
+		this.env.setTotalTime(totalTime + dt);
 		this.env.updateBoundary();
 
 		// water height

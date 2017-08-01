@@ -27,6 +27,7 @@ export class HeunOriginal extends SWIntegrator1D {
             this.envPred.setSmoothingLength(this.env.getSmoothingLength());
         }
 
+		let totalTime = this.env.getTotalTime();
 
 
 		// given: pos_0, speed_0 -> calc: acc_0, pos_1
@@ -39,7 +40,7 @@ export class HeunOriginal extends SWIntegrator1D {
 			pred.posX = part.posX + part.speedX * dt;
 			this.envPred.getBoundary().mapParticleInsideBoundary(pred);
 		}
-
+		this.envPred.setTotalTime(totalTime + dt);
 		this.envPred.updateBoundary();
 
 		// given: pos_1 -> calc: acc_1
@@ -61,7 +62,7 @@ export class HeunOriginal extends SWIntegrator1D {
 			part.posX = part.posX + part.speedX * dt;
 			env.getBoundary().mapParticleInsideBoundary(part);
 		}
-
+		this.env.setTotalTime(totalTime + dt);
 		this.env.updateBoundary();
 
 		// water height

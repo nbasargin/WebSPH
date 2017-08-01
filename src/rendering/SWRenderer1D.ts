@@ -19,6 +19,7 @@ export class SWRenderer1D {
     private drawParticles = true;
     private drawWaterHeight = true;
     private drawBaseSquare = true;
+    private drawValidation = false;
     public visualizationSmoothingLength = 0.03;
     private waterHeightSamples = 500;
     private validationSamples = 1000;
@@ -84,9 +85,9 @@ export class SWRenderer1D {
         let waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
         for (let i = 0; i < this.waterHeightSamples; i++) {
             let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
-            waterHeightPosXY[i*4    ] = x;             // x ground
+            waterHeightPosXY[i*4    ] = x;             // x
             waterHeightPosXY[i*4 + 1] = this.env.getGroundHeight(x);   // y ground
-            waterHeightPosXY[i*4 + 2] = x;             // x water
+            waterHeightPosXY[i*4 + 2] = x;             // x
             waterHeightPosXY[i*4 + 3] = 0;             // y water (undefined)
         }
         this.glWaterHeightPosBuffer = new GLBuffer(this.glCanvas.gl, waterHeightPosXY, 2);
@@ -109,9 +110,9 @@ export class SWRenderer1D {
         let groundHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
         for (let i = 0; i < this.waterHeightSamples; i++) {
             let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.waterHeightSamples - 1);
-            groundHeightPosXY[i*4    ] = x;             // x ground
+            groundHeightPosXY[i*4    ] = x;             // x
             groundHeightPosXY[i*4 + 1] = this.env.getBoundary().yMin;   // y min
-            groundHeightPosXY[i*4 + 2] = x;             // x water
+            groundHeightPosXY[i*4 + 2] = x;             // x
             groundHeightPosXY[i*4 + 3] = this.env.getGroundHeight(x);  // y ground
         }
         this.glGroundHeightPosBuffer = new GLBuffer(this.glCanvas.gl, groundHeightPosXY, 2);
@@ -196,12 +197,25 @@ export class SWRenderer1D {
         let waterHeightPosXY = this.glWaterHeightPosBuffer.getData();
         // update water height
         for (let i = 0; i < this.waterHeightSamples; i++) {
-            let x = waterHeightPosXY[i * 4]; // x ground
-            let height = this.env.getFluidHeightForSpecificSmoothingLength(x, this.visualizationSmoothingLength);
-            height += this.env.getGroundHeight(x);
-            waterHeightPosXY[i * 4 + 3] = height; // y water
+            let x = waterHeightPosXY[i * 4];
+            let groundHeight = this.env.getGroundHeight(x);
+            let waterHeight = this.env.getFluidHeightForSpecificSmoothingLength(x, this.visualizationSmoothingLength);
+            waterHeightPosXY[i * 4 + 1] = groundHeight; // y water min
+            waterHeightPosXY[i * 4 + 3] = groundHeight + waterHeight; // y water max
         }
         this.glWaterHeightPosBuffer.flushData();
+    }
+
+
+    private updateGroundHeightBuffers() {
+        let groundHeightPosXY = this.glGroundHeightPosBuffer.getData();
+        // update ground height
+        for (let i = 0; i < this.waterHeightSamples; i++) {
+            let x = groundHeightPosXY[i*4];
+            groundHeightPosXY[i*4 + 3] = this.env.getGroundHeight(x);  // y ground
+        }
+        this.glGroundHeightPosBuffer.flushData();
+
     }
 
     private updateDamBreakValidation() {
@@ -289,8 +303,8 @@ export class SWRenderer1D {
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
         }
 
-        // ASSUMING CONSTANT GROUND
-
+        // update ground
+        this.updateGroundHeightBuffers();
         // draw ground
         // positions
         gl.bindBuffer(gl.ARRAY_BUFFER, this.glGroundHeightPosBuffer.buffer);
@@ -304,19 +318,20 @@ export class SWRenderer1D {
 
 
         // validation
-        gl.clear(gl.DEPTH_BUFFER_BIT);
-        this.updateDamBreakValidation();
-        // pos
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationPosBuffer.buffer);
-        gl.vertexAttribPointer(vertexPositionAttribute, this.glDamBreakValidationPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        // color
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationColBuffer.buffer);
-        gl.vertexAttribPointer(vertexColorAttribute, this.glDamBreakValidationColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        // matrix setup + draw
-        pMatrix.updateUniform();
-        mvMatrix.updateUniform();
-        gl.drawArrays(gl.LINE_STRIP, 0, this.glDamBreakValidationPosBuffer.numItems);
-
+        if (this.drawValidation) {
+            gl.clear(gl.DEPTH_BUFFER_BIT);
+            this.updateDamBreakValidation();
+            // pos
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationPosBuffer.buffer);
+            gl.vertexAttribPointer(vertexPositionAttribute, this.glDamBreakValidationPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            // color
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationColBuffer.buffer);
+            gl.vertexAttribPointer(vertexColorAttribute, this.glDamBreakValidationColBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            // matrix setup + draw
+            pMatrix.updateUniform();
+            mvMatrix.updateUniform();
+            gl.drawArrays(gl.LINE_STRIP, 0, this.glDamBreakValidationPosBuffer.numItems);
+        }
 
     }
 

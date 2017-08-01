@@ -27,7 +27,7 @@ export class SWSimulation1D {
     }
 
     public update(dt : number = this.dt) {
-        this.env.setTotalTime(this.env.getTotalTime() + dt);
+        // total time is updated by the integrator
         this.integrator.integrate(dt);
 
     }
