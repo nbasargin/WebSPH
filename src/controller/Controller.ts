@@ -84,10 +84,10 @@ export class Controller {
         //let bounds = this.canvas.getOrthographicBounds();
 
         let bounds = {
-			xMin : -2,
+			xMin : -3,
 			xMax : 2,
 			yMin : -0.5,
-			yMax : 1.7
+			yMax : 1.5
 		};
         this.simulation = new Simulation(this.numParticles, ParticleDistributionPreset.UNIFORM, bounds);
 		this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
