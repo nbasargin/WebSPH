@@ -1,6 +1,6 @@
 import {RenderLoop} from "../rendering/RenderLoop";
 import {Renderer} from "../rendering/Renderer";
-import {Simulation, ParticleDistributionPreset, IntegratorType} from "../simulation/Simulation";
+import {Simulation, ParticleDistributionPreset, IntegratorType, TimeSteppingMode} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 import {BoundaryType} from "../simulation/boundary/Boundary";
 
@@ -73,10 +73,10 @@ export class Controller {
         this.initListeners();
 
         // keep particles in place
-        this.simulation.update(0);
+        //this.simulation.update();
         this.renderer.render();
-        this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
-        this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
+        this.divDtDynStable.innerText = this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE).toFixed(5);
+        this.divDtDynFast.innerText = this.simulation.getTimeStepForMode(TimeSteppingMode.FAST).toFixed(5);
     }
 
     private initSimulationAndRenderer() {
@@ -93,22 +93,25 @@ export class Controller {
     private oneStep() {
 
         // update
-        let dt = this.simulation.getMaxTimeStep();
-        if (this.chkLimitMaxDt.checked) dt = Math.min(0.01, dt);
+        if (this.chkLimitMaxDt.checked) {
+        	this.simulation.setTimeStepLimit(0.01);
+		} else {
+			this.simulation.setTimeStepLimit(-1);
+		}
+		this.simulation.setMaxTime(this.maxTime);
 
-        if (this.simulation.getTotalTime() + dt > this.maxTime) {
-            dt = this.maxTime - this.simulation.getTotalTime();
-        }
+        let dt = this.simulation.getNextTimeStep();
+
         if (dt <= 0 && this.renderLoop.isRunning()) {
             this.btnAnim.onclick(null);
             return;
         }
 
-        this.simulation.update(dt);
+        this.simulation.update();
         this.renderer.render();
         this.divTotalTime.innerText = this.simulation.getTotalTime().toFixed(3);
-        this.divDtDynStable.innerText = this.simulation.getMaxTimeStep(1).toFixed(5);
-        this.divDtDynFast.innerText = this.simulation.getMaxTimeStep(2).toFixed(5);
+        this.divDtDynStable.innerText = this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE).toFixed(5);
+        this.divDtDynFast.innerText = this.simulation.getTimeStepForMode(TimeSteppingMode.FAST).toFixed(5);
     }
 
     private findHTMLElements() {
@@ -176,7 +179,7 @@ export class Controller {
 
     private updateSimAndRendFromUI() {
         this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
-        this.simulation.dt = parseFloat(this.sldDtFixed.value);
+        this.simulation.setFixedTimeStep(parseFloat(this.sldDtFixed.value));
         this.simulation.setIntegratorType(  this.optEuler.checked ? IntegratorType.EULER :
                                             this.optHeun.checked  ? IntegratorType.HEUN_ORIGINAL :
                                             this.optHeunNaive.checked   ? IntegratorType.HEUN_NAIVE : IntegratorType.HEUN_FAST);
@@ -185,8 +188,8 @@ export class Controller {
         this.simulation.setBoundaryType(this.optBoundaryCyclic.checked ? BoundaryType.CYCLIC : BoundaryType.SOLID);
 
 
-        this.simulation.useTimeSteppingMode =   this.optDtFixed.checked ? 0 :
-                                                this.optDtDynStable.checked ? 1 : 2;
+        this.simulation.setTimeSteppingMode(this.optDtFixed.checked ? TimeSteppingMode.FIXED :
+                                                this.optDtDynStable.checked ? TimeSteppingMode.STABLE : TimeSteppingMode.FAST);
 
         this.renderer.visualizationSmoothingLength = parseFloat(this.sldSmoothingVisu.value);
         this.renderer.setPointSize(parseFloat(this.sldPointSize.value));
@@ -240,12 +243,12 @@ export class Controller {
             me.initSimulationAndRenderer();
             me.updateSimAndRendFromUI();
 
-            me.simulation.update(0);
+            //me.simulation.update(0);
             me.renderer.render();
 
             me.divTotalTime.innerText = me.simulation.getTotalTime().toFixed(3);
-            me.divDtDynStable.innerText = me.simulation.getMaxTimeStep(1).toFixed(5);
-            me.divDtDynFast.innerText = me.simulation.getMaxTimeStep(2).toFixed(5);
+            me.divDtDynStable.innerText = me.simulation.getTimeStepForMode(TimeSteppingMode.STABLE).toFixed(5);
+            me.divDtDynFast.innerText = me.simulation.getTimeStepForMode(TimeSteppingMode.FAST).toFixed(5);
         };
 
         this.sldNumParticles.onchange = function () {
@@ -254,8 +257,8 @@ export class Controller {
 
         // TIME STEPPING MODE
         this.optDtFixed.onclick = function() {
-            me.simulation.useTimeSteppingMode = me.optDtFixed.checked ? 0 :
-                                                me.optDtDynStable.checked ? 1 : 2;
+            me.simulation.setTimeSteppingMode(me.optDtFixed.checked ? TimeSteppingMode.FIXED :
+											me.optDtDynStable.checked ? TimeSteppingMode.STABLE : TimeSteppingMode.FAST);
         };
         this.optDtDynStable.onclick = this.optDtFixed.onclick;
         this.optDtDynFast.onclick = this.optDtFixed.onclick;
@@ -270,11 +273,11 @@ export class Controller {
             me.divSmoothingVisu.innerText = "" + me.renderer.visualizationSmoothingLength;
 
             // keep particles in place, dt = 0
-            me.simulation.update(0);
+            //me.simulation.update(0);
             me.renderer.render();
 
-            me.divDtDynStable.innerText = me.simulation.getMaxTimeStep(1).toFixed(5);
-            me.divDtDynFast.innerText = me.simulation.getMaxTimeStep(2).toFixed(5);
+			me.divDtDynStable.innerText = me.simulation.getTimeStepForMode(TimeSteppingMode.STABLE).toFixed(5);
+			me.divDtDynFast.innerText = me.simulation.getTimeStepForMode(TimeSteppingMode.FAST).toFixed(5);
         };
 
         // SMOOTHING VISUALIZATION
@@ -287,8 +290,8 @@ export class Controller {
 
         // DT
         this.sldDtFixed.onchange = function() {
-            me.simulation.dt = parseFloat(me.sldDtFixed.value);
-            me.divDtFixed.innerText = me.simulation.dt.toFixed(5);
+            me.simulation.setFixedTimeStep(parseFloat(me.sldDtFixed.value));
+            me.divDtFixed.innerText = me.simulation.getTimeStepForMode(TimeSteppingMode.FIXED).toFixed(5);
         };
 
         // INTEGRATOR
@@ -322,7 +325,7 @@ export class Controller {
         // BOUNDARY
 		this.optBoundaryCyclic.onclick = function () {
 			me.simulation.setBoundaryType(me.optBoundaryCyclic.checked ? BoundaryType.CYCLIC : BoundaryType.SOLID);
-			me.simulation.update(0);
+			//me.simulation.update(0);
 			me.renderer.render();
 		};
 		this.optBoundarySolid.onclick = this.optBoundaryCyclic.onclick;

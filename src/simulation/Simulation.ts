@@ -46,6 +46,8 @@ export enum GroundPreset {
  * Runtime changeable simulation settings:
  * - integrator
  * - time stepping mode
+ * - time step limit
+ * - fixed time step
  *
  * Runtime changeable environment properties:
  * - smoothing length
@@ -59,17 +61,10 @@ export class Simulation {
     private env : Environment;
     private integrator : Integrator;
 
-    public dt = 0.001;
-
-    public useTimeSteppingMode : number = 0;  // 0: fixed dt,    1: dynamic stable,     2: dynamic fast
-
-
-
-	//////////////////////////////////////////////////////////////////////
-	/////////////////////          NEW         ///////////////////////////
-
-	private _timeSteppingMode : TimeSteppingMode;
-
+	private dtMode : TimeSteppingMode;
+    private dtFixed : number;
+    private dtLimit : number;
+    private maxTime : number;
 
 
 	public constructor(numParticles : number, distribution : ParticleDistributionPreset, bounds : Bounds) {
@@ -80,10 +75,23 @@ export class Simulation {
 		// create default integrator
 		this.integrator = new HeunFast(this.env);
 
-		// create default time stepping mode
-		this._timeSteppingMode = TimeSteppingMode.FIXED;
+		// create default time step + time stepping mode + no limit
+		this.dtFixed = 0.001;
+		this.dtLimit = -1;
+		this.dtMode = TimeSteppingMode.FIXED;
+		this.maxTime = -1;
 
 	}
+
+
+	public update() {
+		let dt = this.getNextTimeStep();
+		// total time is updated by the integrator
+		this.integrator.integrate(dt);
+
+	}
+
+	// INTEGRATOR
 
 	public setIntegratorType(type : IntegratorType) {
 		switch(type) {
@@ -105,6 +113,8 @@ export class Simulation {
 	}
 
 
+	// SMOOTHING LENGTH
+
 	public setSmoothingLength(h : number) {
 		this.integrator.setSmoothingLength(h);
 	}
@@ -114,62 +124,73 @@ export class Simulation {
 	}
 
 
-	public setTimeSteppingMode() {
+	// TIME STEPPING
 
-	}
-	public newGetNextTimeStep() {
-
-	}
-	public getTimeStepForMode(mode) {
-
+	public setTimeSteppingMode(mode : TimeSteppingMode) {
+		this.dtMode = mode;
 	}
 
+	/**
+	 * Calculate the next time step based on mode, limit (if set) and maxTime (if set).
+	 * @returns {number} next time step
+	 */
+	public getNextTimeStep() : number {
+		let dtNext = this.getTimeStepForMode(this.dtMode);
+		if (this.dtLimit > 0) {
+			dtNext = Math.min(dtNext, this.dtLimit);
+		}
+		if (this.maxTime > 0 && this.env.getTotalTime() + dtNext > this.maxTime) {
+			dtNext = this.maxTime - this.env.getTotalTime();
+		}
+		return dtNext;
 
+	}
 
+	/**
+	 * Calculate next time step depending on the mode (no limit).
+	 * @param mode
+	 * @returns {number}
+	 */
+	public getTimeStepForMode(mode) : number {
+		switch (mode) {
+			case TimeSteppingMode.FIXED:
+				return this.dtFixed;
 
+			case TimeSteppingMode.FAST:
+				return TimeStepping.getMaxTimeStepFast(this.env.getParticles(), this.env.getSmoothingLength(), this.env.getGravity());
 
-	//////////////////////////////////////////////////////////////////////
-	/////////////////////         OLD          ///////////////////////////
+			case TimeSteppingMode.STABLE:
+				return TimeStepping.getMaxTimeStepStable(this.env.getParticles(), this.env.getSmoothingLength(), this.env.getGravity());
 
+			default:
+				throw new Error("Unknown time stepping mode!");
+		}
+	}
+	public setFixedTimeStep(dt : number) {
+		this.dtFixed = dt;
+	}
+	public setTimeStepLimit(limit : number) {
+		this.dtLimit = limit;
+	}
+	public setMaxTime(maxTime : number) {
+		this.maxTime = maxTime;
+	}
 
+	public getTotalTime() : number {
+		return this.env.getTotalTime();
+	}
 
-
-    public update(dt : number = this.dt) {
-        // total time is updated by the integrator
-        this.integrator.integrate(dt);
-
-    }
-
-    /**
-     * Calculate maximal time step depending on the mode.
-     * 0: fixed dt,    1: dynamic stable,     2: dynamic fast
-     */
-    public getMaxTimeStep(mode : number = this.useTimeSteppingMode) : number {
-        switch(mode) {
-            case 0:
-                return this.dt;
-            case 1:
-                return TimeStepping.getMaxTimeStepStable(this.env.getParticles(), this.env.getSmoothingLength(), this.env.getGravity());
-            case 2:
-                return TimeStepping.getMaxTimeStepFast(this.env.getParticles(), this.env.getSmoothingLength(), this.env.getGravity());
-            default:
-                return 0;
-        }
-
-    }
-
+	// BOUNDARY
 
     public setBoundaryType(type : number) {
         this.integrator.setBoundaryType(type);
     }
 
+	// ENVIRONMENT
 
     public getEnvironment() : Environment {
         return this.env;
     }
 
-    public getTotalTime() : number {
-        return this.env.getTotalTime();
-    }
 
 }
