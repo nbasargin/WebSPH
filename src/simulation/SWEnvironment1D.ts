@@ -8,6 +8,7 @@ import {GroundProfile} from "./ground/GroundProfile";
 import {ConstLinearGround} from "./ground/ConstLinearGround";
 import {ConstSineGround} from "./ground/ConstSineGround";
 import {DynamicLinearGround} from "./ground/DynamicLinearGround";
+import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGround";
 
 export class SWEnvironment1D {
 
@@ -34,7 +35,7 @@ export class SWEnvironment1D {
         this.smoothingLength = smoothingLength;
 
 
-        let groundType = 0;
+        let groundType = 4;
 
         switch (groundType) {
 			case 0: // all zero
@@ -70,14 +71,23 @@ export class SWEnvironment1D {
 					this.ground = new DynamicLinearGround(yIntercept, maxSlope, slopeChangeSpeed);
 				}
 				break;
+
+            case 4: // growing smoothing kernel ground
+                {
+                    let maxScale = 0.75;
+                    let growSpeed = 3;
+                    let smoothingLength = 0.4;
+                    this.ground = new DynamicSmoothingKernelGround(maxScale, growSpeed, smoothingLength);
+                }
+                break;
 		}
 
         this.fluidVolume = fluidVolume || 2.5;
         this.gravity = gravity || 9.81;
 
         //this.resetParticlesToWaterColumn();
-        this.resetParticlesToDamBreak();
-        //this.resetParticlesToSameLevel();
+        //this.resetParticlesToDamBreak();
+        this.resetParticlesToSameLevel();
     }
 
     public copy() : SWEnvironment1D {
@@ -216,7 +226,7 @@ export class SWEnvironment1D {
 
 
 	public getGroundHeight(x : number) : number {
-		return this.ground.getGroundHeigth(x, this.totalTime);
+		return this.ground.getGroundHeight(x, this.totalTime);
 	}
 	public getGroundSlope(x : number) : number {
 		return this.ground.getGroundSlope(x, this.totalTime);

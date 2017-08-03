@@ -13,7 +13,7 @@ export class ConstSineGround extends GroundProfile {
         this.phase = phase;
     }
 
-    public getGroundHeigth(x: number, t : number) {
+    public getGroundHeight(x: number, t : number) {
         return this.scale * Math.sin(this.period * x + this.phase);
     }
 
