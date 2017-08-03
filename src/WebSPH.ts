@@ -1,5 +1,5 @@
 import {GLCanvas} from "./rendering/glUtil/GLCanvas";
-import {SWController1D} from "./controller/SWController1D";
+import {Controller} from "./controller/Controller";
 
 
 export let main = function() {
@@ -9,6 +9,6 @@ export let main = function() {
     let glCanvas = new GLCanvas(canvas);
 
     // controller
-    new SWController1D(glCanvas, 500);
+    new Controller(glCanvas, 500);
 
 };

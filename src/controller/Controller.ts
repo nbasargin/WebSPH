@@ -1,19 +1,19 @@
 import {RenderLoop} from "../rendering/RenderLoop";
-import {SWRenderer1D} from "../rendering/SWRenderer1D";
-import {SWSimulation1D, ParticleDistributionPreset, BoundaryType, IntegratorType} from "../simulation/SWSimulation1D";
+import {Renderer} from "../rendering/Renderer";
+import {Simulation, ParticleDistributionPreset, BoundaryType, IntegratorType} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 
 /**
  * Contains render loop, updates simulation, calls the renderer and handles user input.
  */
-export class SWController1D {
+export class Controller {
 
     private numParticles : number;
     private canvas : GLCanvas;
 
     private renderLoop : RenderLoop;
-    private simulation : SWSimulation1D;
-    private renderer : SWRenderer1D;
+    private simulation : Simulation;
+    private renderer : Renderer;
 
     private maxTime = 0.1;
 
@@ -81,11 +81,11 @@ export class SWController1D {
     private initSimulationAndRenderer() {
         // simulation
         let bounds = this.canvas.getOrthographicBounds();
-        this.simulation = new SWSimulation1D(this.numParticles, ParticleDistributionPreset.UNIFORM, bounds);
+        this.simulation = new Simulation(this.numParticles, ParticleDistributionPreset.UNIFORM, bounds);
 		this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
 
         // renderer
-        this.renderer = new SWRenderer1D(this.canvas, this.simulation.getEnvironment());
+        this.renderer = new Renderer(this.canvas, this.simulation.getEnvironment());
 
     }
 

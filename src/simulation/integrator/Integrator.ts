@@ -1,17 +1,17 @@
-import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Environment} from "../Environment";
 
 /**
  * Abstract integrator class for 1D shallow water environments.
  */
-export abstract class SWIntegrator1D {
+export abstract class Integrator {
 
-    protected env : SWEnvironment1D;
+    protected env : Environment;
 
-    public constructor(env : SWEnvironment1D) {
+    public constructor(env : Environment) {
         this.env = env;
     }
 
-    public getEnvironment() : SWEnvironment1D {
+    public getEnvironment() : Environment {
         return this.env;
     }
 

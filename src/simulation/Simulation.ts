@@ -1,11 +1,11 @@
 import {Bounds} from "../util/Bounds";
-import {SWEnvironment1D} from "./SWEnvironment1D";
-import {IntegratorEuler} from "./integrator/IntegratorEuler";
+import {Environment} from "./Environment";
+import {IntegratorEuler} from "./integrator/Euler";
 import {HeunOriginal} from "./integrator/HeunOriginal";
 import {HeunNaive} from "./integrator/HeunNaive";
 import {HeunFast} from "./integrator/HeunFast";
 import {TimeStepping} from "./TimeStepping";
-import {SWIntegrator1D} from "./integrator/SWIntegrator1D";
+import {Integrator} from "./integrator/Integrator";
 
 export enum IntegratorType {
     EULER,
@@ -58,10 +58,10 @@ export enum GroundPreset {
  * - gravity
  * - particleVolume
  */
-export class SWSimulation1D {
+export class Simulation {
 
-    private env : SWEnvironment1D;
-    private integrator : SWIntegrator1D;
+    private env : Environment;
+    private integrator : Integrator;
 
     public dt = 0.001;
 
@@ -79,7 +79,7 @@ export class SWSimulation1D {
 	public constructor(numParticles : number, distribution : ParticleDistributionPreset, bounds : Bounds) {
 
 		// create env -> will set all default values
-		this.env = new SWEnvironment1D(numParticles, distribution, bounds);
+		this.env = new Environment(numParticles, distribution, bounds);
 
 		// create default integrator
 		this.integrator = new HeunFast(this.env);
@@ -168,7 +168,7 @@ export class SWSimulation1D {
     }
 
 
-    public getEnvironment() : SWEnvironment1D {
+    public getEnvironment() : Environment {
         return this.env;
     }
 

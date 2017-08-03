@@ -2,16 +2,16 @@ import {Bounds} from "../util/Bounds";
 import {Particle} from "./Particle";
 import {SmoothingKernel} from "./SmoothingKernel";
 import {CyclicBoundary} from "./boundary/CyclicBoundary";
-import {SWBoundary1D} from "./boundary/SWBoundary1D";
+import {Boundary} from "./boundary/Boundary";
 import {SolidBoundary} from "./boundary/SolidBoundary";
 import {GroundProfile} from "./ground/GroundProfile";
 import {ConstLinearGround} from "./ground/ConstLinearGround";
 import {ConstSineGround} from "./ground/ConstSineGround";
 import {DynamicLinearGround} from "./ground/DynamicLinearGround";
 import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGround";
-import {ParticleDistributionPreset, GroundPreset} from "./SWSimulation1D";
+import {ParticleDistributionPreset, GroundPreset} from "./Simulation";
 
-export class SWEnvironment1D {
+export class Environment {
 
 
 	// read write
@@ -21,7 +21,7 @@ export class SWEnvironment1D {
 	// read only
 	private particleVolume : number;
 	private gravity : number;
-	private boundary : SWBoundary1D;
+	private boundary : Boundary;
 	private ground : GroundProfile;
     private particles : Array<Particle>;
 
@@ -45,11 +45,11 @@ export class SWEnvironment1D {
 
     }
 
-    public copy() : SWEnvironment1D {
+    public copy() : Environment {
 		let numPs = this.getParticles().length;
 		let bounds = this.getBoundary();
 
-		let env2 = new SWEnvironment1D(numPs, ParticleDistributionPreset.UNIFORM, bounds);
+		let env2 = new Environment(numPs, ParticleDistributionPreset.UNIFORM, bounds);
 		env2.setTotalTime(this.getTotalTime());
 		env2.setSmoothingLength(this.getSmoothingLength());
 		env2.setParticleVolume(this.getParticleVolume());
@@ -154,7 +154,7 @@ export class SWEnvironment1D {
 			console.log("invalid boundary type");
 		}
 	}
-	public getBoundary() : SWBoundary1D {
+	public getBoundary() : Boundary {
 		return this.boundary;
 	}
 	public updateBoundary() {

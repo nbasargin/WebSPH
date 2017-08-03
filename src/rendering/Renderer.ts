@@ -1,5 +1,5 @@
 import {GLCanvas} from "./glUtil/GLCanvas";
-import {SWEnvironment1D} from "../simulation/SWEnvironment1D";
+import {Environment} from "../simulation/Environment";
 import {GLBuffer} from "./glUtil/GLBuffer";
 import {GLMatrixStack} from "./glUtil/GLMatrixStack";
 import {GLProgram} from "./glUtil/GLProgram";
@@ -10,10 +10,10 @@ import {AnalyticalDamBreak} from "../simulation/validation/AnalyticalDamBreak";
 /**
  * Renders the state of the environment to the canvas.
  */
-export class SWRenderer1D {
+export class Renderer {
 
     // environment
-    public env : SWEnvironment1D;
+    public env : Environment;
 
     // drawing options
     private drawParticles = true;
@@ -45,7 +45,7 @@ export class SWRenderer1D {
     private glProgram : GLProgram;
 
 
-    public constructor(glCanvas : GLCanvas, env : SWEnvironment1D) {
+    public constructor(glCanvas : GLCanvas, env : Environment) {
         this.glCanvas = glCanvas;
         this.env = env;
 

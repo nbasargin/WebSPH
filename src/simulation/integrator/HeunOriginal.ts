@@ -1,11 +1,11 @@
-import {SWIntegrator1D} from "./SWIntegrator1D";
-import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Integrator} from "./Integrator";
+import {Environment} from "../Environment";
 
-export class HeunOriginal extends SWIntegrator1D {
+export class HeunOriginal extends Integrator {
 
-	private envPred : SWEnvironment1D;
+	private envPred : Environment;
 
-	public constructor(env : SWEnvironment1D) {
+	public constructor(env : Environment) {
 		super(env);
 
 		this.envPred = env.copy();
@@ -34,7 +34,7 @@ export class HeunOriginal extends SWIntegrator1D {
 		for (let i = 0; i < particles.length; i++) {
 			let part = particles[i];
 			let pred = particlesPred[i];
-			// calc: acc_0          = ShallowWaterPhysics1D.getAcc (particles)
+			// calc: acc_0          = env.getAcc (pos)
 			part.accX = env.getFluidAcc(part.posX);
 			// calc: pos_1          = pos_0 + speed_0 * dt
 			pred.posX = part.posX + part.speedX * dt;
@@ -46,7 +46,7 @@ export class HeunOriginal extends SWIntegrator1D {
 		// given: pos_1 -> calc: acc_1
 		for (let i = 0; i < particlesPred.length; i++) {
 			let pred = particlesPred[i];
-			// calc: acc_1          = ShallowWaterPhysics1D.getAcc ( prediction )
+			// calc: acc_1          = prediction.getAcc ( pos )
 			pred.accX = this.envPred.getFluidAcc(pred.posX);
 		}
 

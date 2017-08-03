@@ -1,9 +1,9 @@
-import {SWEnvironment1D} from "../SWEnvironment1D";
-import {SWIntegrator1D} from "./SWIntegrator1D";
+import {Environment} from "../Environment";
+import {Integrator} from "./Integrator";
 
-export class IntegratorEuler extends SWIntegrator1D {
+export class IntegratorEuler extends Integrator {
 
-    public constructor(env : SWEnvironment1D) {
+    public constructor(env : Environment) {
         super(env);
     }
 

@@ -1,10 +1,10 @@
-import {SWBoundary1D} from "./SWBoundary1D";
+import {Boundary} from "./Boundary";
 import {Particle} from "../Particle";
-import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Environment} from "../Environment";
 import {Bounds} from "../../util/Bounds";
-import {BoundaryType} from "../SWSimulation1D";
+import {BoundaryType} from "../Simulation";
 
-export class SolidBoundary extends SWBoundary1D {
+export class SolidBoundary extends Boundary {
 
 	public constructor(bounds : Bounds) {
 		super(bounds);
@@ -16,7 +16,7 @@ export class SolidBoundary extends SWBoundary1D {
 	 * returned to the particles next to the wall. This is done by creating
 	 * a copy of next-to-wall particles.
 	 */
-	public update(env : SWEnvironment1D) {
+	public update(env : Environment) {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 		let ps = env.getParticles();

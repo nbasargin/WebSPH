@@ -1,16 +1,16 @@
-import {SWEnvironment1D} from "../SWEnvironment1D";
-import {SWIntegrator1D} from "./SWIntegrator1D";
+import {Environment} from "../Environment";
+import {Integrator} from "./Integrator";
 
 /**
  * Reduced/Fast Heun's method: predicts position and acceleration
  * for the next step and uses those values for this step.
  * No averaging with current acceleration.
  */
-export class HeunFast extends SWIntegrator1D {
+export class HeunFast extends Integrator {
 
-	private envPred : SWEnvironment1D;
+	private envPred : Environment;
 
-	public constructor(env : SWEnvironment1D) {
+	public constructor(env : Environment) {
 		super(env);
 
 		this.envPred = env.copy();
@@ -49,7 +49,7 @@ export class HeunFast extends SWIntegrator1D {
 		// given: pos_1 -> calc: acc_1
 		for (let i = 0; i < particlesPred.length; i++) {
 			let pred = particlesPred[i];
-			// calc: acc_1          = ShallowWaterPhysics1D.getAcc ( prediction )
+			// calc: acc_1          = prediction.getAcc ( pos )
 			pred.accX = this.envPred.getFluidAcc(pred.posX);
 		}
 

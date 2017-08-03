@@ -1,9 +1,9 @@
 import {Particle} from "../Particle";
-import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Environment} from "../Environment";
 import {Bounds} from "../../util/Bounds";
-import {BoundaryType} from "../SWSimulation1D";
+import {BoundaryType} from "../Simulation";
 
-export abstract class SWBoundary1D implements Bounds {
+export abstract class Boundary implements Bounds {
 
 	public xMin : number;
 	public xMax : number;
@@ -29,7 +29,7 @@ export abstract class SWBoundary1D implements Bounds {
 	 * Copies all particles near the boundary into boundary arrays.
 	 * This is needed each time the position of the particles is changed.
 	 */
-	public abstract update(env : SWEnvironment1D);
+	public abstract update(env : Environment);
 
 	/**
 	 * Maps the particle into the environment if its outside the boundary.

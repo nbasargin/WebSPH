@@ -1,17 +1,17 @@
-import {SWIntegrator1D} from "./SWIntegrator1D";
-import {SWEnvironment1D} from "../SWEnvironment1D";
+import {Integrator} from "./Integrator";
+import {Environment} from "../Environment";
 
 /**
  * Naive Heun's method: Does two Euler steps and takes the
  * average between the second step and current state.
  */
-export class HeunNaive extends SWIntegrator1D {
+export class HeunNaive extends Integrator {
 
-	private envPred1 : SWEnvironment1D;
-	private envPred2 : SWEnvironment1D;
+	private envPred1 : Environment;
+	private envPred2 : Environment;
 
 
-	public constructor(env : SWEnvironment1D) {
+	public constructor(env : Environment) {
 		super(env);
 
 		this.envPred1 = env.copy();
@@ -38,7 +38,7 @@ export class HeunNaive extends SWIntegrator1D {
 		for (let i = 0; i < particles.length; i++) {
 			let pi = particles[i];
 
-			// acc_0 = ShallowWaterPhysics1D.getAcc(particles)
+			// acc_0 = env.getAcc(particle)
 			pi.accX = env.getFluidAcc(pi.posX);
 
 			// pos_1 = pos_0 + speed_0 * dt
@@ -59,7 +59,7 @@ export class HeunNaive extends SWIntegrator1D {
 			let p1i = this.envPred1.getParticles()[i];
 			let p2i = this.envPred2.getParticles()[i];
 
-			// acc_1 = ShallowWaterPhysics1D.getAcc(prediction1)
+			// acc_1 = env.getAcc(prediction1)
 			p1i.accX = this.envPred1.getFluidAcc(p1i.posX);
 
 			// pos_2 = pos_1 + speed_1 * dt

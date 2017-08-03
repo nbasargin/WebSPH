@@ -1,10 +1,10 @@
-import {SWBoundary1D} from "./SWBoundary1D";
+import {Boundary} from "./Boundary";
 import {Particle} from "../Particle";
 import {Bounds} from "../../util/Bounds";
-import {SWEnvironment1D} from "../SWEnvironment1D";
-import {BoundaryType} from "../SWSimulation1D";
+import {Environment} from "../Environment";
+import {BoundaryType} from "../Simulation";
 
-export class CyclicBoundary extends SWBoundary1D {
+export class CyclicBoundary extends Boundary {
 
 	public constructor(bounds : Bounds) {
 		super(bounds);
@@ -19,7 +19,7 @@ export class CyclicBoundary extends SWBoundary1D {
 	 * - from left inner to right outer boundary
 	 * - from right inner to left outer boundary
 	 */
-	public update(env : SWEnvironment1D) {
+	public update(env : Environment) {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 		let width = xMax - xMin;
