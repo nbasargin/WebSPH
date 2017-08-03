@@ -33,30 +33,50 @@ export class SWEnvironment1D {
 		//this.boundary = new CyclicBoundary(bounds);
         this.smoothingLength = smoothingLength;
 
-        /*
-        let slope = 0.5;
-        let yIntercept = 0;
-        this.ground = new ConstLinearGround(slope, yIntercept);
-		*/
 
-        /*
-		let scale = 0.2;
-		let period = 10;
-	    let phase = Math.PI;
-        this.ground = new ConstSineGround(scale, period, phase);
-        */
+        let groundType = 0;
 
-        let yIntercept = 0.0;
-        let maxSlope = 0.2;
-        let slopeChangeSpeed = 4;
-        this.ground = new DynamicLinearGround(yIntercept, maxSlope, slopeChangeSpeed);
+        switch (groundType) {
+			case 0: // all zero
+				{
+					let slope = 0;
+					let yIntercept = 0;
+					this.ground = new ConstLinearGround(slope, yIntercept);
+				}
+				break;
 
+			case 1: // linear
+				{
+					let slope = 0.5;
+					let yIntercept = 0;
+					this.ground = new ConstLinearGround(slope, yIntercept);
+				}
+				break;
+
+			case 2: // sine
+				{
+					let scale = 0.2;
+					let period = 10;
+					let phase = Math.PI;
+					this.ground = new ConstSineGround(scale, period, phase);
+				}
+				break;
+
+			case 3: // linear dynamic
+				{
+					let yIntercept = 0.0;
+					let maxSlope = 0.2;
+					let slopeChangeSpeed = 4;
+					this.ground = new DynamicLinearGround(yIntercept, maxSlope, slopeChangeSpeed);
+				}
+				break;
+		}
 
         this.fluidVolume = fluidVolume || 2.5;
         this.gravity = gravity || 9.81;
 
-        this.resetParticlesToWaterColumn();
-        //this.resetParticlesToDamBreak();
+        //this.resetParticlesToWaterColumn();
+        this.resetParticlesToDamBreak();
         //this.resetParticlesToSameLevel();
     }
 
