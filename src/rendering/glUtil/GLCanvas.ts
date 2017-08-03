@@ -29,35 +29,44 @@ export class GLCanvas {
 
     /**
      * Returns bounds for orthographic projection based on the canvas size.
-     * The original square (x 0 to 1; y 0 to 1) is always inside that bounds.
-     * If yMore is != 0, the aspect ration will not be 1:1
+     * The area defined by domain is always inside that bounds.
+     *
+	 * @param domain    area defined by domain will be inside the canvas
      */
-    public getOrthographicBounds() : Bounds {
-        let w = this.viewWidthPx();
-        let h = this.viewHeightPx();
-        let yMore = 0.5;
+    public getOrthographicBounds(domain : Bounds) : Bounds {
+        let canvasW = this.viewWidthPx();
+        let canvasH = this.viewHeightPx();
+		let domainW = domain.xMax - domain.xMin;
+		let domainH = domain.yMax - domain.yMin;
 
-        if (0 < h && h < w) {
-            let ratio = w / h;
-            return {
-                xMin : -(ratio - 1) / 2,
-                xMax : 1 + (ratio - 1) / 2,
-                yMin : - yMore,
-                yMax : 1 + yMore
-            };
+        if (canvasH <= 0 || domainH <= 0) return {xMin : 0, xMax : 1, yMin : 0, yMax : 1};
 
-        } else if (0 < w && w < h) {
-            let ratio = h / w;
-            return {
-                xMin : 0,
-                xMax : 1,
-                yMin : Math.min(-(ratio - 1) / 2, -yMore),
-                yMax : 1 + Math.max((ratio - 1) / 2, yMore)
-            };
+        let canvasRatio = canvasW / canvasH;
+        let domainRatio = domainW / domainH;
+        let xMiddle = (domain.xMax + domain.xMin) / 2;
+        let yMiddle = (domain.yMax + domain.yMin) / 2;
 
-        } else {
-            return { xMin : 0, xMax : 1, yMin : -yMore, yMax : 1 + yMore};
-        }
+
+        if (canvasRatio > domainRatio) {
+        	// canvas is longer (x) than domain
+			return {
+				xMin : xMiddle - domainW / 2 * (canvasRatio / domainRatio),
+				xMax : xMiddle + domainW / 2 * (canvasRatio / domainRatio),
+				yMin : domain.yMin,
+				yMax : domain.yMax
+			};
+
+		} else {
+        	// canvas is higher (y) than domain
+			return {
+				xMin : domain.xMin,
+				xMax : domain.xMax,
+				yMin : yMiddle - domainH / 2 * (domainRatio / canvasRatio),
+				yMax : yMiddle + domainH / 2 * (domainRatio / canvasRatio)
+			};
+		}
+
+
     }
 
 

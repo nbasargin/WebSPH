@@ -74,7 +74,6 @@ export class Controller {
         this.initListeners();
 
         // keep particles in place
-        //this.simulation.update();
         this.renderer.render();
         this.divDtDynStable.innerText = this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE).toFixed(5);
         this.divDtDynFast.innerText = this.simulation.getTimeStepForMode(TimeSteppingMode.FAST).toFixed(5);
@@ -82,7 +81,14 @@ export class Controller {
 
     private initSimulationAndRenderer() {
         // simulation
-        let bounds = this.canvas.getOrthographicBounds();
+        //let bounds = this.canvas.getOrthographicBounds();
+
+        let bounds = {
+			xMin : -2,
+			xMax : 2,
+			yMin : -0.5,
+			yMax : 1.7
+		};
         this.simulation = new Simulation(this.numParticles, ParticleDistributionPreset.UNIFORM, bounds);
 		this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
 
@@ -244,7 +250,6 @@ export class Controller {
             me.initSimulationAndRenderer();
             me.updateSimAndRendFromUI();
 
-            //me.simulation.update(0);
             me.renderer.render();
 
             me.divTotalTime.innerText = me.simulation.getTotalTime().toFixed(3);
@@ -274,7 +279,6 @@ export class Controller {
             me.divSmoothingVisu.innerText = "" + me.renderer.visualizationSmoothingLength;
 
             // keep particles in place, dt = 0
-            //me.simulation.update(0);
             me.renderer.render();
 
 			me.divDtDynStable.innerText = me.simulation.getTimeStepForMode(TimeSteppingMode.STABLE).toFixed(5);
@@ -326,7 +330,6 @@ export class Controller {
         // BOUNDARY
 		this.optBoundaryCyclic.onclick = function () {
 			me.simulation.setBoundaryType(me.optBoundaryCyclic.checked ? BoundaryType.CYCLIC : BoundaryType.SOLID);
-			//me.simulation.update(0);
 			me.renderer.render();
 		};
 		this.optBoundarySolid.onclick = this.optBoundaryCyclic.onclick;

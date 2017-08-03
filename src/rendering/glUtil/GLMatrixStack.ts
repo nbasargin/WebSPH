@@ -1,5 +1,6 @@
 import {mat4} from "gl-matrix";
 import {GLCanvas} from "./GLCanvas";
+import {Bounds} from "../../util/Bounds";
 /**
  * Matrix stack:
  * - contains the actual matrix,
@@ -129,11 +130,12 @@ export class GLMatrixStack {
     /**
      * Set up orthographic projection.
      * @param glCanvas
+     * @param domain    area defined by domain will be inside the canvas
      * @param near      near clipping distance
      * @param far       far clipping distance
      */
-    public setOrthographicProjection(glCanvas : GLCanvas,  near : number, far : number) {
-        let b = glCanvas.getOrthographicBounds();
+    public setOrthographicProjection(glCanvas : GLCanvas, domain : Bounds, near : number, far : number) {
+        let b = glCanvas.getOrthographicBounds(domain);
         mat4.ortho(this.matrix, b.xMin, b.xMax, b.yMin, b.yMax, near, far);
     }
 

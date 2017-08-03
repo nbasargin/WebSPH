@@ -243,7 +243,7 @@ export class Renderer {
         let mvMatrix = this.mvMatrix;
         let pMatrix = this.pMatrix;
 
-        pMatrix.setOrthographicProjection(this.glCanvas, -1, 1);
+        pMatrix.setOrthographicProjection(this.glCanvas, this.env.getBoundary(), -1, 1);
 
         gl.clearColor(0.5, 0.7, 0.9, 1.0);
         gl.enable(gl.DEPTH_TEST);
