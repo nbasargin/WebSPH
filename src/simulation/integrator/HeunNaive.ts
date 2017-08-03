@@ -1,4 +1,4 @@
-import {Integrator} from "./Integrator";
+import {Integrator, IntegratorType} from "./Integrator";
 import {Environment} from "../Environment";
 
 /**
@@ -103,4 +103,7 @@ export class HeunNaive extends Integrator {
 		this.envPred2.setSmoothingLength(h);
 	}
 
+	public getType() {
+		return IntegratorType.HEUN_NAIVE;
+	}
 }

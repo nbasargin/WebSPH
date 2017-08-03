@@ -1,18 +1,11 @@
 import {Bounds} from "../util/Bounds";
 import {Environment} from "./Environment";
-import {IntegratorEuler} from "./integrator/Euler";
+import {Euler} from "./integrator/Euler";
 import {HeunOriginal} from "./integrator/HeunOriginal";
 import {HeunNaive} from "./integrator/HeunNaive";
 import {HeunFast} from "./integrator/HeunFast";
 import {TimeStepping} from "./TimeStepping";
-import {Integrator} from "./integrator/Integrator";
-
-export enum IntegratorType {
-    EULER,
-    HEUN_NAIVE,
-    HEUN_ORIGINAL,
-    HEUN_FAST
-}
+import {Integrator, IntegratorType} from "./integrator/Integrator";
 
 
 export enum ParticleDistributionPreset {
@@ -96,7 +89,7 @@ export class Simulation {
 	public setIntegratorType(type : IntegratorType) {
 		switch(type) {
 			case IntegratorType.EULER:
-				this.integrator = new IntegratorEuler(this.env);
+				this.integrator = new Euler(this.env);
 				break;
 			case IntegratorType.HEUN_ORIGINAL:
 				this.integrator = new HeunOriginal(this.env);

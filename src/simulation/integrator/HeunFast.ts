@@ -1,5 +1,5 @@
 import {Environment} from "../Environment";
-import {Integrator} from "./Integrator";
+import {Integrator, IntegratorType} from "./Integrator";
 
 /**
  * Reduced/Fast Heun's method: predicts position and acceleration
@@ -81,4 +81,7 @@ export class HeunFast extends Integrator {
 		this.envPred.setSmoothingLength(h);
 	}
 
+	public getType() {
+		return IntegratorType.HEUN_FAST;
+	}
 }

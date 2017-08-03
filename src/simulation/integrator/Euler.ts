@@ -1,7 +1,7 @@
 import {Environment} from "../Environment";
-import {Integrator} from "./Integrator";
+import {Integrator, IntegratorType} from "./Integrator";
 
-export class IntegratorEuler extends Integrator {
+export class Euler extends Integrator {
 
     public constructor(env : Environment) {
         super(env);
@@ -38,5 +38,9 @@ export class IntegratorEuler extends Integrator {
     public setSmoothingLength(h: number) {
         this.env.setSmoothingLength(h);
     }
+
+    public getType() {
+    	return IntegratorType.EULER;
+	}
 
 }
