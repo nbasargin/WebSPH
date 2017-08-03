@@ -3,14 +3,46 @@ import {SWEnvironment1D} from "./SWEnvironment1D";
 import {IntegratorEuler} from "./integrator/IntegratorEuler";
 import {HeunOriginal} from "./integrator/HeunOriginal";
 import {HeunNaive} from "./integrator/HeunNaive";
-import {HeunReduced} from "./integrator/HeunReduced";
+import {HeunFast} from "./integrator/HeunFast";
 import {TimeStepping} from "./TimeStepping";
 import {SWIntegrator1D} from "./integrator/SWIntegrator1D";
+
+export enum IntegratorType {
+    EULER,
+    HEUN_NAIVE,
+    HEUN_ORIGINAL,
+    HEUN_FAST
+}
+
+export enum BoundaryType {
+    CYCLIC,
+    SOLID
+}
+
+export enum GroundType {
+    // TODO
+}
+
+export enum ParticleDistributionType {
+    // TODO
+}
+
+export enum TimeSteppingType {
+    // TODO
+}
 
 /**
  * Main simulation class, contains the integrator and the environment.
  */
 export class SWSimulation1D {
+
+    // TODO
+    private _integratorType : IntegratorType;
+    private _boundaryType : BoundaryType;
+    private _groundType : GroundType;
+    private _particleDistributionType : ParticleDistributionType;
+    private _timeSteppingType : TimeSteppingType;
+
 
     private env : SWEnvironment1D;
     private integrator : SWIntegrator1D;
@@ -62,7 +94,7 @@ export class SWSimulation1D {
                 this.integrator = new HeunNaive(this.env);
                 break;
             case 3:
-                this.integrator = new HeunReduced(this.env);
+                this.integrator = new HeunFast(this.env);
                 break;
         }
     }

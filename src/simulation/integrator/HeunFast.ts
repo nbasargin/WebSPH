@@ -2,11 +2,11 @@ import {SWEnvironment1D} from "../SWEnvironment1D";
 import {SWIntegrator1D} from "./SWIntegrator1D";
 
 /**
- * Reduced Heun's method: predicts position and acceleration
+ * Reduced/Fast Heun's method: predicts position and acceleration
  * for the next step and uses those values for this step.
  * No averaging with current acceleration.
  */
-export class HeunReduced extends SWIntegrator1D {
+export class HeunFast extends SWIntegrator1D {
 
 	private envPred : SWEnvironment1D;
 
