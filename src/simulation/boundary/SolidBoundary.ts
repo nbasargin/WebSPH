@@ -2,6 +2,7 @@ import {SWBoundary1D} from "./SWBoundary1D";
 import {Particle} from "../Particle";
 import {SWEnvironment1D} from "../SWEnvironment1D";
 import {Bounds} from "../../util/Bounds";
+import {BoundaryType} from "../SWSimulation1D";
 
 export class SolidBoundary extends SWBoundary1D {
 
@@ -67,5 +68,8 @@ export class SolidBoundary extends SWBoundary1D {
 
 	}
 
+	public getType() : BoundaryType {
+		return BoundaryType.SOLID;
+	}
 
 }

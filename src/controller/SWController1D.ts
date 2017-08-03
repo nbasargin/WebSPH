@@ -1,6 +1,6 @@
 import {RenderLoop} from "../rendering/RenderLoop";
 import {SWRenderer1D} from "../rendering/SWRenderer1D";
-import {SWSimulation1D} from "../simulation/SWSimulation1D";
+import {SWSimulation1D, ParticleDistributionPreset, BoundaryType, IntegratorType} from "../simulation/SWSimulation1D";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 
 /**
@@ -81,7 +81,8 @@ export class SWController1D {
     private initSimulationAndRenderer() {
         // simulation
         let bounds = this.canvas.getOrthographicBounds();
-        this.simulation = new SWSimulation1D(this.numParticles, bounds, parseFloat(this.sldSmoothing.value));
+        this.simulation = new SWSimulation1D(this.numParticles, ParticleDistributionPreset.UNIFORM, bounds);
+		this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
 
         // renderer
         this.renderer = new SWRenderer1D(this.canvas, this.simulation.getEnvironment());
@@ -175,12 +176,12 @@ export class SWController1D {
     private updateSimAndRendFromUI() {
         this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
         this.simulation.dt = parseFloat(this.sldDtFixed.value);
-        this.simulation.setIntegratorType(  this.optEuler.checked ? 0 :
-                                            this.optHeun.checked  ? 1 :
-                                            this.optHeunNaive.checked   ? 2 : 3);
+        this.simulation.setIntegratorType(  this.optEuler.checked ? IntegratorType.EULER :
+                                            this.optHeun.checked  ? IntegratorType.HEUN_ORIGINAL :
+                                            this.optHeunNaive.checked   ? IntegratorType.HEUN_NAIVE : IntegratorType.HEUN_FAST);
 
 
-        this.simulation.setBoundaryType(this.optBoundaryCyclic.checked ? 0 : 1);
+        this.simulation.setBoundaryType(this.optBoundaryCyclic.checked ? BoundaryType.CYCLIC : BoundaryType.SOLID);
 
 
         this.simulation.useTimeSteppingMode =   this.optDtFixed.checked ? 0 :
@@ -261,7 +262,6 @@ export class SWController1D {
         // SMOOTHING
         this.sldSmoothing.onchange = function () {
             me.simulation.setSmoothingLength(parseFloat(me.sldSmoothing.value));
-            console.log("!! SMOOTH onchange : " + parseFloat(me.sldSmoothing.value));
             me.divSmoothing.innerText = "" + me.simulation.getSmoothingLength();
 
             me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
@@ -292,9 +292,9 @@ export class SWController1D {
 
         // INTEGRATOR
         this.optHeun.onclick = function() {
-            me.simulation.setIntegratorType(me.optEuler.checked       ? 0 :
-                                            me.optHeun.checked        ? 1 :
-                                            me.optHeunNaive.checked   ? 2 : 3);
+            me.simulation.setIntegratorType(me.optEuler.checked       ? IntegratorType.EULER :
+                                            me.optHeun.checked        ? IntegratorType.HEUN_ORIGINAL :
+                                            me.optHeunNaive.checked   ? IntegratorType.HEUN_NAIVE : IntegratorType.HEUN_FAST);
         };
         this.optEuler.onclick = me.optHeun.onclick;
         this.optHeunNaive.onclick = me.optHeun.onclick;
@@ -320,7 +320,7 @@ export class SWController1D {
 
         // BOUNDARY
 		this.optBoundaryCyclic.onclick = function () {
-			me.simulation.setBoundaryType(me.optBoundaryCyclic.checked ? 0 : 1);
+			me.simulation.setBoundaryType(me.optBoundaryCyclic.checked ? BoundaryType.CYCLIC : BoundaryType.SOLID);
 			me.simulation.update(0);
 			me.renderer.render();
 		};

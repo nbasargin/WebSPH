@@ -1,6 +1,7 @@
 import {Particle} from "../Particle";
 import {SWEnvironment1D} from "../SWEnvironment1D";
 import {Bounds} from "../../util/Bounds";
+import {BoundaryType} from "../SWSimulation1D";
 
 export abstract class SWBoundary1D implements Bounds {
 
@@ -48,5 +49,7 @@ export abstract class SWBoundary1D implements Bounds {
 	public isInsideRightInnerBoundary(xPos : number, smoothingLength : number) {
 		return xPos > (this.xMax - 2 * smoothingLength);
 	}
+
+	public abstract getType() : BoundaryType;
 
 }

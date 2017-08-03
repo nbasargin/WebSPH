@@ -2,6 +2,7 @@ import {SWBoundary1D} from "./SWBoundary1D";
 import {Particle} from "../Particle";
 import {Bounds} from "../../util/Bounds";
 import {SWEnvironment1D} from "../SWEnvironment1D";
+import {BoundaryType} from "../SWSimulation1D";
 
 export class CyclicBoundary extends SWBoundary1D {
 
@@ -62,6 +63,11 @@ export class CyclicBoundary extends SWBoundary1D {
 			p.posX += xMax - xMin;
 		}
 
+	}
+
+
+	public getType() : BoundaryType {
+		return BoundaryType.CYCLIC;
 	}
 
 }

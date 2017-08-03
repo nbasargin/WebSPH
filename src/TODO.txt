@@ -1,5 +1,2 @@
-Move particle water height calculation to renderer
 Refactor Renderer
 Refactor initial simulation bounds
-
-More ground profiles
