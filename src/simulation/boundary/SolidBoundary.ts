@@ -1,8 +1,7 @@
-import {Boundary} from "./Boundary";
+import {Boundary, BoundaryType} from "./Boundary";
 import {Particle} from "../Particle";
 import {Environment} from "../Environment";
 import {Bounds} from "../../util/Bounds";
-import {BoundaryType} from "../Simulation";
 
 export class SolidBoundary extends Boundary {
 

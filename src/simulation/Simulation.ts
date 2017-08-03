@@ -14,10 +14,6 @@ export enum IntegratorType {
     HEUN_FAST
 }
 
-export enum BoundaryType {
-    CYCLIC,
-    SOLID
-}
 
 export enum ParticleDistributionPreset {
     UNIFORM,

@@ -1,7 +1,8 @@
 import {RenderLoop} from "../rendering/RenderLoop";
 import {Renderer} from "../rendering/Renderer";
-import {Simulation, ParticleDistributionPreset, BoundaryType, IntegratorType} from "../simulation/Simulation";
+import {Simulation, ParticleDistributionPreset, IntegratorType} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
+import {BoundaryType} from "../simulation/boundary/Boundary";
 
 /**
  * Contains render loop, updates simulation, calls the renderer and handles user input.
