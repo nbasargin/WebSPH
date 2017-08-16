@@ -1,2 +1,1 @@
 Refactor Renderer
-Refactor initial simulation bounds

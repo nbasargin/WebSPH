@@ -1,0 +1,57 @@
+<div class="settings-block">
+	<h6>Time stepping</h6>
+
+
+	<div class="settings-left">
+		Next time step:
+	</div>
+	<div class="settings-right">
+		<div style="display: inline-block; width: 70px;"><b>{{dtTotal.toFixed(4)}}</b></div>
+	</div>
+	<br>
+
+	<div class="settings-left">
+		<label>
+			<input type="radio" class="radiobutton" value="fixed" name="timestep-type" [(ngModel)]="dtMode">
+			Fixed
+		</label>
+	</div>
+	<div class="settings-right">
+		<div style="display: inline-block; width: 70px;">{{dtFixed.toFixed(4)}}</div>
+		<input class="slider" type="range" min="0.0001" max="0.01" step="0.0001" [(ngModel)]="dtFixed" title="fixed time step size">
+	</div>
+	<br>
+
+	<div class="settings-left">
+		<label>
+			<input type="radio" class="radiobutton" value="dynStable" name="timestep-type" [(ngModel)]="dtMode">
+			Dyn. stable
+		</label>
+	</div>
+	<div class="settings-right">
+		<div style="display: inline-block; width: 70px;">{{dtDynStable.toFixed(4)}}</div>
+	</div>
+	<br>
+
+	<div class="settings-left">
+		<label>
+			<input type="radio" class="radiobutton" value="dynFast" name="timestep-type" [(ngModel)]="dtMode">
+			Dyn. fast
+		</label>
+	</div>
+	<div class="settings-right">
+		<div style="display: inline-block; width: 70px;">{{dtDynFast.toFixed(4)}}</div>
+	</div>
+	<br>
+
+	<div class="settings-left">
+		<label>
+			<input type="checkbox" style="margin-top: 5px;" class="checkbox" [(ngModel)]="dtLimitEnabled" >
+			{{dtLimitText}}
+		</label>
+	</div>
+	<div class="settings-right" *ngIf="dtLimitEnabled">
+		<div style="display: inline-block; width: 70px">{{dtLimit.toFixed(4)}}</div>
+		<input class="slider" type="range" min="0.0001" max="0.01" step="0.0001" [(ngModel)]="dtLimit" title="time step limit">
+	</div>
+</div>

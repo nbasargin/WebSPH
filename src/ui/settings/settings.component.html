@@ -1,0 +1,29 @@
+<div class="settings-container">
+
+	<websph-settings-scenario #scenario>
+	</websph-settings-scenario>
+
+	<websph-settings-sim-control #simControl
+		(doStepsNotify)="onDoSteps($event)"
+		(resetNotify)="onReset($event)"
+	></websph-settings-sim-control>
+
+	<websph-settings-sim-settings #simOptions
+		(integratorNotify)="onIntegratorChanged($event)"
+		(smoothingLengthNotify)="onSmoothingLengthChanged($event)"
+		(boundaryNotify)="onBoundaryChanged($event)"
+	></websph-settings-sim-settings>
+
+	<websph-settings-time-stepping #timeStepping
+		(dtTotalNotify)="onDtChanged($event)"
+	></websph-settings-time-stepping>
+
+	<websph-settings-rendering #rendering
+		(visuSmoothingLengthNotify)="onVisuSmoothingLengthChanged($event)"
+		(pSizeNotify)="onParticleSizeChanged($event)"
+	></websph-settings-rendering>
+
+	<websph-settings-misc #misc>
+	</websph-settings-misc>
+
+</div>
