@@ -6,6 +6,3 @@ node_modules
 
 # Output
 dist
-
-# Custom stuff
-yarn.lock
