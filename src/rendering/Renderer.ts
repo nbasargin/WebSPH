@@ -243,6 +243,7 @@ export class Renderer {
         let mvMatrix = this.mvMatrix;
         let pMatrix = this.pMatrix;
 
+        this.glCanvas.updateCanvasDimensions(); // width and height must be set for webgl
         pMatrix.setOrthographicProjection(this.glCanvas, this.env.getBoundary(), -1, 1);
 
         gl.clearColor(0.5, 0.7, 0.9, 1.0);

@@ -10,12 +10,17 @@ export class GLCanvas {
         this.gl = canvas.getContext("webgl");
     }
 
+    public updateCanvasDimensions() {
+		this.canvas.width = this.viewWidthPx();
+		this.canvas.height = this.viewHeightPx();
+	}
+
     /**
      * Returns the width of the canvas in pixels.
      * @returns {number}
      */
     public viewWidthPx() {
-        return this.canvas.width;
+        return this.canvas.clientWidth;
     }
 
     /**
@@ -23,7 +28,7 @@ export class GLCanvas {
      * @returns {number}
      */
     public viewHeightPx() {
-        return this.canvas.height;
+        return this.canvas.clientHeight;
     }
 
 
@@ -68,7 +73,5 @@ export class GLCanvas {
 
 
     }
-
-
 
 }
