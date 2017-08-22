@@ -3,14 +3,34 @@
  */
 export class ShaderLoader {
 
-    private static dummy_color_frag_shader = require("../../shader/dummy_color_frag_shader.frag");
-    private static dummy_color_vert_shader = require("../../shader/dummy_color_vert_shader.vert");
-
     public static getDummyColorFragShader() {
-        return ShaderLoader.dummy_color_frag_shader;
+        return `
+			precision mediump float;
+
+			varying vec4 vColor;
+			
+			void main(void) {
+				gl_FragColor = vColor;
+			}
+		`;
     }
 
     public static getDummyColorVertShader() {
-        return ShaderLoader.dummy_color_vert_shader;
+        return `
+			attribute vec3 aVertexPosition;
+			attribute vec4 aVertexColor;
+			
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+			uniform float uPointSize;
+			
+			varying vec4 vColor;
+			
+			void main(void) {
+				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+				vColor = aVertexColor;
+				gl_PointSize = uPointSize;
+			}
+		`;
     }
 }
