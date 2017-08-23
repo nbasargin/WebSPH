@@ -25,6 +25,7 @@ export class Timing {
 
     public nextFrame() {
         let now = performance.now();
+        this.framesTotal++;
         this.lastFrameDuration = now - this.lastFrameStartTime;
         this.lastFrameStartTime = now;
         this.frameDurations.push(this.lastFrameDuration);

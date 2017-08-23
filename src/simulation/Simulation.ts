@@ -62,6 +62,7 @@ export class Simulation {
 
 	public update() {
 		let dt = this.getNextTimeStep();
+		console.log("simulation dt: " + dt);
 		// total time is updated by the integrator
 		this.integrator.integrate(dt);
 

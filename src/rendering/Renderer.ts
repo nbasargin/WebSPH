@@ -58,6 +58,8 @@ export class Renderer {
         this.initWaterHeightBuffers();
         this.initGroundHeightBuffers();
         this.initDamBreakValidationBuffers();
+
+		this.setPointSize(Defaults.REND_PARTICLE_SIZE);
     }
 
     private initShaders() {

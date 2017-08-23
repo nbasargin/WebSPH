@@ -1,5 +1,6 @@
 import {Component, Output, EventEmitter} from "@angular/core";
-import {TimeSteppingMode} from "../../util/Enums";
+import {TimeSteppingMode, EnumChecker} from "../../util/Enums";
+import {Defaults} from "../../util/Defaults";
 
 @Component({
 	selector: 'websph-settings-time-stepping',
@@ -8,76 +9,52 @@ import {TimeSteppingMode} from "../../util/Enums";
 export class TimeSteppingComponent {
 
 	public constructor() {
-		this.updateFinalDt();
-	}
-
-	public getFinalDt() : number {
-		let dt : number;
-		switch (this._dtMode) {
-			case TimeSteppingMode.FIXED:
-				dt = this._dtFixed; break;
-
-			case TimeSteppingMode.STABLE:
-				dt = this._dtDynStable; break;
-
-			case TimeSteppingMode.FAST:
-				dt = this._dtDynFast; break;
-
-			default:
-				console.log("TimeSteppingMode invalid!");
-				dt = 0;
-		}
-
-		return (this._dtLimitEnabled) ? Math.min(dt, this._dtLimit) : dt;
 	}
 
 
-	private _dtFixed : number = 0.001;
-	set dtFixed(dtFixed) {
-		this._dtFixed = dtFixed;
-		this.updateFinalDt();
-	}
+
+
+	@Output() dtFixedNotify : EventEmitter<number> = new EventEmitter<number>();
+	private _dtFixed : number = Defaults.SIM_FIXED_TIME_STEP;
 	get dtFixed() {
 		return this._dtFixed;
 	}
+	set dtFixed(dtFixed) {
+		this._dtFixed = dtFixed;
+		this.dtFixedNotify.emit(dtFixed);
 
-	private _dtDynStable : number = 0;
-	set dtDynStable(dtDynStable : number) {
-		this._dtDynStable = dtDynStable;
-		this.updateFinalDt();
-	}
-	get dtDynStable(): number {
-		return this._dtDynStable;
 	}
 
+	public dtDynStable : number = 0;
+	public dtDynFast : number = 0;
 
-	private _dtDynFast : number = 0;
-	set dtDynFast(dtDynFast : number) {
-		this._dtDynFast = dtDynFast;
-		this.updateFinalDt();
-	}
-	get dtDynFast() : number {
-		return this._dtDynFast;
-	}
+	public dtTotal : number = 0;
 
 
-	private _dtMode = 'fixed';
+
+	@Output() dtModeNotify : EventEmitter<string> = new EventEmitter<string>();
+	private _dtMode = Defaults.SIM_TIME_STEPPING_MODE + "";
 	get dtMode() {
 		return this._dtMode;
 	}
 	set dtMode(mode) {
+		if (!EnumChecker.isValidValue(TimeSteppingMode, mode)) {
+			console.log("[!!] invalid enum type: " + mode);
+		}
 		this._dtMode = mode;
-		this.updateFinalDt();
+		this.dtModeNotify.emit(mode);
 	}
 
 
+
+	@Output() dtLimitNotify : EventEmitter<number> = new EventEmitter<number>();
 	private _dtLimit : number = 0.005;
 	get dtLimit() {
 		return this._dtLimit;
 	}
 	set dtLimit(limit) {
 		this._dtLimit = limit;
-		this.updateFinalDt();
+		if (this._dtLimitEnabled) this.dtLimitNotify.emit(limit);
 	}
 
 	public dtLimitText : string = "Set limit";
@@ -87,23 +64,16 @@ export class TimeSteppingComponent {
 	}
 	set dtLimitEnabled(dtLimitEnabled) {
 		this._dtLimitEnabled = dtLimitEnabled;
-		this.updateFinalDt();
-		this.dtLimitText = dtLimitEnabled ? "Limit to: " : "Set limit";
-	}
+		if (dtLimitEnabled) {
+			this.dtLimitText = "Limit to:";
+			this.dtLimitNotify.emit(-1);
 
-
-	public dtTotal : number = 0;
-
-	@Output() dtTotalNotify : EventEmitter<number> = new EventEmitter<number>();
-
-	private updateFinalDt() {
-		let newDt = this.getFinalDt();
-		if (newDt != this.dtTotal) {
-			this.dtTotal = newDt;
-			this.dtTotalNotify.emit(this.dtTotal);
+		} else {
+			this.dtLimitText = "Set limit";
+			this.dtLimitNotify.emit(this._dtLimit);
 		}
-
 	}
+
 
 
 

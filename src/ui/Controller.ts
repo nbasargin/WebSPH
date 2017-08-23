@@ -3,6 +3,8 @@ import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 import {Renderer} from "../rendering/Renderer";
 import {Defaults} from "../util/Defaults";
 import {Simulation} from "../simulation/Simulation";
+import {RenderLoop2} from "../rendering/RenderLoop2";
+import {TimeSteppingMode} from "../util/Enums";
 
 export class Controller {
 
@@ -12,8 +14,7 @@ export class Controller {
 	private simulation : Simulation;
 	private renderer : Renderer;
 
-	private calculatedDtDynStable : number = 0;
-	private calculatedDtDynFast : number = 1;
+	private renderLoop : RenderLoop2;
 
 	public constructor(settingsComponent : SettingsComponent) {
 
@@ -35,26 +36,38 @@ export class Controller {
 		this.simulation = new Simulation(Defaults.SIM_PARTICLE_NUMBER, Defaults.SIM_PARTICLE_DISTRIBUTION, bounds);
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment());
 
-		// ground profile
-		// particle distribution
-		this.renderer.setPointSize(Defaults.REND_PARTICLE_SIZE);
-		this.renderer.setVisualizationSmoothingLength(Defaults.REND_SMOOTHING_LENGTH);
+		this.renderLoop = new RenderLoop2((lastFrameDuration, avgFPS) => {
+			//console.log("render loop here! fps: " + avgFPS.toFixed(3));
+			this.settingsUI.setFPS(avgFPS);
 
-		this.renderer.render();
+			this.oneStep();
 
-		//this.oneStep();
+		});
+
+		// TODO: ground profile
+		// TODO: particle distribution
+
+		this.oneStep();
 	}
 
 	public oneStep() {
-		console.log("one step start, using dt: " + this.settingsUI.getFinalDt());
-		this.settingsUI.setDtDynFast(++this.calculatedDtDynFast);
-		this.settingsUI.setDtDynStable(++this.calculatedDtDynStable);
-
 		this.simulation.update();
 		this.renderer.render();
 
-		console.log("one step done, new dt set");
+		// update timing in ui
+		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
+		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
+		this.settingsUI.setDtTotal(this.simulation.getNextTimeStep());
+
 	}
+
+	public startRenderLoop() {
+		this.renderLoop.start();
+	}
+
+	public stopRenderLoop() {
+		this.renderLoop.stop();
+	};
 
 	public resetParticles(numParticles : number) {
 
