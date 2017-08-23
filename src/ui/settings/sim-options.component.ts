@@ -1,4 +1,6 @@
 import {Component, Output, EventEmitter} from "@angular/core";
+import {Defaults} from "../../util/Defaults";
+import {IntegratorType, EnumChecker, BoundaryType} from "../../util/Enums";
 
 @Component({
 	selector: 'websph-settings-sim-settings',
@@ -8,8 +10,13 @@ export class SimOptionsComponent {
 
 
 	@Output() integratorNotify : EventEmitter<string> = new EventEmitter<string>();
-	private _integrator : string = "heunStd";
+	private _integrator : string = Defaults.SIM_INTEGRATOR + "";
 	set integrator(i : string) {
+
+		if (!EnumChecker.isValidValue(IntegratorType, i)) {
+			console.log("[!!] invalid enum type: " + i);
+		}
+
 		this._integrator = i;
 		this.integratorNotify.emit(this._integrator);
 	}
@@ -19,7 +26,7 @@ export class SimOptionsComponent {
 
 
 	@Output() smoothingLengthNotify : EventEmitter<number> = new EventEmitter<number>();
-	private _smoothingLength : number = 0.015;
+	private _smoothingLength : number = Defaults.SIM_SMOOTHING_LENGTH;
 	set smoothingLength(h : number) {
 		this._smoothingLength = h;
 		this.smoothingLengthNotify.emit(this._smoothingLength);
@@ -30,8 +37,12 @@ export class SimOptionsComponent {
 
 
 	@Output() boundaryNotify : EventEmitter<string> = new EventEmitter<string>();
-	private _boundary : string = "solid";
+	private _boundary : string = Defaults.SIM_BOUNDARY + "";
 	set boundary(b : string) {
+		if (!EnumChecker.isValidValue(BoundaryType, b)) {
+			console.log("[!!] invalid enum type: " + b);
+		}
+
 		this._boundary = b;
 		this.boundaryNotify.emit(this._boundary);
 	}
