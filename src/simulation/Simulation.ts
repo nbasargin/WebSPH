@@ -5,28 +5,11 @@ import {HeunOriginal} from "./integrator/HeunOriginal";
 import {HeunNaive} from "./integrator/HeunNaive";
 import {HeunFast} from "./integrator/HeunFast";
 import {TimeStepping} from "./TimeStepping";
-import {Integrator, IntegratorType} from "./integrator/Integrator";
+import {Integrator} from "./integrator/Integrator";
+import {Defaults} from "../util/Defaults";
+import {ParticleDistributionPreset, IntegratorType, TimeSteppingMode, BoundaryType} from "../util/Enums";
 
 
-export enum ParticleDistributionPreset {
-    UNIFORM,
-	DAM_BREAK,
-	WATER_DROP
-}
-
-export enum TimeSteppingMode {
-    FIXED,
-	STABLE,
-	FAST
-}
-
-export enum GroundPreset {
-	CONST_ZERO,
-	CONST_SINE,
-	CONST_SLOPE,
-	DYN_SLOPE,
-	DYN_SMOOTHING_KERNEL
-}
 
 /**
  * Main simulation class, contains the integrator and the environment.
@@ -65,15 +48,15 @@ export class Simulation {
 		// create env -> will set all default values
 		this.env = new Environment(numParticles, distribution, bounds);
 
-		// create default integrator
-		this.integrator = new HeunFast(this.env);
+		this.setIntegratorType(Defaults.SIM_INTEGRATOR);
+		this.setSmoothingLength(Defaults.SIM_SMOOTHING_LENGTH);
+		this.setBoundaryType(Defaults.SIM_BOUNDARY);
+		this.setTimeSteppingMode(Defaults.SIM_TIME_STEPPING_MODE);
+		this.setFixedTimeStep(Defaults.SIM_FIXED_TIME_STEP);
 
-		// create default time step + time stepping mode + no limit
-		this.dtFixed = 0.001;
+		// no time step limit, no max time
 		this.dtLimit = -1;
-		this.dtMode = TimeSteppingMode.FIXED;
 		this.maxTime = -1;
-
 	}
 
 
@@ -91,7 +74,7 @@ export class Simulation {
 			case IntegratorType.EULER:
 				this.integrator = new Euler(this.env);
 				break;
-			case IntegratorType.HEUN_ORIGINAL:
+			case IntegratorType.HEUN_STD:
 				this.integrator = new HeunOriginal(this.env);
 				break;
 			case IntegratorType.HEUN_NAIVE:
@@ -175,7 +158,7 @@ export class Simulation {
 
 	// BOUNDARY
 
-    public setBoundaryType(type : number) {
+    public setBoundaryType(type : BoundaryType) {
         this.integrator.setBoundaryType(type);
     }
 

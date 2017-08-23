@@ -1,5 +1,6 @@
 import {Environment} from "../Environment";
-import {Integrator, IntegratorType} from "./Integrator";
+import {Integrator} from "./Integrator";
+import {IntegratorType, BoundaryType} from "../../util/Enums";
 
 /**
  * Reduced/Fast Heun's method: predicts position and acceleration
@@ -71,7 +72,7 @@ export class HeunFast extends Integrator {
 	}
 
 
-	public setBoundaryType(type: number) {
+	public setBoundaryType(type: BoundaryType) {
 		this.env.setBoundaryType(type);
 		this.envPred.setBoundaryType(type);
 	}

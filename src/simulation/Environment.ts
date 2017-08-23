@@ -9,7 +9,7 @@ import {ConstLinearGround} from "./ground/ConstLinearGround";
 import {ConstSineGround} from "./ground/ConstSineGround";
 import {DynamicLinearGround} from "./ground/DynamicLinearGround";
 import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGround";
-import {ParticleDistributionPreset, GroundPreset} from "./Simulation";
+import {GroundPreset, BoundaryType, ParticleDistributionPreset} from "../util/Enums";
 
 export class Environment {
 
@@ -143,11 +143,11 @@ export class Environment {
 	}
 
 	// boundary
-	public setBoundaryType(type : number) {
-		if (type == 0) {
+	public setBoundaryType(type : BoundaryType) {
+		if (type == BoundaryType.CYCLIC) {
 			this.boundary = new CyclicBoundary(this.getBoundary());
 			this.boundary.update(this);
-		} else if (type == 1) {
+		} else if (type == BoundaryType.SOLID) {
 			this.boundary = new SolidBoundary(this.getBoundary());
 			this.boundary.update(this);
 		} else {

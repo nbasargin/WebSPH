@@ -1,5 +1,6 @@
 import {Environment} from "../Environment";
-import {Integrator, IntegratorType} from "./Integrator";
+import {Integrator} from "./Integrator";
+import {BoundaryType, IntegratorType} from "../../util/Enums";
 
 export class Euler extends Integrator {
 
@@ -31,7 +32,7 @@ export class Euler extends Integrator {
     }
 
 
-    public setBoundaryType(type: number) {
+    public setBoundaryType(type: BoundaryType) {
         this.env.setBoundaryType(type);
     }
 

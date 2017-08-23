@@ -1,4 +1,5 @@
 import {Component, Output, EventEmitter} from "@angular/core";
+import {TimeSteppingMode} from "../../util/Enums";
 
 @Component({
 	selector: 'websph-settings-time-stepping',
@@ -13,13 +14,13 @@ export class TimeSteppingComponent {
 	public getFinalDt() : number {
 		let dt : number;
 		switch (this._dtMode) {
-			case "fixed":
+			case TimeSteppingMode.FIXED:
 				dt = this._dtFixed; break;
 
-			case "dynStable":
+			case TimeSteppingMode.STABLE:
 				dt = this._dtDynStable; break;
 
-			case "dynFast":
+			case TimeSteppingMode.FAST:
 				dt = this._dtDynFast; break;
 
 			default:

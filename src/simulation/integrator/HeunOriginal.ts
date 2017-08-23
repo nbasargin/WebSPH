@@ -1,5 +1,6 @@
-import {Integrator, IntegratorType} from "./Integrator";
+import {Integrator} from "./Integrator";
 import {Environment} from "../Environment";
+import {BoundaryType, IntegratorType} from "../../util/Enums";
 
 export class HeunOriginal extends Integrator {
 
@@ -68,7 +69,7 @@ export class HeunOriginal extends Integrator {
 	}
 
 
-	public setBoundaryType(type: number) {
+	public setBoundaryType(type: BoundaryType) {
 		this.env.setBoundaryType(type);
 		this.envPred.setBoundaryType(type);
 	}
@@ -80,7 +81,7 @@ export class HeunOriginal extends Integrator {
 
 
 	public getType() {
-		return IntegratorType.HEUN_ORIGINAL;
+		return IntegratorType.HEUN_STD;
 	}
 
 }

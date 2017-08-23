@@ -1,7 +1,8 @@
 import {SettingsComponent} from "./settings/settings.component";
-import {Simulation, ParticleDistributionPreset} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 import {Renderer} from "../rendering/Renderer";
+import {Defaults} from "../util/Defaults";
+import {Simulation} from "../simulation/Simulation";
 
 export class Controller {
 
@@ -31,9 +32,13 @@ export class Controller {
 			yMin : -0.5,
 			yMax : 1.5
 		};
-		let numParticles = 500;
-		this.simulation = new Simulation(numParticles, ParticleDistributionPreset.UNIFORM, bounds);
+		this.simulation = new Simulation(Defaults.SIM_PARTICLE_NUMBER, Defaults.SIM_PARTICLE_DISTRIBUTION, bounds);
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment());
+
+		// ground profile
+		// particle distribution
+		this.renderer.setPointSize(Defaults.REND_PARTICLE_SIZE);
+		this.renderer.setVisualizationSmoothingLength(Defaults.REND_SMOOTHING_LENGTH);
 
 		this.renderer.render();
 
@@ -44,6 +49,10 @@ export class Controller {
 		console.log("one step start, using dt: " + this.settingsUI.getFinalDt());
 		this.settingsUI.setDtDynFast(++this.calculatedDtDynFast);
 		this.settingsUI.setDtDynStable(++this.calculatedDtDynStable);
+
+		this.simulation.update();
+		this.renderer.render();
+
 		console.log("one step done, new dt set");
 	}
 

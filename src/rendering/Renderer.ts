@@ -6,6 +6,7 @@ import {GLProgram} from "./glUtil/GLProgram";
 import {ShaderLoader} from "./ShaderLoader";
 import {Coloring} from "./Coloring";
 import {AnalyticalDamBreak} from "../simulation/validation/AnalyticalDamBreak";
+import {Defaults} from "../util/Defaults";
 
 /**
  * Renders the state of the environment to the canvas.
@@ -20,7 +21,7 @@ export class Renderer {
     private drawWaterHeight = true;
     private drawBaseSquare = true;
     private drawValidation = false;
-    public visualizationSmoothingLength = 0.03;
+    private visualizationSmoothingLength;
     private waterHeightSamples = 500;
     private validationSamples = 1000;
 
@@ -48,6 +49,7 @@ export class Renderer {
     public constructor(glCanvas : GLCanvas, env : Environment) {
         this.glCanvas = glCanvas;
         this.env = env;
+        this.visualizationSmoothingLength = Defaults.REND_SMOOTHING_LENGTH;
 
         this.initShaders();
         this.initMatrices();
@@ -236,6 +238,14 @@ export class Renderer {
         let uPointSizeLoc = this.glProgram.getUnifLoc("uPointSize");
         this.glCanvas.gl.uniform1f(uPointSizeLoc, size);
     }
+
+    public setVisualizationSmoothingLength(h : number) {
+    	this.visualizationSmoothingLength = h;
+	}
+
+	public getVisualizationSmoothingLength() : number {
+    	return this.visualizationSmoothingLength;
+	}
 
     public render(): void {
 

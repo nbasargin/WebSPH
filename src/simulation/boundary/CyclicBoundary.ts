@@ -1,7 +1,8 @@
-import {Boundary, BoundaryType} from "./Boundary";
+import {Boundary} from "./Boundary";
 import {Particle} from "../Particle";
 import {Bounds} from "../../util/Bounds";
 import {Environment} from "../Environment";
+import {BoundaryType} from "../../util/Enums";
 
 export class CyclicBoundary extends Boundary {
 

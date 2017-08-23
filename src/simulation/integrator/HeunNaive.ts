@@ -1,5 +1,6 @@
-import {Integrator, IntegratorType} from "./Integrator";
+import {Integrator} from "./Integrator";
 import {Environment} from "../Environment";
+import {BoundaryType, IntegratorType} from "../../util/Enums";
 
 /**
  * Naive Heun's method: Does two Euler steps and takes the
@@ -91,7 +92,7 @@ export class HeunNaive extends Integrator {
 	}
 
 
-	public setBoundaryType(type: number) {
+	public setBoundaryType(type: BoundaryType) {
 		this.env.setBoundaryType(type);
 		this.envPred1.setBoundaryType(type);
 		this.envPred2.setBoundaryType(type);

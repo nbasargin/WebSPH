@@ -1,12 +1,9 @@
 import {Particle} from "../Particle";
 import {Environment} from "../Environment";
 import {Bounds} from "../../util/Bounds";
+import {BoundaryType} from "../../util/Enums";
 
 
-export enum BoundaryType {
-	CYCLIC,
-	SOLID
-}
 
 export abstract class Boundary implements Bounds {
 

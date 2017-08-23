@@ -1,11 +1,6 @@
 import {Environment} from "../Environment";
+import {IntegratorType, BoundaryType} from "../../util/Enums";
 
-export enum IntegratorType {
-    EULER,
-    HEUN_NAIVE,
-    HEUN_ORIGINAL,
-    HEUN_FAST
-}
 
 /**
  * Abstract integrator class for 1D shallow water environments.
@@ -25,7 +20,7 @@ export abstract class Integrator {
     public abstract integrate(dt : number);
 
 
-    public abstract setBoundaryType(type : number);
+    public abstract setBoundaryType(type : BoundaryType);
 
     public abstract setSmoothingLength(h : number);
 

@@ -1,9 +1,8 @@
 import {RenderLoop} from "../rendering/RenderLoop";
 import {Renderer} from "../rendering/Renderer";
-import {Simulation, ParticleDistributionPreset, TimeSteppingMode} from "../simulation/Simulation";
+import {Simulation} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
-import {BoundaryType} from "../simulation/boundary/Boundary";
-import {IntegratorType} from "../simulation/integrator/Integrator";
+import {TimeSteppingMode, BoundaryType, IntegratorType, ParticleDistributionPreset} from "../util/Enums";
 
 /**
  * Contains render loop, updates simulation, calls the renderer and handles user input.
@@ -188,7 +187,7 @@ export class Controller {
         this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
         this.simulation.setFixedTimeStep(parseFloat(this.sldDtFixed.value));
         this.simulation.setIntegratorType(  this.optEuler.checked ? IntegratorType.EULER :
-                                            this.optHeun.checked  ? IntegratorType.HEUN_ORIGINAL :
+                                            this.optHeun.checked  ? IntegratorType.HEUN_STD :
                                             this.optHeunNaive.checked   ? IntegratorType.HEUN_NAIVE : IntegratorType.HEUN_FAST);
 
 
@@ -198,7 +197,7 @@ export class Controller {
         this.simulation.setTimeSteppingMode(this.optDtFixed.checked ? TimeSteppingMode.FIXED :
                                                 this.optDtDynStable.checked ? TimeSteppingMode.STABLE : TimeSteppingMode.FAST);
 
-        this.renderer.visualizationSmoothingLength = parseFloat(this.sldSmoothingVisu.value);
+        this.renderer.setVisualizationSmoothingLength(parseFloat(this.sldSmoothingVisu.value));
         this.renderer.setPointSize(parseFloat(this.sldPointSize.value));
 
         this.maxTime = parseFloat(this.txtMaxTime.value);
@@ -274,9 +273,9 @@ export class Controller {
             me.simulation.setSmoothingLength(parseFloat(me.sldSmoothing.value));
             me.divSmoothing.innerText = "" + me.simulation.getSmoothingLength();
 
-            me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothing.value);
+            me.renderer.setVisualizationSmoothingLength(parseFloat(me.sldSmoothing.value));
             me.sldSmoothingVisu.value = me.sldSmoothing.value;
-            me.divSmoothingVisu.innerText = "" + me.renderer.visualizationSmoothingLength;
+            me.divSmoothingVisu.innerText = "" + me.renderer.getVisualizationSmoothingLength();
 
             // keep particles in place, dt = 0
             me.renderer.render();
@@ -287,8 +286,8 @@ export class Controller {
 
         // SMOOTHING VISUALIZATION
         this.sldSmoothingVisu.onchange = function () {
-            me.renderer.visualizationSmoothingLength = parseFloat(me.sldSmoothingVisu.value);
-            me.divSmoothingVisu.innerText = "" + me.renderer.visualizationSmoothingLength;
+            me.renderer.setVisualizationSmoothingLength(parseFloat(me.sldSmoothingVisu.value));
+            me.divSmoothingVisu.innerText = "" + me.renderer.getVisualizationSmoothingLength();
 
             me.renderer.render();
         };
@@ -302,7 +301,7 @@ export class Controller {
         // INTEGRATOR
         this.optHeun.onclick = function() {
             me.simulation.setIntegratorType(me.optEuler.checked       ? IntegratorType.EULER :
-                                            me.optHeun.checked        ? IntegratorType.HEUN_ORIGINAL :
+                                            me.optHeun.checked        ? IntegratorType.HEUN_STD :
                                             me.optHeunNaive.checked   ? IntegratorType.HEUN_NAIVE : IntegratorType.HEUN_FAST);
         };
         this.optEuler.onclick = me.optHeun.onclick;
