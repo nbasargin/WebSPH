@@ -28,7 +28,7 @@ export class TimeSteppingComponent {
 	public dtDynStable : number = 0;
 	public dtDynFast : number = 0;
 
-	public dtTotal : number = 0;
+	public dtNext : number = 0;
 
 
 

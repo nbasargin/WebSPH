@@ -6,6 +6,8 @@ import {Component, Output, EventEmitter} from "@angular/core";
 })
 export class SimControlComponent {
 
+	public totalTime : number = 0;
+
 	// time limit
 	private _maxTimeEnabled : boolean = false;
 	set maxTimeEnabled(enabled : boolean) {

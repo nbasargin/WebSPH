@@ -35,10 +35,13 @@ export class SettingsComponent {
 	public setDtDynFast(dtDynFast : number) {
 		this.timeStepping.dtDynFast = dtDynFast;
 	}
-	public setDtTotal(dtTotal : number) {
-		this.timeStepping.dtTotal = dtTotal;
+	public setDtNext(dtNext : number) {
+		this.timeStepping.dtNext = dtNext;
 	}
 
+	public setTotalTime(totalTime : number) {
+		this.simControl.totalTime = totalTime;
+	}
 
 	public setFPS(fps : number) {
 		this.rendering.fps = fps;

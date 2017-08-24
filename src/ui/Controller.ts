@@ -29,9 +29,9 @@ export class Controller {
 		// init simulation and renderer
 		let bounds = {
 			xMin : -3,
-			xMax : 2,
-			yMin : -0.5,
-			yMax : 1.5
+			xMax : 3,
+			yMin : -0.45,
+			yMax : 1.2
 		};
 		this.simulation = new Simulation(Defaults.SIM_PARTICLE_NUMBER, Defaults.SIM_PARTICLE_DISTRIBUTION, bounds);
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment());
@@ -47,7 +47,14 @@ export class Controller {
 		// TODO: ground profile
 		// TODO: particle distribution
 
-		this.oneStep();
+		//this.oneStep();
+		this.renderer.render();
+
+		// update timing in ui
+		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
+		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
+		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
+
 	}
 
 	public oneStep() {
@@ -57,7 +64,9 @@ export class Controller {
 		// update timing in ui
 		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
 		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
-		this.settingsUI.setDtTotal(this.simulation.getNextTimeStep());
+		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
+
+		this.settingsUI.setTotalTime(this.simulation.getTotalTime());
 
 	}
 
