@@ -10,6 +10,7 @@ import {DynamicLinearGround} from "./ground/DynamicLinearGround";
 import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGround";
 import {GroundPreset, BoundaryType, ParticleDistribution} from "../util/Enums";
 import {SimulationOptions} from "./SimulationOptions";
+import {Bounds} from "../util/Bounds";
 
 export class Environment {
 
@@ -21,6 +22,7 @@ export class Environment {
 	private particleVolume : number;
 	private gravity : number;
 	private boundary : Boundary;
+	private boundarySize : Bounds;
 	private ground : GroundProfile;
     private particles : Array<Particle>;
 
@@ -30,17 +32,18 @@ export class Environment {
 		this.totalTime = 0;
 		this.smoothingLength = options.smoothingLength;
 		this.gravity = options.gravity;
-
-		this.boundary = new SolidBoundary(options.boundarySize);
-		this.setGroundPreset(options.groundPreset);
+		this.boundarySize = options.boundarySize;
 
 		// particles (numParticles + distribution) + volume
 		this.particles = [];
 		for (let i = 0; i < options.particleNumber; i++) {
 			this.particles[i] = new Particle();
 		}
-		this.setParticleDistributionFromPreset(options.particleDistribution);
+		this.setBoundaryType(options.boundaryType);
+		this.setGroundPreset(options.groundPreset);
+
 		this.setFluidVolume(options.fluidVolume);
+		this.setParticleDistributionFromPreset(options.particleDistribution);
 
     }
 
@@ -58,7 +61,30 @@ export class Environment {
 		env2.setParticleVolume(this.getParticleVolume());
 		env2.setGround(this.ground);
 
+		// checks
+		if (!this.isEqualToEnvironment(env2)) {
+			console.log("[!!] Copy environment failed!");
+		}
+
 		return env2;
+	}
+
+	private isEqualToEnvironment(env : Environment) {
+		if (this.boundarySize.xMin != env.boundarySize.xMin) return false;
+		if (this.boundarySize.xMax != env.boundarySize.xMax) return false;
+		if (this.boundarySize.yMin != env.boundarySize.yMin) return false;
+		if (this.boundarySize.yMax != env.boundarySize.yMax) return false;
+
+		if (this.boundary.getType() != env.boundary.getType()) return false;
+		if (this.particles.length != env.particles.length) return false;
+		if (this.ground != env.ground) return false;
+		if (this.totalTime != env.totalTime) return false;
+		if (this.gravity != env.getGravity()) return false;
+		if (this.particleVolume != env.particleVolume) return false;
+    	if (this.smoothingLength != env.smoothingLength) return false;
+
+    	// should be equal
+		return true;
 	}
 
 
@@ -146,10 +172,10 @@ export class Environment {
 	// boundary
 	public setBoundaryType(type : BoundaryType) {
 		if (type == BoundaryType.CYCLIC) {
-			this.boundary = new CyclicBoundary(this.getBoundary());
+			this.boundary = new CyclicBoundary(this.boundarySize);
 			this.boundary.update(this);
 		} else if (type == BoundaryType.SOLID) {
-			this.boundary = new SolidBoundary(this.getBoundary());
+			this.boundary = new SolidBoundary(this.boundarySize);
 			this.boundary.update(this);
 		} else {
 			console.log("invalid boundary type");
@@ -165,31 +191,31 @@ export class Environment {
 
 
 	private setParticleDistributionFromPreset(distribution : ParticleDistribution) {
+
+		let b = this.boundarySize;
+
 		switch (distribution) {
 
 			// Resets particles to the same water level.
 			case ParticleDistribution.UNIFORM:
-				this.distributeParticles(this.boundary.xMin, this.boundary.xMax, 0, this.particles.length - 1);
+				this.distributeParticles(b.xMin, b.xMax, 0, this.particles.length - 1);
 				break;
 
 			// Resets particles to the initial state of a dam break.
 			case ParticleDistribution.DAM_BREAK:
-				let lastDamBreakID = Math.floor(this.particles.length * 2 / 3) - 1;
-			case ParticleDistributionPreset.DAM_BREAK:
-				let b = this.boundary;
 				let leftSpacePercentage = (0.5 - b.xMin) / (b.xMax - b.xMin);
 				// 2 left / (2 left + 1 right)
 				let leftMassPercentage = (leftSpacePercentage * 2) / (1 + leftSpacePercentage);
 				let lastDamBreakID = Math.floor(this.particles.length * leftMassPercentage) - 1;
-				this.distributeParticles(this.boundary.xMin, 0.5, 0, lastDamBreakID);
-				this.distributeParticles(0.5, this.boundary.xMax, lastDamBreakID + 1, this.particles.length - 1);
+				this.distributeParticles(b.xMin, 0.5, 0, lastDamBreakID);
+				this.distributeParticles(0.5, b.xMax, lastDamBreakID + 1, this.particles.length - 1);
 				break;
 
 			// Resets particles to the initial state of a water column.
 			case ParticleDistribution.WATER_DROP:
 				let numStackedParticles = Math.floor(this.particles.length / 10);
 				let lastWaterDropID = this.particles.length - numStackedParticles - 1;
-				this.distributeParticles(this.boundary.xMin, this.boundary.xMax, 0, lastWaterDropID);
+				this.distributeParticles(b.xMin, b.xMax, 0, lastWaterDropID);
 				this.distributeParticles(0, 0.2, lastWaterDropID + 1, this.particles.length - 1);
 				break;
 

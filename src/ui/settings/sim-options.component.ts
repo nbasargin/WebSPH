@@ -37,7 +37,7 @@ export class SimOptionsComponent {
 
 
 	@Output() boundaryNotify : EventEmitter<string> = new EventEmitter<string>();
-	private _boundary : string = Defaults.SIM_BOUNDARY + "";
+	private _boundary : string = Defaults.SIM_BOUNDARY_TYPE + "";
 	set boundary(b : string) {
 		if (!EnumChecker.isValidValue(BoundaryType, b)) {
 			console.log("[!!] invalid enum type: " + b);

@@ -28,39 +28,23 @@ export class Controller {
 		this.glCanvas = new GLCanvas(canvas);
 
 		// init simulation and renderer
-		let bounds = {
-			xMin : -3,
-			xMax : 3,
-			yMin : -0.45,
-			yMax : 1.2
-		};
-		this.simulation = new Simulation(Defaults.SIM_PARTICLE_NUMBER, Defaults.SIM_PARTICLE_DISTRIBUTION, bounds);
-		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment());
-
-		this.renderLoop = new RenderLoop2((lastFrameDuration, avgFPS) => {
-			//console.log("render loop here! fps: " + avgFPS.toFixed(3));
-			this.settingsUI.setFPS(avgFPS);
 		let simOptions = new SimulationOptions();
 		this.simulation = new Simulation(simOptions);
 		let rendOptions = new RendererOptions();
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
 
+		this.renderLoop = new RenderLoop2((lastFrameDuration, avgFPS) => {
+			//console.log("render loop here! fps: " + avgFPS.toFixed(3));
+			this.settingsUI.setFPS(avgFPS);
 			this.oneStep();
-
 		});
 
-		// TODO: ground profile
-		// TODO: particle distribution
-
-		//this.oneStep();
+		// update UI for the first time
 		this.renderer.render();
-
-		// update timing in ui
 		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
 		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
 		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
-
-		this.renderer.render();
+		this.settingsUI.setTotalTime(this.simulation.getTotalTime());
 	}
 
 	public oneStep() {

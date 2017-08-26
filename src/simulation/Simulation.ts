@@ -55,8 +55,8 @@ export class Simulation {
 
 		// set simulation values from options
 		this.setIntegratorType(options.integratorType);
-		this.setSmoothingLength(options.smoothingLength);
-		this.setBoundaryType(options.boundaryType);
+		this.setBoundaryType(options.boundaryType); // depends on integrator
+		this.setSmoothingLength(options.smoothingLength); // depends on integrator
 		this.setTimeSteppingMode(options.timeSteppingMode);
 		this.setFixedTimeStep(options.fixedTimeStep);
 

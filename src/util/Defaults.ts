@@ -4,7 +4,7 @@ import {Bounds} from "./Bounds";
 export class Defaults {
 
 	public static readonly SIM_INTEGRATOR : IntegratorType = IntegratorType.HEUN_STD;
-	public static readonly SIM_BOUNDARY_SIZE : Bounds = { xMin : -3, xMax : 2, yMin : -0.5, yMax : 1.5 };
+	public static readonly SIM_BOUNDARY_SIZE : Bounds = { xMin : -3, xMax : 3, yMin : -0.45, yMax : 1.2 };
 	public static readonly SIM_BOUNDARY_TYPE : BoundaryType = BoundaryType.SOLID;
 	public static readonly SIM_GROUND : GroundPreset = GroundPreset.CONST_ZERO;
 	public static readonly SIM_SMOOTHING_LENGTH : number = 0.02;
