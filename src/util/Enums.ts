@@ -6,6 +6,18 @@ export enum IntegratorType {
 	HEUN_FAST = "heunFast"
 }
 
+export class IntegratorTypeString {
+	public static toEnum(enumString : string) : IntegratorType {
+		switch(enumString) {
+			case "euler": return IntegratorType.EULER;
+			case "heunNaive": return IntegratorType.HEUN_NAIVE;
+			case "heunStd": return IntegratorType.HEUN_STD;
+			case "heunFast": return IntegratorType.HEUN_FAST;
+		}
+		return undefined;
+	}
+}
+
 
 export enum BoundaryType {
 	CYCLIC = "cyclic",
@@ -25,6 +37,19 @@ export enum TimeSteppingMode {
 	STABLE = "dynStable",
 	FAST = "dynFast"
 }
+
+export class TimeSteppingModeString {
+	public static toEnum(enumString : string) : TimeSteppingMode {
+		switch(enumString) {
+			case "fixed": return TimeSteppingMode.FIXED;
+			case "dynStable": return TimeSteppingMode.STABLE;
+			case "dynFast": return TimeSteppingMode.FAST;
+		}
+		return undefined;
+	}
+}
+
+
 
 export enum GroundPreset {
 	CONST_ZERO,
@@ -51,16 +76,5 @@ export class EnumChecker {
 		return valid;
 	};
 
-	public static getEnumForValue(enumType, value) {
-
-		for (let enumMember in enumType) {
-			if (enumType.hasOwnProperty(enumMember)) {
-				if (value == enumType[enumMember]) {
-					return enumMember;
-				}
-			}
-		}
-		return undefined;
-	}
 
 }

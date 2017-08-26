@@ -38,23 +38,17 @@ export class Controller {
 			this.oneStep();
 		});
 
-		this.updateUI();
-	}
-
-	private updateUI() {
-
-		// update UI for the first time
 		this.renderer.render();
-		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
-		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
-		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
-		this.settingsUI.setTotalTime(this.simulation.getTotalTime());
+		this.updateUITiming();
 	}
+
 
 	public oneStep() {
 		this.simulation.update();
-		this.updateUI();
+		this.renderer.render();
+		this.updateUITiming();
 	}
+
 
 	public startRenderLoop() {
 		this.renderLoop.start();
@@ -67,7 +61,8 @@ export class Controller {
 	public resetSimulationAndRenderer(simOptions : SimulationOptions, rendOptions : RendererOptions) {
 		this.simulation = new Simulation(simOptions);
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
-		this.updateUI();
+		this.renderer.render();
+		this.updateUITiming();
 	}
 
 	public getSimulation() {
@@ -78,5 +73,20 @@ export class Controller {
 		return this.renderer;
 	}
 
+
+	public updateTiming(options : SimulationOptions) {
+		this.simulation.setFixedTimeStep(options.fixedTimeStep);
+		this.simulation.setTimeStepLimit(options.timeStepLimit);
+		this.simulation.setTimeSteppingMode(options.timeSteppingMode);
+		this.simulation.setMaxTime(options.timeMax);
+		this.updateUITiming();
+	}
+
+	private updateUITiming() {
+		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
+		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
+		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
+		this.settingsUI.setTotalTime(this.simulation.getTotalTime());
+	}
 
 }

@@ -66,17 +66,19 @@ export class SettingsComponent {
 	public onDtFixedChanged(newDtFixed : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new fixed dt: " + newDtFixed);
 		this.simOptions.fixedTimeStep = newDtFixed;
+		this.controller.updateTiming(this.simOptions);
 	}
 
 	public onDtLimitChanged(newDtLimit : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new dt limit: " + newDtLimit);
-		// todo
+		this.simOptions.timeStepLimit = newDtLimit;
+		this.controller.updateTiming(this.simOptions);
 	}
 
 	public onDtModeChanged(newDtMode : TimeSteppingMode) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new dt mode: " + newDtMode);
 		this.simOptions.timeSteppingMode = newDtMode;
-
+		this.controller.updateTiming(this.simOptions);
 	}
 
 

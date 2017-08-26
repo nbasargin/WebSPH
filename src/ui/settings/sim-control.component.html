@@ -10,7 +10,7 @@
 	<br>
 
 	<div class="settings-left">
-		<button class="button" (click)='onStartStopClick()'> {{startStopText}} </button>
+		<button class="button" (click)='onStartStopClick()'> {{isRunning ? "Stop" : "Start"}} </button>
 	</div>
 	<div class="settings-right">
 		<label>
@@ -21,10 +21,10 @@
 	</div>
 	<br>
 
-	<div class="settings-left">
+	<div class="settings-left" *ngIf="!isRunning">
 		<button class="button" (click)='onDoStepsClick()'> Do steps </button>
 	</div>
-	<div class="settings-right">
+	<div class="settings-right" *ngIf="!isRunning">
 		<select class="select" [(ngModel)]="numSteps" title="number of steps">
 			<option *ngFor="let steps of stepValues" [ngValue]="steps" >{{steps}}</option>
 		</select>
@@ -32,10 +32,10 @@
 	</div>
 	<br>
 
-	<div class="settings-left">
+	<div class="settings-left" *ngIf="!isRunning">
 		<button class="button" (click)="onResetClick()"> Reset </button>
 	</div>
-	<div class="settings-right">
+	<div class="settings-right" *ngIf="!isRunning">
 		<select class="select" [(ngModel)]="numParticles" title="number of particles">
 			<option *ngFor="let ps of particleValues" [ngValue]="ps" >{{ps}}</option>
 		</select>

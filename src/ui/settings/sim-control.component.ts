@@ -46,16 +46,16 @@ export class SimControlComponent {
 
 	@Output() startNotify : EventEmitter<number> = new EventEmitter<number>();
 	@Output() stopNotify : EventEmitter<number> = new EventEmitter<number>();
-	public startStopText = "Start";
+	public isRunning = false;
 	public onStartStopClick() {
-		if (this.startStopText == "Start") {
+		if (!this.isRunning) {
 			// start
-			this.startStopText = "Stop";
 			this.startNotify.emit(42);
+			this.isRunning = true;
 		} else {
 			// stop
-			this.startStopText = "Start";
 			this.stopNotify.emit(42);
+			this.isRunning = false;
 		}
 	}
 
