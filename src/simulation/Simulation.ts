@@ -1,4 +1,3 @@
-import {Bounds} from "../util/Bounds";
 import {Environment} from "./Environment";
 import {Euler} from "./integrator/Euler";
 import {HeunOriginal} from "./integrator/HeunOriginal";
@@ -6,8 +5,8 @@ import {HeunNaive} from "./integrator/HeunNaive";
 import {HeunFast} from "./integrator/HeunFast";
 import {TimeStepping} from "./TimeStepping";
 import {Integrator} from "./integrator/Integrator";
-import {Defaults} from "../util/Defaults";
-import {ParticleDistributionPreset, IntegratorType, TimeSteppingMode, BoundaryType} from "../util/Enums";
+import {IntegratorType, TimeSteppingMode, BoundaryType} from "../util/Enums";
+import {SimulationOptions} from "./SimulationOptions";
 
 
 
@@ -43,22 +42,29 @@ export class Simulation {
     private maxTime : number;
 
 
-	public constructor(numParticles : number, distribution : ParticleDistributionPreset, bounds : Bounds) {
+	public constructor(options? : SimulationOptions) {
+		this.reset(options);
+	}
 
-		// create env -> will set all default values
-		this.env = new Environment(numParticles, distribution, bounds);
 
-		this.setIntegratorType(Defaults.SIM_INTEGRATOR);
-		this.setSmoothingLength(Defaults.SIM_SMOOTHING_LENGTH);
-		this.setBoundaryType(Defaults.SIM_BOUNDARY);
-		this.setTimeSteppingMode(Defaults.SIM_TIME_STEPPING_MODE);
-		this.setFixedTimeStep(Defaults.SIM_FIXED_TIME_STEP);
+	public reset(options? : SimulationOptions) {
+		if (!options) options = new SimulationOptions();
+
+		// create env -> will set all environment values based on options
+		this.env = new Environment(options);
+
+		// set simulation values from options
+		this.setIntegratorType(options.integratorType);
+		this.setSmoothingLength(options.smoothingLength);
+		this.setBoundaryType(options.boundaryType);
+		this.setTimeSteppingMode(options.timeSteppingMode);
+		this.setFixedTimeStep(options.fixedTimeStep);
 
 		// no time step limit, no max time
 		this.dtLimit = -1;
 		this.maxTime = -1;
-	}
 
+	}
 
 	public update() {
 		let dt = this.getNextTimeStep();

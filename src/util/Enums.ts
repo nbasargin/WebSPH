@@ -14,7 +14,7 @@ export enum BoundaryType {
 
 
 
-export enum ParticleDistributionPreset {
+export enum ParticleDistribution {
 	UNIFORM = "uniform",
 	DAM_BREAK = "damBreak",
 	WATER_DROP = "waterDrop"

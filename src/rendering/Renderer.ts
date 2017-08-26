@@ -6,7 +6,7 @@ import {GLProgram} from "./glUtil/GLProgram";
 import {ShaderLoader} from "./ShaderLoader";
 import {Coloring} from "./Coloring";
 import {AnalyticalDamBreak} from "../simulation/validation/AnalyticalDamBreak";
-import {Defaults} from "../util/Defaults";
+import {RendererOptions} from "./RendererOptions";
 
 /**
  * Renders the state of the environment to the canvas.
@@ -46,10 +46,13 @@ export class Renderer {
     private glProgram : GLProgram;
 
 
-    public constructor(glCanvas : GLCanvas, env : Environment) {
+    public constructor(glCanvas : GLCanvas, env : Environment, options? : RendererOptions) {
+
+    	if (!options) options = new RendererOptions();
+
         this.glCanvas = glCanvas;
         this.env = env;
-        this.visualizationSmoothingLength = Defaults.REND_SMOOTHING_LENGTH;
+        this.visualizationSmoothingLength = options.smoothingLength;
 
         this.initShaders();
         this.initMatrices();
@@ -58,6 +61,7 @@ export class Renderer {
         this.initWaterHeightBuffers();
         this.initGroundHeightBuffers();
         this.initDamBreakValidationBuffers();
+        this.setPointSize(options.particleSize);
     }
 
     private initShaders() {

@@ -1,8 +1,9 @@
 import {SettingsComponent} from "./settings/settings.component";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 import {Renderer} from "../rendering/Renderer";
-import {Defaults} from "../util/Defaults";
 import {Simulation} from "../simulation/Simulation";
+import {SimulationOptions} from "../simulation/SimulationOptions";
+import {RendererOptions} from "../rendering/RendererOptions";
 
 export class Controller {
 
@@ -26,23 +27,12 @@ export class Controller {
 		this.glCanvas = new GLCanvas(canvas);
 
 		// init simulation and renderer
-		let bounds = {
-			xMin : -3,
-			xMax : 2,
-			yMin : -0.5,
-			yMax : 1.5
-		};
-		this.simulation = new Simulation(Defaults.SIM_PARTICLE_NUMBER, Defaults.SIM_PARTICLE_DISTRIBUTION, bounds);
-		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment());
-
-		// ground profile
-		// particle distribution
-		this.renderer.setPointSize(Defaults.REND_PARTICLE_SIZE);
-		this.renderer.setVisualizationSmoothingLength(Defaults.REND_SMOOTHING_LENGTH);
+		let simOptions = new SimulationOptions();
+		this.simulation = new Simulation(simOptions);
+		let rendOptions = new RendererOptions();
+		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
 
 		this.renderer.render();
-
-		//this.oneStep();
 	}
 
 	public oneStep() {

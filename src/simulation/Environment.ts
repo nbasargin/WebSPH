@@ -1,4 +1,3 @@
-import {Bounds} from "../util/Bounds";
 import {Particle} from "./Particle";
 import {SmoothingKernel} from "./SmoothingKernel";
 import {CyclicBoundary} from "./boundary/CyclicBoundary";
@@ -9,10 +8,10 @@ import {ConstLinearGround} from "./ground/ConstLinearGround";
 import {ConstSineGround} from "./ground/ConstSineGround";
 import {DynamicLinearGround} from "./ground/DynamicLinearGround";
 import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGround";
-import {GroundPreset, BoundaryType, ParticleDistributionPreset} from "../util/Enums";
+import {GroundPreset, BoundaryType, ParticleDistribution} from "../util/Enums";
+import {SimulationOptions} from "./SimulationOptions";
 
 export class Environment {
-
 
 	// read write
 	private totalTime = 0;
@@ -26,35 +25,37 @@ export class Environment {
     private particles : Array<Particle>;
 
 
-    public constructor(numParticles : number, distribution : ParticleDistributionPreset, bounds : Bounds) {
+    public constructor(options : SimulationOptions) {
 
 		this.totalTime = 0;
-		this.smoothingLength = 0.02;
-		this.gravity = 9.81;
+		this.smoothingLength = options.smoothingLength;
+		this.gravity = options.gravity;
 
-		this.boundary = new SolidBoundary(bounds);
-		this.setGroundPreset(GroundPreset.DYN_SMOOTHING_KERNEL);
+		this.boundary = new SolidBoundary(options.boundarySize);
+		this.setGroundPreset(options.groundPreset);
 
 		// particles (numParticles + distribution) + volume
 		this.particles = [];
-		for (let i = 0; i < numParticles; i++) {
+		for (let i = 0; i < options.particleNumber; i++) {
 			this.particles[i] = new Particle();
 		}
-		this.setParticleDistributionFromPreset(distribution);
-		this.setFluidVolume(2.5);
+		this.setParticleDistributionFromPreset(options.particleDistribution);
+		this.setFluidVolume(options.fluidVolume);
 
     }
 
     public copy() : Environment {
-		let numPs = this.getParticles().length;
-		let bounds = this.getBoundary();
 
-		let env2 = new Environment(numPs, ParticleDistributionPreset.UNIFORM, bounds);
+    	let options = new SimulationOptions();
+    	options.particleNumber = this.getParticles().length;
+		options.boundaryType = this.getBoundary().getType();
+    	options.boundarySize = this.getBoundary();
+    	options.smoothingLength = this.getSmoothingLength();
+    	options.gravity = this.getGravity();
+
+		let env2 = new Environment(options);
 		env2.setTotalTime(this.getTotalTime());
-		env2.setSmoothingLength(this.getSmoothingLength());
 		env2.setParticleVolume(this.getParticleVolume());
-		env2.setGravity(this.getGravity());
-		env2.setBoundaryType(bounds.getType());
 		env2.setGround(this.ground);
 
 		return env2;
@@ -163,23 +164,23 @@ export class Environment {
 
 
 
-	private setParticleDistributionFromPreset(distribution : ParticleDistributionPreset) {
+	private setParticleDistributionFromPreset(distribution : ParticleDistribution) {
 		switch (distribution) {
 
 			// Resets particles to the same water level.
-			case ParticleDistributionPreset.UNIFORM:
+			case ParticleDistribution.UNIFORM:
 				this.distributeParticles(this.boundary.xMin, this.boundary.xMax, 0, this.particles.length - 1);
 				break;
 
 			// Resets particles to the initial state of a dam break.
-			case ParticleDistributionPreset.DAM_BREAK:
+			case ParticleDistribution.DAM_BREAK:
 				let lastDamBreakID = Math.floor(this.particles.length * 2 / 3) - 1;
 				this.distributeParticles(this.boundary.xMin, 0.5, 0, lastDamBreakID);
 				this.distributeParticles(0.5, this.boundary.xMax, lastDamBreakID + 1, this.particles.length - 1);
 				break;
 
 			// Resets particles to the initial state of a water column.
-			case ParticleDistributionPreset.WATER_DROP:
+			case ParticleDistribution.WATER_DROP:
 				let numStackedParticles = Math.floor(this.particles.length / 10);
 				let lastWaterDropID = this.particles.length - numStackedParticles - 1;
 				this.distributeParticles(this.boundary.xMin, this.boundary.xMax, 0, lastWaterDropID);
@@ -213,10 +214,6 @@ export class Environment {
             this.particles[i].speedX = 0;
         }
     }
-
-
-
-
 
 
 

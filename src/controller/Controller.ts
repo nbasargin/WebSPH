@@ -2,7 +2,7 @@ import {RenderLoop} from "../rendering/RenderLoop";
 import {Renderer} from "../rendering/Renderer";
 import {Simulation} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
-import {TimeSteppingMode, BoundaryType, IntegratorType, ParticleDistributionPreset} from "../util/Enums";
+import {TimeSteppingMode, BoundaryType, IntegratorType} from "../util/Enums";
 
 /**
  * Contains render loop, updates simulation, calls the renderer and handles user input.
@@ -80,15 +80,7 @@ export class Controller {
 
     private initSimulationAndRenderer() {
         // simulation
-        //let bounds = this.canvas.getOrthographicBounds();
-
-        let bounds = {
-			xMin : -3,
-			xMax : 2,
-			yMin : -0.5,
-			yMax : 1.5
-		};
-        this.simulation = new Simulation(this.numParticles, ParticleDistributionPreset.UNIFORM, bounds);
+        this.simulation = new Simulation();
 		this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
 
         // renderer
