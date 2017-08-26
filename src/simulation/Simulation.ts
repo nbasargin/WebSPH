@@ -66,6 +66,9 @@ export class Simulation {
 
 	public update() {
 		let dt = this.getNextTimeStep();
+		if (dt <= 0) {
+			return; // max time reached
+		}
 		// total time is updated by the integrator
 		this.integrator.integrate(dt);
 	}

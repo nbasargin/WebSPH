@@ -1,11 +1,8 @@
 import {Component, Input, ViewChild} from "@angular/core";
 import {Controller} from "../Controller";
-import {ScenarioComponent} from "./scenario.component";
 import {SimControlComponent} from "./sim-control.component";
-import {SimOptionsComponent} from "./sim-options.component";
 import {TimeSteppingComponent} from "./time-stepping.component";
 import {RenderingComponent} from "./rendering.component";
-import {MiscComponent} from "./misc.component";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
 import {RendererOptions} from "../../rendering/RendererOptions";
 import {TimeSteppingMode} from "../../util/Enums";
@@ -24,12 +21,12 @@ export class SettingsComponent {
 
 	@Input() private controller : Controller;
 
-	@ViewChild('scenario') private compScenario : ScenarioComponent;
+	// @ViewChild('scenario') private compScenario : ScenarioComponent;
 	@ViewChild('simControl') private compSimControl : SimControlComponent;
-	@ViewChild('simOptions') private compSimOptions : SimOptionsComponent;
+	// @ViewChild('simOptions') private compSimOptions : SimOptionsComponent;
 	@ViewChild('timeStepping') private compTimeStepping : TimeSteppingComponent;
 	@ViewChild('rendering') private compRendering : RenderingComponent;
-	@ViewChild('misc') private compMisc : MiscComponent;
+	// @ViewChild('misc') private compMisc : MiscComponent;
 
 
 	public constructor() {
@@ -86,7 +83,10 @@ export class SettingsComponent {
 	// simulation control
 	public onDoSteps(numSteps : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] do " + numSteps + " steps");
-		this.controller.oneStep();
+		for (let i = 0; i < numSteps; i++) {
+			this.controller.oneStep();
+		}
+
 	}
 	public onReset(numParticles : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] resetSimulationAndRenderer to " + numParticles + " particles");
