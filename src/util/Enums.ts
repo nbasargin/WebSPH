@@ -1,4 +1,5 @@
 
+// Integrator
 export enum IntegratorType {
 	EULER = "euler",
 	HEUN_NAIVE = "heunNaive",
@@ -19,9 +20,20 @@ export class IntegratorTypeString {
 }
 
 
+// Boundary
 export enum BoundaryType {
 	CYCLIC = "cyclic",
 	SOLID = "solid"
+}
+
+export class BoundaryTypeString {
+	public static toEnum(enumString : string) : BoundaryType {
+		switch(enumString) {
+			case "cyclic": return BoundaryType.CYCLIC;
+			case "solid": return BoundaryType.SOLID;
+		}
+		return undefined;
+	}
 }
 
 
@@ -32,6 +44,8 @@ export enum ParticleDistribution {
 	WATER_DROP = "waterDrop"
 }
 
+
+// Time stepping
 export enum TimeSteppingMode {
 	FIXED = "fixed",
 	STABLE = "dynStable",
@@ -58,6 +72,9 @@ export enum GroundPreset {
 	DYN_SLOPE,
 	DYN_SMOOTHING_KERNEL
 }
+
+
+// checks if the string is contained in the enum as value
 
 export class EnumChecker {
 

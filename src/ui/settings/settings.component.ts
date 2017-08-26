@@ -5,7 +5,7 @@ import {TimeSteppingComponent} from "./time-stepping.component";
 import {RenderingComponent} from "./rendering.component";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
 import {RendererOptions} from "../../rendering/RendererOptions";
-import {TimeSteppingMode} from "../../util/Enums";
+import {TimeSteppingMode, IntegratorType, BoundaryType} from "../../util/Enums";
 
 @Component({
 	selector: 'websph-settings',
@@ -63,37 +63,24 @@ export class SettingsComponent {
 	public onDtFixedChanged(newDtFixed : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new fixed dt: " + newDtFixed);
 		this.simOptions.fixedTimeStep = newDtFixed;
-		this.controller.updateTiming(this.simOptions);
+		this.controller.updateSimulationTiming(this.simOptions);
 	}
 
 	public onDtLimitChanged(newDtLimit : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new dt limit: " + newDtLimit);
 		this.simOptions.timeStepLimit = newDtLimit;
-		this.controller.updateTiming(this.simOptions);
+		this.controller.updateSimulationTiming(this.simOptions);
 	}
 
 	public onDtModeChanged(newDtMode : TimeSteppingMode) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new dt mode: " + newDtMode);
 		this.simOptions.timeSteppingMode = newDtMode;
-		this.controller.updateTiming(this.simOptions);
+		this.controller.updateSimulationTiming(this.simOptions);
 	}
 
 
 
 	// simulation control
-	public onDoSteps(numSteps : number) {
-		if (this.logInfo) console.log("[SettingsComponent Info] do " + numSteps + " steps");
-		for (let i = 0; i < numSteps; i++) {
-			this.controller.oneStep();
-		}
-
-	}
-	public onReset(numParticles : number) {
-		if (this.logInfo) console.log("[SettingsComponent Info] resetSimulationAndRenderer to " + numParticles + " particles");
-		this.simOptions.particleNumber = numParticles;
-		this.controller.resetSimulationAndRenderer(this.simOptions, this.rendOptions);
-	}
-
 	public onStart() {
 		if (this.logInfo) console.log("[SettingsComponent Info] start");
 		this.controller.startRenderLoop();
@@ -102,21 +89,37 @@ export class SettingsComponent {
 		if (this.logInfo) console.log("[SettingsComponent Info] stop");
 		this.controller.stopRenderLoop();
 	}
+	public onDoSteps(numSteps : number) {
+		if (this.logInfo) console.log("[SettingsComponent Info] do " + numSteps + " steps");
+		for (let i = 0; i < numSteps; i++) {
+			this.controller.oneStep();
+		}
+	}
+	public onReset(numParticles : number) {
+		if (this.logInfo) console.log("[SettingsComponent Info] resetSimulationAndRenderer to " + numParticles + " particles");
+		this.simOptions.particleNumber = numParticles;
+		this.controller.resetSimulationAndRenderer(this.simOptions, this.rendOptions);
+	}
+
 
 
 	// simulation options
-	public onIntegratorChanged(integrator : string) {
+	public onIntegratorChanged(integrator : IntegratorType) {
 		if (this.logInfo) console.log("[SettingsComponent Info] integrator changed to " + integrator);
+		this.simOptions.integratorType = integrator;
+		this.controller.setIntegrator(integrator);
 	}
 	public onSmoothingLengthChanged(h : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] smoothing length changed to " + h);
 		this.compRendering.visuSmoothingLength = h;
 
 		this.simOptions.smoothingLength = h;
-		this.rendOptions.smoothingLength = h;
+		this.controller.setSimulationSmoothingLength(h);
 	}
-	public onBoundaryChanged(boundary : string) {
+	public onBoundaryChanged(boundary : BoundaryType) {
 		if (this.logInfo) console.log("[SettingsComponent Info] boundary changed to " + boundary);
+		this.simOptions.boundaryType = boundary;
+		this.controller.setBoundary(boundary);
 	}
 
 
@@ -124,9 +127,11 @@ export class SettingsComponent {
 	public onVisuSmoothingLengthChanged(vh : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] visualization smoothing length changed to: " + vh);
 		this.rendOptions.smoothingLength = vh;
+		this.controller.setRendererSmoothingLength(vh);
 	}
 	public onParticleSizeChanged(pSize : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] visualization particle size changed to: " + pSize);
 		this.rendOptions.particleSize = pSize;
+		this.controller.setParticleSize(pSize);
 	}
 }

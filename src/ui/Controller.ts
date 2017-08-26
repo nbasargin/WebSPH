@@ -3,7 +3,7 @@ import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 import {Renderer} from "../rendering/Renderer";
 import {Simulation} from "../simulation/Simulation";
 import {RenderLoop2} from "../rendering/RenderLoop2";
-import {TimeSteppingMode} from "../util/Enums";
+import {TimeSteppingMode, IntegratorType, BoundaryType} from "../util/Enums";
 import {SimulationOptions} from "../simulation/SimulationOptions";
 import {RendererOptions} from "../rendering/RendererOptions";
 
@@ -33,7 +33,6 @@ export class Controller {
 		this.resetSimulationAndRenderer(simOptions, rendOptions);
 
 		this.renderLoop = new RenderLoop2((lastFrameDuration, avgFPS) => {
-			//console.log("render loop here! fps: " + avgFPS.toFixed(3));
 			this.settingsUI.setFPS(avgFPS);
 			this.oneStep();
 		});
@@ -43,12 +42,7 @@ export class Controller {
 	}
 
 
-	public oneStep() {
-		this.simulation.update();
-		this.renderer.render();
-		this.updateUITiming();
-	}
-
+	// Simulation control
 
 	public startRenderLoop() {
 		this.renderLoop.start();
@@ -58,6 +52,12 @@ export class Controller {
 		this.renderLoop.stop();
 	};
 
+	public oneStep() {
+		this.simulation.update();
+		this.renderer.render();
+		this.updateUITiming();
+	}
+
 	public resetSimulationAndRenderer(simOptions : SimulationOptions, rendOptions : RendererOptions) {
 		this.simulation = new Simulation(simOptions);
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
@@ -65,16 +65,9 @@ export class Controller {
 		this.updateUITiming();
 	}
 
-	public getSimulation() {
-		return this.simulation;
-	}
+	// Timing
 
-	public getRenderer() {
-		return this.renderer;
-	}
-
-
-	public updateTiming(options : SimulationOptions) {
+	public updateSimulationTiming(options : SimulationOptions) {
 		this.simulation.setFixedTimeStep(options.fixedTimeStep);
 		this.simulation.setTimeStepLimit(options.timeStepLimit);
 		this.simulation.setTimeSteppingMode(options.timeSteppingMode);
@@ -88,5 +81,35 @@ export class Controller {
 		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
 		this.settingsUI.setTotalTime(this.simulation.getTotalTime());
 	}
+
+	// simulation options
+
+	public setSimulationSmoothingLength(h : number) {
+		this.simulation.setSmoothingLength(h);
+		this.renderer.render();
+	}
+
+	public setIntegrator(i : IntegratorType) {
+		this.simulation.setIntegratorType(i);
+		this.renderer.render();
+	}
+
+	public setBoundary(b : BoundaryType) {
+		this.simulation.setBoundaryType(b);
+		this.renderer.render();
+	}
+
+	// renderer options
+
+	public setRendererSmoothingLength(vh : number) {
+		this.renderer.setVisualizationSmoothingLength(vh);
+		this.renderer.render();
+	}
+
+	public setParticleSize(ps : number) {
+		this.renderer.setPointSize(ps);
+		this.renderer.render();
+	}
+
 
 }

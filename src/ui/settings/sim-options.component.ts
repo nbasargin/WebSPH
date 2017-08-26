@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter} from "@angular/core";
 import {Defaults} from "../../util/Defaults";
-import {IntegratorType, EnumChecker, BoundaryType} from "../../util/Enums";
+import {IntegratorType, EnumChecker, BoundaryType, IntegratorTypeString, BoundaryTypeString} from "../../util/Enums";
 
 @Component({
 	selector: 'websph-settings-sim-settings',
@@ -9,7 +9,7 @@ import {IntegratorType, EnumChecker, BoundaryType} from "../../util/Enums";
 export class SimOptionsComponent {
 
 
-	@Output() integratorNotify : EventEmitter<string> = new EventEmitter<string>();
+	@Output() integratorNotify : EventEmitter<IntegratorType> = new EventEmitter<IntegratorType>();
 	private _integrator : string = Defaults.SIM_INTEGRATOR + "";
 	set integrator(i : string) {
 
@@ -18,7 +18,7 @@ export class SimOptionsComponent {
 		}
 
 		this._integrator = i;
-		this.integratorNotify.emit(this._integrator);
+		this.integratorNotify.emit(IntegratorTypeString.toEnum(i));
 	}
 	get integrator() {
 		return this._integrator
@@ -36,7 +36,7 @@ export class SimOptionsComponent {
 	}
 
 
-	@Output() boundaryNotify : EventEmitter<string> = new EventEmitter<string>();
+	@Output() boundaryNotify : EventEmitter<BoundaryType> = new EventEmitter<BoundaryType>();
 	private _boundary : string = Defaults.SIM_BOUNDARY_TYPE + "";
 	set boundary(b : string) {
 		if (!EnumChecker.isValidValue(BoundaryType, b)) {
@@ -44,7 +44,7 @@ export class SimOptionsComponent {
 		}
 
 		this._boundary = b;
-		this.boundaryNotify.emit(this._boundary);
+		this.boundaryNotify.emit(BoundaryTypeString.toEnum(b));
 	}
 	get boundary() {
 		return this._boundary;
