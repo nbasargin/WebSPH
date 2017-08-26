@@ -175,6 +175,12 @@ export class Environment {
 			// Resets particles to the initial state of a dam break.
 			case ParticleDistribution.DAM_BREAK:
 				let lastDamBreakID = Math.floor(this.particles.length * 2 / 3) - 1;
+			case ParticleDistributionPreset.DAM_BREAK:
+				let b = this.boundary;
+				let leftSpacePercentage = (0.5 - b.xMin) / (b.xMax - b.xMin);
+				// 2 left / (2 left + 1 right)
+				let leftMassPercentage = (leftSpacePercentage * 2) / (1 + leftSpacePercentage);
+				let lastDamBreakID = Math.floor(this.particles.length * leftMassPercentage) - 1;
 				this.distributeParticles(this.boundary.xMin, 0.5, 0, lastDamBreakID);
 				this.distributeParticles(0.5, this.boundary.xMax, lastDamBreakID + 1, this.particles.length - 1);
 				break;

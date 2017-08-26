@@ -1,4 +1,5 @@
 import {Component, Output, EventEmitter} from "@angular/core";
+import {Defaults} from "../../util/Defaults";
 
 @Component({
 	selector: 'websph-settings-rendering',
@@ -7,7 +8,7 @@ import {Component, Output, EventEmitter} from "@angular/core";
 export class RenderingComponent {
 
 	@Output() visuSmoothingLengthNotify : EventEmitter<number> = new EventEmitter<number>();
-	private _visuSmoothingLength : number = 0.015;
+	private _visuSmoothingLength : number = Defaults.REND_SMOOTHING_LENGTH;
 	set visuSmoothingLength(vh : number) {
 		this._visuSmoothingLength = vh;
 		this.visuSmoothingLengthNotify.emit(this._visuSmoothingLength);
@@ -21,7 +22,7 @@ export class RenderingComponent {
 	public sizes : Array<number> = [
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 	];
-	private _pSize : number = 2;
+	private _pSize : number = Defaults.REND_PARTICLE_SIZE;
 	get pSize() {
 		return this._pSize;
 	}
@@ -29,5 +30,7 @@ export class RenderingComponent {
 		this._pSize = size;
 		this.pSizeNotify.emit(this._pSize);
 	}
+
+	public fps : number = 0;
 
 }

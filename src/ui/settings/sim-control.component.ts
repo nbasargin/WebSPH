@@ -6,6 +6,8 @@ import {Component, Output, EventEmitter} from "@angular/core";
 })
 export class SimControlComponent {
 
+	public totalTime : number = 0;
+
 	// time limit
 	private _maxTimeEnabled : boolean = false;
 	set maxTimeEnabled(enabled : boolean) {
@@ -40,5 +42,21 @@ export class SimControlComponent {
 	];
 	public numParticles = 500;
 
+
+
+	@Output() startNotify : EventEmitter<number> = new EventEmitter<number>();
+	@Output() stopNotify : EventEmitter<number> = new EventEmitter<number>();
+	public startStopText = "Start";
+	public onStartStopClick() {
+		if (this.startStopText == "Start") {
+			// start
+			this.startStopText = "Stop";
+			this.startNotify.emit(42);
+		} else {
+			// stop
+			this.startStopText = "Start";
+			this.stopNotify.emit(42);
+		}
+	}
 
 }

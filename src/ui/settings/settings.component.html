@@ -4,6 +4,8 @@
 	</websph-settings-scenario>
 
 	<websph-settings-sim-control #simControl
+		(startNotify)="onStart()"
+		(stopNotify)="onStop()"
 		(doStepsNotify)="onDoSteps($event)"
 		(resetNotify)="onReset($event)"
 	></websph-settings-sim-control>
@@ -15,7 +17,9 @@
 	></websph-settings-sim-settings>
 
 	<websph-settings-time-stepping #timeStepping
-		(dtTotalNotify)="onDtChanged($event)"
+								   (dtFixedNotify)="onDtFixedChanged($event)"
+								   (dtLimitNotify)="onDtLimitChanged($event)"
+								   (dtModeNotify)="onDtModeChanged($event)"
 	></websph-settings-time-stepping>
 
 	<websph-settings-rendering #rendering

@@ -58,4 +58,8 @@ export class RenderLoop {
         return this.running;
     }
 
+
+    public getAvgFPS() : number {
+    	return this.timing.getAvgFPS();
+	}
 }

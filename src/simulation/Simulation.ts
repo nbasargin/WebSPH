@@ -70,7 +70,6 @@ export class Simulation {
 		let dt = this.getNextTimeStep();
 		// total time is updated by the integrator
 		this.integrator.integrate(dt);
-
 	}
 
 	// INTEGRATOR

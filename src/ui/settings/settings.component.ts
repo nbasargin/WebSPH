@@ -35,17 +35,35 @@ export class SettingsComponent {
 	public setDtDynFast(dtDynFast : number) {
 		this.timeStepping.dtDynFast = dtDynFast;
 	}
-	public getFinalDt() {
-		return this.timeStepping.getFinalDt();
+	public setDtNext(dtNext : number) {
+		this.timeStepping.dtNext = dtNext;
+	}
+
+	public setTotalTime(totalTime : number) {
+		this.simControl.totalTime = totalTime;
+	}
+
+	public setFPS(fps : number) {
+		this.rendering.fps = fps;
 	}
 
 
 	// event listeners
 
 	// time stepping
-	public onDtChanged(newDt : number) {
-		if (this.logInfo) console.log("[SettingsComponent Info] new dt: " + newDt);
+	public onDtFixedChanged(newDtFixed : number) {
+		if (this.logInfo) console.log("[SettingsComponent Info] new fixed dt: " + newDtFixed);
 	}
+
+	public onDtLimitChanged(newDtLimit : number) {
+		if (this.logInfo) console.log("[SettingsComponent Info] new dt limit: " + newDtLimit);
+	}
+
+	public onDtModeChanged(newDtMode : any) {
+		if (this.logInfo) console.log("[SettingsComponent Info] new dt mode: " + newDtMode);
+	}
+
+
 
 	// simulation control
 	public onDoSteps(numSteps : number) {
@@ -57,6 +75,16 @@ export class SettingsComponent {
 		this.controller.resetParticles(numParticles);
 
 	}
+
+	public onStart() {
+		if (this.logInfo) console.log("[SettingsComponent Info] start");
+		this.controller.startRenderLoop();
+	}
+	public onStop() {
+		if (this.logInfo) console.log("[SettingsComponent Info] stop");
+		this.controller.stopRenderLoop();
+	}
+
 
 	// simulation options
 	public onIntegratorChanged(integrator : string) {

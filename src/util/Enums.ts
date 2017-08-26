@@ -33,3 +33,20 @@ export enum GroundPreset {
 	DYN_SLOPE,
 	DYN_SMOOTHING_KERNEL
 }
+
+export class EnumChecker {
+
+	public static isValidValue(enumType, value) : boolean {
+		let valid = false;
+
+		for (let enumMember in enumType) {
+			if (value == enumType[enumMember]) {
+				valid = true;
+				break;
+			}
+		}
+
+		return valid;
+	};
+
+}
