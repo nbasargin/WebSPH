@@ -20,7 +20,7 @@ export class Renderer {
     private drawParticles = true;
     private drawWaterHeight = true;
     private drawBaseSquare = true;
-    private drawValidation = false;
+    private drawValidation = true;
     private visualizationSmoothingLength;
     private waterHeightSamples = 500;
     private validationSamples = 1000;
