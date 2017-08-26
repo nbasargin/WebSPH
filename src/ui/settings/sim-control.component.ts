@@ -1,4 +1,5 @@
 import {Component, Output, EventEmitter} from "@angular/core";
+import {Defaults} from "../../util/Defaults";
 
 @Component({
 	selector: 'websph-settings-sim-control',
@@ -6,18 +7,48 @@ import {Component, Output, EventEmitter} from "@angular/core";
 })
 export class SimControlComponent {
 
-	public totalTime : number = 0;
+	public totalTime : number = Defaults.SIM_TIME_START;
 
-	// time limit
+	// max time
+	@Output() maxTimeNotify : EventEmitter<number> = new EventEmitter<number>();
+
+	// max time ENABLED
 	private _maxTimeEnabled : boolean = false;
 	set maxTimeEnabled(enabled : boolean) {
 		this._maxTimeEnabled = enabled;
-		this.maxTimeText = enabled ? "Run until:" : "Set maximal time";
+		if (this._maxTimeEnabled && this.parsedMaxTime > 0) {
+			this.maxTimeNotify.emit(this.parsedMaxTime);
+		} else {
+			this.maxTimeNotify.emit(-1);
+		}
 	}
 	get maxTimeEnabled() {
 		return this._maxTimeEnabled;
 	}
-	public maxTimeText : String = "Set maximal time";
+
+	// max time VALUE
+	private _maxTimeUserInput : string = "";
+	private _parsedMaxTime : number = -1;
+	set maxTimeUserInput(mt : string) {
+		this._maxTimeUserInput = mt;
+		// check if input is valid
+		let parsed = parseFloat(mt);
+		if (isNaN(parsed) || parsed <= 0) {
+			this._parsedMaxTime = -1;
+		} else {
+			this._parsedMaxTime = parsed;
+		}
+		// inform parent
+		if (this._maxTimeEnabled) {
+			this.maxTimeNotify.emit(this.parsedMaxTime);
+		}
+	}
+	get maxTimeUserInput() {
+		return this._maxTimeUserInput;
+	}
+	get parsedMaxTime() {
+		return this._parsedMaxTime;
+	}
 
 
 
@@ -50,13 +81,18 @@ export class SimControlComponent {
 	public onStartStopClick() {
 		if (!this.isRunning) {
 			// start
-			this.startNotify.emit(42);
 			this.isRunning = true;
+			this.startNotify.emit();
 		} else {
 			// stop
-			this.stopNotify.emit(42);
 			this.isRunning = false;
+			this.stopNotify.emit();
 		}
+	}
+
+	public stopSimulation() {
+		this.isRunning = false;
+		this.stopNotify.emit();
 	}
 
 }

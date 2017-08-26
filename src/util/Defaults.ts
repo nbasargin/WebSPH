@@ -15,7 +15,7 @@ export class Defaults {
 	public static readonly SIM_TIME_STEP_LIMIT = -1;
 	public static readonly SIM_TIME_START = 0;
 	public static readonly SIM_TIME_MAX = -1;
-	public static readonly SIM_FLUID_VOLUME : number = 2.5;
+	public static readonly SIM_FLUID_VOLUME : number = 4.75;
 	public static readonly SIM_GRAVITY : number = 9.81;
 
 	public static readonly REND_PARTICLE_SIZE : number = 2;

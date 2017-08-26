@@ -56,7 +56,16 @@ export class SettingsComponent {
 		this.compRendering.fps = fps;
 	}
 
+	public stopSimulation() {
+		this.compSimControl.stopSimulation();
+	}
 
+	public showMessage(message : string) {
+		alert(message);
+	}
+
+
+	// ---------------------
 	// event listeners
 
 	// time stepping
@@ -78,6 +87,11 @@ export class SettingsComponent {
 		this.controller.updateSimulationTiming(this.simOptions);
 	}
 
+	public onMaxTimeChanged(maxTime : number) {
+		if (this.logInfo) console.log("[SettingsComponent Info] new max time: " + maxTime);
+		this.simOptions.timeMax = maxTime;
+		this.controller.updateSimulationTiming(this.simOptions);
+	}
 
 
 	// simulation control
@@ -91,9 +105,7 @@ export class SettingsComponent {
 	}
 	public onDoSteps(numSteps : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] do " + numSteps + " steps");
-		for (let i = 0; i < numSteps; i++) {
-			this.controller.oneStep();
-		}
+		this.controller.doSteps(numSteps);
 	}
 	public onReset(numParticles : number) {
 		if (this.logInfo) console.log("[SettingsComponent Info] resetSimulationAndRenderer to " + numParticles + " particles");

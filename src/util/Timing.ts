@@ -47,8 +47,4 @@ export class FrameTiming {
     }
 
 
-
-
-
-
 }

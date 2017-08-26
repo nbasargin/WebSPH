@@ -2,10 +2,12 @@
 	<h6>Simulation control</h6>
 
 	<div class="settings-left">
-		Total time:
+		Simulation time:
 	</div>
 	<div class="settings-right">
 		{{totalTime.toFixed(4)}}
+		{{maxTimeEnabled && parsedMaxTime > 0 ? " of " + parsedMaxTime : ""}}
+		seconds
 	</div>
 	<br>
 
@@ -15,9 +17,9 @@
 	<div class="settings-right">
 		<label>
 			<input type="checkbox" class="checkbox" [(ngModel)]="maxTimeEnabled">
-			{{maxTimeText}}
+			{{maxTimeEnabled ? "Run until:" : "Set maximal time"}}
 		</label>
-		<input type="text" *ngIf="maxTimeEnabled" style="display: inline; width: 80px;" maxlength="7" title="maximal time" >
+		<input type="text" *ngIf="maxTimeEnabled" style="display: inline; width: 80px;" maxlength="7" title="maximal time" [(ngModel)]="maxTimeUserInput">
 	</div>
 	<br>
 

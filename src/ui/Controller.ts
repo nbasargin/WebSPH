@@ -45,17 +45,45 @@ export class Controller {
 	// Simulation control
 
 	public startRenderLoop() {
-		this.renderLoop.start();
+
+		if (this.simulation.getNextTimeStep() <= 0) {
+			this.settingsUI.showMessage("Maximal simulation time reached!");
+			this.settingsUI.stopSimulation();
+		} else {
+			this.renderLoop.start();
+		}
+
 	}
 
 	public stopRenderLoop() {
 		this.renderLoop.stop();
 	};
 
-	public oneStep() {
+	private oneStep() {
 		this.simulation.update();
 		this.renderer.render();
 		this.updateUITiming();
+
+		// stop without message when a few steps were already done
+		if (this.simulation.getNextTimeStep() <= 0) {
+			this.settingsUI.stopSimulation();
+		}
+	}
+
+	public doSteps(numSteps : number) {
+		for (let i = 0; i < numSteps; i++) {
+			if (this.simulation.getNextTimeStep() <= 0) {
+				this.settingsUI.stopSimulation();
+				if (i == 0) {
+					// show message only if no steps were done
+					this.settingsUI.showMessage("Maximal simulation time reached!");
+				}
+
+				break;
+			}
+
+			this.oneStep();
+		}
 	}
 
 	public resetSimulationAndRenderer(simOptions : SimulationOptions, rendOptions : RendererOptions) {

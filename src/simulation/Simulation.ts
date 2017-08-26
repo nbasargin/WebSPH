@@ -124,7 +124,7 @@ export class Simulation {
 		if (this.maxTime > 0 && this.env.getTotalTime() + dtNext > this.maxTime) {
 			dtNext = this.maxTime - this.env.getTotalTime();
 		}
-		return dtNext;
+		return Math.max(0, dtNext);
 
 	}
 
