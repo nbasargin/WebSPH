@@ -117,8 +117,8 @@ export class Controller {
         this.divTotalTime = document.getElementById("websph-total-time");
         this.btnOneStep = document.getElementById("websph-btn-onestep");
         this.trOneStep = document.getElementById("websph-tr-onestep");
-        this.btnReset = document.getElementById("websph-btn-reset");
-        this.trReset = document.getElementById("websph-tr-reset");
+        this.btnReset = document.getElementById("websph-btn-resetSimulationAndRenderer");
+        this.trReset = document.getElementById("websph-tr-resetSimulationAndRenderer");
         this.sldNumParticles = <HTMLInputElement> document.getElementById("websph-sld-num-part");
         this.divNumParticles = document.getElementById("websph-div-num-part");
         this.divDtDynStable = document.getElementById("websph-div-dt-dyn-stable");

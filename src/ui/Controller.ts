@@ -29,15 +29,19 @@ export class Controller {
 
 		// init simulation and renderer
 		let simOptions = new SimulationOptions();
-		this.simulation = new Simulation(simOptions);
 		let rendOptions = new RendererOptions();
-		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
+		this.resetSimulationAndRenderer(simOptions, rendOptions);
 
 		this.renderLoop = new RenderLoop2((lastFrameDuration, avgFPS) => {
 			//console.log("render loop here! fps: " + avgFPS.toFixed(3));
 			this.settingsUI.setFPS(avgFPS);
 			this.oneStep();
 		});
+
+		this.updateUI();
+	}
+
+	private updateUI() {
 
 		// update UI for the first time
 		this.renderer.render();
@@ -49,15 +53,7 @@ export class Controller {
 
 	public oneStep() {
 		this.simulation.update();
-		this.renderer.render();
-
-		// update timing in ui
-		this.settingsUI.setDtDynFast(this.simulation.getTimeStepForMode(TimeSteppingMode.FAST));
-		this.settingsUI.setDtDynStable(this.simulation.getTimeStepForMode(TimeSteppingMode.STABLE));
-		this.settingsUI.setDtNext(this.simulation.getNextTimeStep());
-
-		this.settingsUI.setTotalTime(this.simulation.getTotalTime());
-
+		this.updateUI();
 	}
 
 	public startRenderLoop() {
@@ -68,8 +64,10 @@ export class Controller {
 		this.renderLoop.stop();
 	};
 
-	public resetParticles(numParticles : number) {
-
+	public resetSimulationAndRenderer(simOptions : SimulationOptions, rendOptions : RendererOptions) {
+		this.simulation = new Simulation(simOptions);
+		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
+		this.updateUI();
 	}
 
 

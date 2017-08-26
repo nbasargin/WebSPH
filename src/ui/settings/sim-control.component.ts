@@ -32,7 +32,7 @@ export class SimControlComponent {
 	public numSteps = 1;
 
 
-	// reset particles
+	// resetSimulationAndRenderer particles
 	@Output() resetNotify : EventEmitter<number> = new EventEmitter<number>();
 	public onResetClick() {
 		this.resetNotify.emit(this.numParticles);
