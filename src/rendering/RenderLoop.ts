@@ -1,4 +1,4 @@
-import {Timing} from "../util/Timing";
+import {FrameTiming} from "../util/Timing";
 
 /**
  * Render loop will repeatedly call the callback function and update the FPS.
@@ -7,13 +7,13 @@ export class RenderLoop {
 
     private static numberOfFramesToAvgFPS = 10;
     private callback : (dt : number) => void;
-    private timing : Timing;
+    private timing : FrameTiming;
     private fpsElement : HTMLElement;
     private running : boolean;
 
     public constructor(callback : (dt : number) => void, fpsElm? : HTMLElement) {
         this.callback = callback;
-        this.timing = new Timing(RenderLoop.numberOfFramesToAvgFPS);
+        this.timing = new FrameTiming(RenderLoop.numberOfFramesToAvgFPS);
         this.fpsElement = fpsElm;
         this.running = false;
     }

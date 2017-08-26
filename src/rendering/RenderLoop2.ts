@@ -1,17 +1,17 @@
-import {Timing} from "../util/Timing";
+import {FrameTiming} from "../util/Timing";
 
 export class RenderLoop2 {
 
 
 	private static numberOfFramesToAvgFPS = 10;
 	private callback : (lastFrameDuration : number, avgFPS : number) => void;
-	private timing : Timing;
+	private timing : FrameTiming;
 	private running : boolean;
 
 
 	public constructor(callback : (lastFrameDuration : number, avgFPS : number) => void) {
 		this.callback = callback;
-		this.timing = new Timing(RenderLoop2.numberOfFramesToAvgFPS);
+		this.timing = new FrameTiming(RenderLoop2.numberOfFramesToAvgFPS);
 		this.running = false;
 	}
 
