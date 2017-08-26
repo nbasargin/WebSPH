@@ -1,6 +1,7 @@
 import {Component, ViewChild, OnInit} from "@angular/core";
 import {Controller} from "../Controller";
 import {SettingsComponent} from "../settings/settings.component";
+import {Defaults} from "../../util/Defaults";
 
 @Component({
 	selector: 'websph-root',
@@ -9,12 +10,16 @@ import {SettingsComponent} from "../settings/settings.component";
 })
 export class WebSphRootComponent implements OnInit {
 
+	// version
+	public version = Defaults.VERSION;
+
+	// settings and controller
 	@ViewChild('settings') settings : SettingsComponent;
+	public controller : Controller;
 
 	constructor() {
-	}
 
-	public controller : Controller;
+	}
 
 	ngOnInit(): void {
 		this.controller = new Controller(this.settings);

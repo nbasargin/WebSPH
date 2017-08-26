@@ -3,6 +3,8 @@ import {Bounds} from "./Bounds";
 
 export class Defaults {
 
+	public static readonly VERSION : string = require('../../package.json').version;
+
 	public static readonly SIM_INTEGRATOR : IntegratorType = IntegratorType.HEUN_STD;
 	public static readonly SIM_BOUNDARY_SIZE : Bounds = { xMin : -3, xMax : 3, yMin : -0.3, yMax : 1.1924 };
 	public static readonly SIM_BOUNDARY_TYPE : BoundaryType = BoundaryType.SOLID;

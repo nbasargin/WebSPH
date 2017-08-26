@@ -15,6 +15,8 @@ export class SettingsComponent {
 
 	// logging
 	private logInfo = true;
+
+	// options for reset
 	private simOptions : SimulationOptions;
 	private rendOptions : RendererOptions;
 
