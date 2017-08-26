@@ -70,5 +70,13 @@ export class Controller {
 		this.updateUI();
 	}
 
+	public getSimulation() {
+		return this.simulation;
+	}
+
+	public getRenderer() {
+		return this.renderer;
+	}
+
 
 }

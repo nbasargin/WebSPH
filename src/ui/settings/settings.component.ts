@@ -8,6 +8,7 @@ import {RenderingComponent} from "./rendering.component";
 import {MiscComponent} from "./misc.component";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
 import {RendererOptions} from "../../rendering/RendererOptions";
+import {TimeSteppingMode} from "../../util/Enums";
 
 @Component({
 	selector: 'websph-settings',
@@ -72,9 +73,10 @@ export class SettingsComponent {
 		// todo
 	}
 
-	public onDtModeChanged(newDtMode : any) {
+	public onDtModeChanged(newDtMode : TimeSteppingMode) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new dt mode: " + newDtMode);
-		//this.simOptions.timeSteppingMode
+		this.simOptions.timeSteppingMode = newDtMode;
+
 	}
 
 

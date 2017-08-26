@@ -15,7 +15,7 @@ import {Bounds} from "../util/Bounds";
 export class Environment {
 
 	// read write
-	private totalTime = 0;
+	private totalTime : number;
 	private smoothingLength : number;
 
 	// read only
@@ -29,7 +29,7 @@ export class Environment {
 
     public constructor(options : SimulationOptions) {
 
-		this.totalTime = 0;
+		this.totalTime = options.timeStart;
 		this.smoothingLength = options.smoothingLength;
 		this.gravity = options.gravity;
 		this.boundarySize = options.boundarySize;
@@ -57,7 +57,6 @@ export class Environment {
     	options.gravity = this.getGravity();
 
 		let env2 = new Environment(options);
-		env2.setTotalTime(this.getTotalTime());
 		env2.setParticleVolume(this.getParticleVolume());
 		env2.setGround(this.ground);
 

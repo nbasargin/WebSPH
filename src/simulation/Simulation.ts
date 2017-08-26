@@ -59,10 +59,8 @@ export class Simulation {
 		this.setSmoothingLength(options.smoothingLength); // depends on integrator
 		this.setTimeSteppingMode(options.timeSteppingMode);
 		this.setFixedTimeStep(options.fixedTimeStep);
-
-		// no time step limit, no max time
-		this.dtLimit = -1;
-		this.maxTime = -1;
+		this.dtLimit = options.timeStepLimit;
+		this.maxTime = options.timeMax;
 
 	}
 

@@ -40,13 +40,27 @@ export class EnumChecker {
 		let valid = false;
 
 		for (let enumMember in enumType) {
-			if (value == enumType[enumMember]) {
-				valid = true;
-				break;
+			if (enumType.hasOwnProperty(enumMember)) {
+				if (value == enumType[enumMember]) {
+					valid = true;
+					break;
+				}
 			}
 		}
 
 		return valid;
 	};
+
+	public static getEnumForValue(enumType, value) {
+
+		for (let enumMember in enumType) {
+			if (enumType.hasOwnProperty(enumMember)) {
+				if (value == enumType[enumMember]) {
+					return enumMember;
+				}
+			}
+		}
+		return undefined;
+	}
 
 }
