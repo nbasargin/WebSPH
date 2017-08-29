@@ -206,6 +206,7 @@ export class Environment {
 				// 2 left / (2 left + 1 right)
 				let leftMassPercentage = (leftSpacePercentage * 2) / (1 + leftSpacePercentage);
 				let lastDamBreakID = Math.floor(this.particles.length * leftMassPercentage) - 1;
+				// leftMassPercentage equals to 2 * (0.5 - b.xMin) / ((b.xMax - b.xMin) + (0.5 - b.xMin)) @see thesis
 				this.distributeParticles(b.xMin, 0.5, 0, lastDamBreakID);
 				this.distributeParticles(0.5, b.xMax, lastDamBreakID + 1, this.particles.length - 1);
 				break;
