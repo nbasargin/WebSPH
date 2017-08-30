@@ -3,6 +3,7 @@ import {Renderer} from "../rendering/Renderer";
 import {Simulation} from "../simulation/Simulation";
 import {GLCanvas} from "../rendering/glUtil/GLCanvas";
 import {TimeSteppingMode, BoundaryType, IntegratorType} from "../util/Enums";
+import {SimulationOptions} from "../simulation/SimulationOptions";
 
 /**
  * Contains render loop, updates simulation, calls the renderer and handles user input.
@@ -80,7 +81,9 @@ export class Controller {
 
     private initSimulationAndRenderer() {
         // simulation
-        this.simulation = new Simulation();
+		let simSettings = new SimulationOptions();
+		simSettings.particleNumber = this.numParticles;
+        this.simulation = new Simulation(simSettings);
 		this.simulation.setSmoothingLength(parseFloat(this.sldSmoothing.value));
 
         // renderer
