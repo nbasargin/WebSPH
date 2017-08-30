@@ -62,6 +62,9 @@ export class Controller {
 	private oneStep() {
 		this.simulation.update();
 		this.renderer.render();
+		// this costs ~ 6 fps with 500 particles and standard heun (38 -> 32 fps)
+		// angular change detection is very slow in this context
+		// direct DOM access much faster
 		this.updateUITiming();
 
 		// stop without message when a few steps were already done
