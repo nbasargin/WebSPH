@@ -13,6 +13,8 @@ import {SimulationOptions} from "./SimulationOptions";
 /**
  * Main simulation class, contains the integrator and the environment.
  *
+ * TODO update
+ *
  * Required environment for init:
  * - number of particles
  * - particle distribution

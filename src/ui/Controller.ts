@@ -85,7 +85,7 @@ export class Controller {
 				break;
 			}
 
-			this.oneStep();
+			this.oneStep(); // TODO replace with update -> no need to re-render stuff
 		}
 	}
 
