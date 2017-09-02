@@ -1,6 +1,7 @@
 <div class="settings-container">
 
-	<websph-settings-scenario #scenario>
+	<websph-settings-scenario #scenario
+		(changeScenarioNotify)="onScenarioChanged($event)">
 	</websph-settings-scenario>
 
 	<websph-settings-sim-control #simControl

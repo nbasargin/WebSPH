@@ -90,7 +90,7 @@ export class Controller {
 	}
 
 	public resetSimulationAndRenderer(simOptions : SimulationOptions, rendOptions : RendererOptions) {
-		this.simulation = new Simulation(simOptions);
+		this.simulation = new Simulation(simOptions); // TODO change to simulation.reset
 		this.renderer = new Renderer(this.glCanvas, this.simulation.getEnvironment(), rendOptions);
 		this.renderer.render();
 		this.updateUITiming();

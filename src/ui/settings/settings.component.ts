@@ -6,6 +6,7 @@ import {RenderingComponent} from "./rendering.component";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
 import {RendererOptions} from "../../rendering/RendererOptions";
 import {TimeSteppingMode, IntegratorType, BoundaryType} from "../../util/Enums";
+import {Scenario} from "../../util/scenarios/Scenario";
 
 @Component({
 	selector: 'websph-settings',
@@ -69,6 +70,15 @@ export class SettingsComponent {
 
 	// ---------------------
 	// event listeners
+
+	// scenarios
+	public onScenarioChanged(scenario : Scenario) {
+		if (this.logInfo) console.log("[SettingsComponent Info] new scenario: " + scenario.getName());
+		// todo change simulation and UI
+		this.controller.resetSimulationAndRenderer(scenario.getSimulationOptions(), scenario.getRenderOptions());
+
+	}
+
 
 	// time stepping
 	public onDtFixedChanged(newDtFixed : number) {

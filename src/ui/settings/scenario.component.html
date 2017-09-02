@@ -1,19 +1,17 @@
 <div class="settings-block">
 	<h6>Scenario</h6>
-	<select class="select" style="width: 180px;" title="scenario">
-		<option value="1">Dam break</option>
-		<option value="2">Water drop</option>
-		<option value="3">Random terrain</option>
-		<option value="4">Interactive terrain</option>
+	<select class="select" style="width: 180px;" [(ngModel)]="activeScenario" title="select a scenario">
+		<option *ngFor="let s of scenarios" [ngValue]="s" >{{s.getName()}}</option>
 	</select>
-	<button class="button"> Select </button>
+
+	<button class="button" (click)="onChangeScenario()"> Select </button>
 	<br>
 
 	<div class="settings-left">
 		Description:
 	</div>
 	<div class="settings-right">
-		Some text here
+		{{activeScenario.getDescriptions()}}
 	</div>
 	<br>
 
