@@ -8,6 +8,9 @@ import {IntegratorType, EnumChecker, BoundaryType, IntegratorTypeString, Boundar
 })
 export class SimOptionsComponent {
 
+	public setIntegratorSendNoEvents(i : IntegratorType) {
+		this._integrator = i + "";
+	}
 
 	@Output() integratorNotify : EventEmitter<IntegratorType> = new EventEmitter<IntegratorType>();
 	private _integrator : string = Defaults.SIM_INTEGRATOR + "";
@@ -25,6 +28,10 @@ export class SimOptionsComponent {
 	}
 
 
+	public setSmoothingLengthSendNoEvents(h : number) {
+		this._smoothingLength = h;
+	}
+
 	@Output() smoothingLengthNotify : EventEmitter<number> = new EventEmitter<number>();
 	private _smoothingLength : number = Defaults.SIM_SMOOTHING_LENGTH;
 	set smoothingLength(h : number) {
@@ -35,6 +42,10 @@ export class SimOptionsComponent {
 		return this._smoothingLength;
 	}
 
+
+	public setBoundarySendNoEvents(b : BoundaryType) {
+		this._boundary = b + "";
+	}
 
 	@Output() boundaryNotify : EventEmitter<BoundaryType> = new EventEmitter<BoundaryType>();
 	private _boundary : string = Defaults.SIM_BOUNDARY_TYPE + "";

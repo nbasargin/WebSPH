@@ -55,6 +55,7 @@ export class Environment {
     	options.boundarySize = this.getBoundary();
     	options.smoothingLength = this.getSmoothingLength();
     	options.gravity = this.getGravity();
+    	options.timeStart = this.totalTime;
 
 		let env2 = new Environment(options);
 		env2.setParticleVolume(this.getParticleVolume());
@@ -63,6 +64,8 @@ export class Environment {
 		// checks
 		if (!this.isEqualToEnvironment(env2)) {
 			console.log("[!!] Copy environment failed!");
+			console.log("me: ", this);
+			console.log("copy: ", env2);
 		}
 
 		return env2;

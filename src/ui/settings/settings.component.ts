@@ -31,7 +31,6 @@ export class SettingsComponent {
 	@ViewChild('simOptions') private compSimOptions : SimOptionsComponent;
 	@ViewChild('timeStepping') private compTimeStepping : TimeSteppingComponent;
 	@ViewChild('rendering') private compRendering : RenderingComponent;
-	@ViewChild('misc') private compMisc : MiscComponent;
 
 
 	public constructor() {
@@ -96,6 +95,9 @@ export class SettingsComponent {
 		this.compSimControl.numParticles = simOptions.particleNumber;
 
 		// sim options
+		this.compSimOptions.setBoundarySendNoEvents(simOptions.boundaryType);
+		this.compSimOptions.setIntegratorSendNoEvents(simOptions.integratorType);
+		this.compSimOptions.setSmoothingLengthSendNoEvents(simOptions.smoothingLength);
 
 
 
