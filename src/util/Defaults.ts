@@ -11,7 +11,7 @@ export class Defaults {
 	public static readonly SIM_GROUND_DEFAULT_PRESET : GroundPreset = GroundPreset.CONST_ZERO;
 	public static readonly SIM_SMOOTHING_LENGTH : number = 0.02;
 	public static readonly SIM_PARTICLE_NUMBER : number = 500;
-	public static readonly SIM_PARTICLE_DISTRIBUTION : ParticleDistribution = ParticleDistribution.DAM_BREAK;
+	public static readonly SIM_PARTICLE_DISTRIBUTION : ParticleDistribution = ParticleDistribution.DAM_BREAK_WET;
 	public static readonly SIM_TIME_STEP_SIZE_FIXED : number = 0.001;
 	public static readonly SIM_TIME_STEP_MODE : TimeSteppingMode = TimeSteppingMode.STABLE;
 	public static readonly SIM_TIME_STEP_LIMIT = -1;

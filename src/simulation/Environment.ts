@@ -201,7 +201,7 @@ export class Environment {
 				break;
 
 			// Resets particles to the initial state of a dam break.
-			case ParticleDistribution.DAM_BREAK:
+			case ParticleDistribution.DAM_BREAK_WET:
 				let leftSpacePercentage = (0.5 - b.xMin) / (b.xMax - b.xMin);
 				// 2 left / (2 left + 1 right)
 				let leftMassPercentage = (leftSpacePercentage * 2) / (1 + leftSpacePercentage);
@@ -209,6 +209,10 @@ export class Environment {
 				// leftMassPercentage equals to 2 * (0.5 - b.xMin) / ((b.xMax - b.xMin) + (0.5 - b.xMin)) @see thesis
 				this.distributeParticles(b.xMin, 0.5, 0, lastDamBreakID);
 				this.distributeParticles(0.5, b.xMax, lastDamBreakID + 1, this.particles.length - 1);
+				break;
+
+			case ParticleDistribution.DAM_BREAK_DRY:
+				this.distributeParticles(b.xMin, 0.5, 0, this.particles.length - 1);
 				break;
 
 			// Resets particles to the initial state of a water column.

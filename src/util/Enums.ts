@@ -40,7 +40,8 @@ export class BoundaryTypeString {
 
 export enum ParticleDistribution {
 	UNIFORM = "uniform",
-	DAM_BREAK = "damBreak",
+	DAM_BREAK_WET = "damBreakWet",
+	DAM_BREAK_DRY = "damBreakDry",
 	WATER_DROP = "waterDrop"
 }
 

@@ -75,6 +75,7 @@ export class SettingsComponent {
 	public onScenarioChanged(scenario : Scenario) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new scenario: " + scenario.getName());
 		// todo change simulation and UI
+		this.stopSimulation();
 		this.controller.resetSimulationAndRenderer(scenario.getSimulationOptions(), scenario.getRenderOptions());
 
 	}

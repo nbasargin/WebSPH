@@ -1,6 +1,7 @@
 import {Scenario} from "./Scenario";
 import {RendererOptions} from "../../rendering/RendererOptions";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
+import {IntegratorType, BoundaryType, GroundPreset, ParticleDistribution, TimeSteppingMode} from "../Enums";
 
 export class WetDamBreak extends Scenario {
 
@@ -13,12 +14,25 @@ export class WetDamBreak extends Scenario {
 		return "Wet dam break description here";
 	}
 
+	private static readonly SMOOTHING_LENGTH = 0.02;
+
 	getSimulationOptions(): SimulationOptions {
 		let options = new SimulationOptions();
 
-		// todo more settings here
+		options.integratorType = IntegratorType.HEUN_STD;
+		options.boundarySize = { xMin : -3, xMax : 3, yMin : -0.3, yMax : 1.1924 };
+		options.boundaryType = BoundaryType.SOLID;
+		options.groundPreset = GroundPreset.CONST_ZERO;
+		options.smoothingLength = WetDamBreak.SMOOTHING_LENGTH;
+		options.particleNumber = 500;
+		options.particleDistribution =  ParticleDistribution.DAM_BREAK_WET;
+		options.fixedTimeStep = 0.001;
+		options.timeSteppingMode = TimeSteppingMode.STABLE;
+		options.timeStepLimit = -1;
+		options.timeStart = 0;
+		options.timeMax = -1;
+		options.fluidVolume = 4.75;
 		options.gravity = 9.81;
-		options.smoothingLength = 0.01;
 
 
 		return options;
@@ -27,8 +41,8 @@ export class WetDamBreak extends Scenario {
 	getRenderOptions(): RendererOptions {
 		let options = new RendererOptions();
 
-		// todo more settings here
 		options.particleSize = 2;
+		options.smoothingLength = WetDamBreak.SMOOTHING_LENGTH;
 
 		return options;
 	}
