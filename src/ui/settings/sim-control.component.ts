@@ -7,7 +7,17 @@ import {Defaults} from "../../util/Defaults";
 })
 export class SimControlComponent {
 
+	// TOTAL TIME
 	public totalTime : number = Defaults.SIM_TIME_START;
+
+	// MAX TIME
+
+	// used to update UI only
+	public setMaxTimeSendNoEvents(maxTime : number) {
+		this._parsedMaxTime = maxTime;
+		this._maxTimeUserInput = "" + maxTime;
+		this._maxTimeEnabled = maxTime > 0;
+	}
 
 	// max time
 	@Output() maxTimeNotify : EventEmitter<number> = new EventEmitter<number>();
@@ -27,8 +37,8 @@ export class SimControlComponent {
 	}
 
 	// max time VALUE
-	private _maxTimeUserInput : string = "";
-	private _parsedMaxTime : number = -1;
+	private _maxTimeUserInput : string = ""; // what is inside the input box
+	private _parsedMaxTime : number = -1; // what is the value
 	set maxTimeUserInput(mt : string) {
 		this._maxTimeUserInput = mt;
 		// check if input is valid
@@ -52,7 +62,8 @@ export class SimControlComponent {
 
 
 
-	// do steps
+	// DO STEPS
+
 	@Output() doStepsNotify : EventEmitter<number> = new EventEmitter<number>();
 	public onDoStepsClick() {
 		this.doStepsNotify.emit(this.numSteps);
@@ -62,6 +73,8 @@ export class SimControlComponent {
 	];
 	public numSteps = 1;
 
+
+	// RESET
 
 	// resetSimulationAndRenderer particles
 	@Output() resetNotify : EventEmitter<number> = new EventEmitter<number>();
@@ -74,6 +87,12 @@ export class SimControlComponent {
 	public numParticles = 500;
 
 
+	// START STOP
+
+	public stopSimulation() {
+		this.isRunning = false;
+		this.stopNotify.emit();
+	}
 
 	@Output() startNotify : EventEmitter<number> = new EventEmitter<number>();
 	@Output() stopNotify : EventEmitter<number> = new EventEmitter<number>();
@@ -90,9 +109,5 @@ export class SimControlComponent {
 		}
 	}
 
-	public stopSimulation() {
-		this.isRunning = false;
-		this.stopNotify.emit();
-	}
 
 }

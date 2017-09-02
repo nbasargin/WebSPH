@@ -7,6 +7,8 @@ import {SimulationOptions} from "../../simulation/SimulationOptions";
 import {RendererOptions} from "../../rendering/RendererOptions";
 import {TimeSteppingMode, IntegratorType, BoundaryType} from "../../util/Enums";
 import {Scenario} from "../../util/scenarios/Scenario";
+import {SimOptionsComponent} from "./sim-options.component";
+import {MiscComponent} from "./misc.component";
 
 @Component({
 	selector: 'websph-settings',
@@ -26,10 +28,10 @@ export class SettingsComponent {
 
 	// @ViewChild('scenario') private compScenario : ScenarioComponent;
 	@ViewChild('simControl') private compSimControl : SimControlComponent;
-	// @ViewChild('simOptions') private compSimOptions : SimOptionsComponent;
+	@ViewChild('simOptions') private compSimOptions : SimOptionsComponent;
 	@ViewChild('timeStepping') private compTimeStepping : TimeSteppingComponent;
 	@ViewChild('rendering') private compRendering : RenderingComponent;
-	// @ViewChild('misc') private compMisc : MiscComponent;
+	@ViewChild('misc') private compMisc : MiscComponent;
 
 
 	public constructor() {
@@ -74,9 +76,32 @@ export class SettingsComponent {
 	// scenarios
 	public onScenarioChanged(scenario : Scenario) {
 		if (this.logInfo) console.log("[SettingsComponent Info] new scenario: " + scenario.getName());
-		// todo change simulation and UI
+
+		// update UI
 		this.stopSimulation();
+		this.setUIStateFromOptions(scenario.getSimulationOptions(), scenario.getRenderOptions());
+
+		// inform controller
 		this.controller.resetSimulationAndRenderer(scenario.getSimulationOptions(), scenario.getRenderOptions());
+
+	}
+
+	public setUIStateFromOptions(simOptions : SimulationOptions, rendOptions : RendererOptions) {
+		this.simOptions = simOptions;
+		this.rendOptions = rendOptions;
+
+		// sim control
+		this.compSimControl.setMaxTimeSendNoEvents(simOptions.timeMax);
+		this.compSimControl.totalTime = simOptions.timeStart;
+		this.compSimControl.numParticles = simOptions.particleNumber;
+
+		// sim options
+
+
+
+		// time stepping
+
+		// rendering
 
 	}
 

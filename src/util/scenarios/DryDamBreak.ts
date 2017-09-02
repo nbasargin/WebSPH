@@ -25,7 +25,7 @@ export class DryDamBreak extends Scenario {
 		options.boundaryType = BoundaryType.SOLID;
 		options.groundPreset = GroundPreset.CONST_ZERO;
 		options.smoothingLength = DryDamBreak.SMOOTHING_LENGTH;
-		options.particleNumber = 500;
+		options.particleNumber = 750;
 		options.particleDistribution =  ParticleDistribution.DAM_BREAK_DRY;
 		options.fixedTimeStep = 0.001;
 		options.timeSteppingMode = TimeSteppingMode.STABLE;
