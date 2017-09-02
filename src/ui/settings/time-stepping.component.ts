@@ -17,6 +17,10 @@ export class TimeSteppingComponent {
 	}
 
 	// FIXED TIME STEP
+	public setDtFixedSendNoEvents(dtFixed : number) {
+		this._dtFixed = dtFixed;
+	}
+
 	@Output() dtFixedNotify : EventEmitter<number> = new EventEmitter<number>();
 	private _dtFixed : number = Defaults.SIM_TIME_STEP_SIZE_FIXED;
 	get dtFixed() {
@@ -29,6 +33,10 @@ export class TimeSteppingComponent {
 
 
 	// TIME STEP MODE
+	public setDtModeSendNoEvents(mode : TimeSteppingMode) {
+		this._dtMode = mode + "";
+	}
+
 	@Output() dtModeNotify : EventEmitter<TimeSteppingMode> = new EventEmitter<TimeSteppingMode>();
 	private _dtMode = Defaults.SIM_TIME_STEP_MODE + "";
 	get dtMode() {
@@ -44,6 +52,12 @@ export class TimeSteppingComponent {
 
 
 	// TIME STEP LIMIT
+	public setDtLimitSendNoEvents(limit : number) {
+		this._dtLimit = limit;
+		this._dtLimitEnabled = limit > 0;
+
+	}
+
 	@Output() dtLimitNotify : EventEmitter<number> = new EventEmitter<number>();
 	private _dtLimit : number = 0.005;
 	get dtLimit() {
@@ -58,7 +72,6 @@ export class TimeSteppingComponent {
 		}
 	}
 
-	public dtLimitText : string = "Set limit";
 	private _dtLimitEnabled : boolean = false;
 	get dtLimitEnabled() {
 		return this._dtLimitEnabled;
@@ -66,10 +79,8 @@ export class TimeSteppingComponent {
 	set dtLimitEnabled(dtLimitEnabled) {
 		this._dtLimitEnabled = dtLimitEnabled;
 		if (dtLimitEnabled) {
-			this.dtLimitText = "Limit to:";
 			this.dtLimitNotify.emit(this._dtLimit);
 		} else {
-			this.dtLimitText = "Set limit";
 			this.dtLimitNotify.emit(-1);
 		}
 	}

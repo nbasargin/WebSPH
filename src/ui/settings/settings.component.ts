@@ -8,7 +8,6 @@ import {RendererOptions} from "../../rendering/RendererOptions";
 import {TimeSteppingMode, IntegratorType, BoundaryType} from "../../util/Enums";
 import {Scenario} from "../../util/scenarios/Scenario";
 import {SimOptionsComponent} from "./sim-options.component";
-import {MiscComponent} from "./misc.component";
 
 @Component({
 	selector: 'websph-settings',
@@ -99,9 +98,10 @@ export class SettingsComponent {
 		this.compSimOptions.setIntegratorSendNoEvents(simOptions.integratorType);
 		this.compSimOptions.setSmoothingLengthSendNoEvents(simOptions.smoothingLength);
 
-
-
 		// time stepping
+		this.compTimeStepping.setDtFixedSendNoEvents(simOptions.fixedTimeStep);
+		this.compTimeStepping.setDtModeSendNoEvents(simOptions.timeSteppingMode);
+		this.compTimeStepping.setDtLimitSendNoEvents(simOptions.timeStepLimit);
 
 		// rendering
 

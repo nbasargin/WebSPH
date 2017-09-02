@@ -47,7 +47,7 @@
 	<div class="settings-left">
 		<label>
 			<input type="checkbox" style="margin-top: 5px;" class="checkbox" [(ngModel)]="dtLimitEnabled" >
-			{{dtLimitText}}
+			{{dtLimitEnabled ? "Limit to: " : "Set limit"}}
 		</label>
 	</div>
 	<div class="settings-right" *ngIf="dtLimitEnabled">
