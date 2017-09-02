@@ -48,7 +48,7 @@ export class DryDamBreak extends Scenario {
 	getRenderOptions(): RendererOptions {
 		let options = new RendererOptions();
 
-		options.particleSize = 3;
+		options.particleSize = 10;
 		options.smoothingLength = DryDamBreak.SMOOTHING_LENGTH / 2;
 
 		return options;

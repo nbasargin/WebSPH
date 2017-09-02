@@ -7,6 +7,10 @@ import {Defaults} from "../../util/Defaults";
 })
 export class RenderingComponent {
 
+	public setVisuSmoothingLengthSendNoEvents(vh : number) {
+		this._visuSmoothingLength = vh;
+	}
+
 	@Output() visuSmoothingLengthNotify : EventEmitter<number> = new EventEmitter<number>();
 	private _visuSmoothingLength : number = Defaults.REND_SMOOTHING_LENGTH;
 	set visuSmoothingLength(vh : number) {
@@ -18,6 +22,10 @@ export class RenderingComponent {
 	}
 
 	// particle size
+	public setParticleSizeSendNoEvents(pSize : number) {
+		this._pSize = pSize;
+	}
+
 	@Output() pSizeNotify : EventEmitter<number> = new EventEmitter<number>();
 	public sizes : Array<number> = [
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10

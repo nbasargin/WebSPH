@@ -88,6 +88,8 @@ export class SettingsComponent {
 		this.simOptions = simOptions;
 		this.rendOptions = rendOptions;
 
+		// TODO: merge single functions in components to component.updateStateFromOptions(options)
+
 		// sim control
 		this.compSimControl.setMaxTimeSendNoEvents(simOptions.timeMax);
 		this.compSimControl.totalTime = simOptions.timeStart;
@@ -104,6 +106,8 @@ export class SettingsComponent {
 		this.compTimeStepping.setDtLimitSendNoEvents(simOptions.timeStepLimit);
 
 		// rendering
+		this.compRendering.setParticleSizeSendNoEvents(rendOptions.particleSize);
+		this.compRendering.setVisuSmoothingLengthSendNoEvents(rendOptions.smoothingLength);
 
 	}
 
