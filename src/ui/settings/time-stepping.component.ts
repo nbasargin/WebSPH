@@ -53,9 +53,8 @@ export class TimeSteppingComponent {
 
 	// TIME STEP LIMIT
 	public setDtLimitSendNoEvents(limit : number) {
-		this._dtLimit = limit;
+		if (limit > 0) this._dtLimit = limit;
 		this._dtLimitEnabled = limit > 0;
-
 	}
 
 	@Output() dtLimitNotify : EventEmitter<number> = new EventEmitter<number>();
