@@ -7,14 +7,11 @@
 	<button class="button" (click)="onChangeScenario()"> Select </button>
 	<br>
 
-	<div class="settings-left">
-		Description:
+	<div style="margin-top: 2px">
+		Description: <i>{{activeScenario.getDescription()}}</i>
 	</div>
-	<div class="settings-right">
-		{{activeScenario.getDescriptions()}}
-	</div>
-	<br>
 
+	<!--
 	<div class="settings-left">
 		Options:
 	</div>
@@ -24,6 +21,7 @@
 			show analytical solution
 		</label>
 	</div>
-	<br>
+
+	-->
 
 </div>

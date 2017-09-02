@@ -10,11 +10,11 @@ export class WetDamBreak extends Scenario {
 		return "Wet dam break";
 	}
 
-	getDescriptions(): string {
-		return "Wet dam break description here";
+	getDescription(): string {
+		return "Simulation of a dam break with some fluid behind the dam (standard dam break scenario)";
 	}
 
-	private static readonly SMOOTHING_LENGTH = 0.02;
+	private static readonly SMOOTHING_LENGTH = 0.03;
 
 	getSimulationOptions(): SimulationOptions {
 		let options = new SimulationOptions();
@@ -24,7 +24,7 @@ export class WetDamBreak extends Scenario {
 		options.boundaryType = BoundaryType.SOLID;
 		options.groundPreset = GroundPreset.CONST_ZERO;
 		options.smoothingLength = WetDamBreak.SMOOTHING_LENGTH;
-		options.particleNumber = 500;
+		options.particleNumber = 750;
 		options.particleDistribution =  ParticleDistribution.DAM_BREAK_WET;
 		options.fixedTimeStep = 0.001;
 		options.timeSteppingMode = TimeSteppingMode.STABLE;

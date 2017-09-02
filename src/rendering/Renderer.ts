@@ -13,13 +13,16 @@ import {RendererOptions} from "./RendererOptions";
  */
 export class Renderer {
 
+	// TODO: clamp water and ground height at domain y bounds, particle y positions can remain outside domain
+
     // environment
     public env : Environment;
 
     // drawing options
+	// TODO: move these options to RendererOptions
     private drawParticles = true;
     private drawWaterHeight = true;
-    private drawBaseSquare = true;
+    private drawBaseSquare = false;
     private drawValidation = true;
     private visualizationSmoothingLength;
     private waterHeightSamples = 500;

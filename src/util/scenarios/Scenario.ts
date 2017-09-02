@@ -5,7 +5,7 @@ export abstract class Scenario {
 
 	public abstract getName() : string;
 
-	public abstract getDescriptions() : string;
+	public abstract getDescription() : string;
 
 	public abstract getSimulationOptions() : SimulationOptions;
 
