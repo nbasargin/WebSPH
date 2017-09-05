@@ -116,6 +116,7 @@ export class Controller {
 	public setSimulationSmoothingLength(h : number) {
 		this.simulation.setSmoothingLength(h);
 		this.renderer.render();
+		this.updateUITiming();
 	}
 
 	public setIntegrator(i : IntegratorType) {
