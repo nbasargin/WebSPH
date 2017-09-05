@@ -11,7 +11,7 @@ export class WetDamBreak extends Scenario {
 	}
 
 	getDescription(): string {
-		return "Simulation of a dam break with some fluid behind the dam (standard dam break scenario)";
+		return "Simulation of a dam break with some fluid behind the dam (standard dam break scenario).";
 	}
 
 	private static readonly SMOOTHING_LENGTH = 0.03;

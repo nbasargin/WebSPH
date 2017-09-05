@@ -190,10 +190,10 @@ export class Environment {
 
 			// Resets particles to the initial state of a water column.
 			case ParticleDistribution.WATER_DROP:
-				let numStackedParticles = Math.floor(this.particles.length / 10);
+				let numStackedParticles = Math.floor(this.particles.length / 3);
 				let lastWaterDropID = this.particles.length - numStackedParticles - 1;
 				this.distributeParticles(b.xMin, b.xMax, 0, lastWaterDropID);
-				this.distributeParticles(0, 0.2, lastWaterDropID + 1, this.particles.length - 1);
+				this.distributeParticles(0, 1, lastWaterDropID + 1, this.particles.length - 1);
 				break;
 
 			default:
