@@ -22,11 +22,11 @@ export class DynamicLinearGround extends GroundProfile {
     }
 
 
-    public getGroundHeight(x: number, t: number) {
+    public getGroundHeight(x: number, t: number) : number {
         return this.getGroundSlope(x, t) * x + this.yIntercept;
     }
 
-    public getGroundSlope(x: number, t: number) {
+    public getGroundSlope(x: number, t: number) : number {
         return this.maxSlope * Math.sin(t * this.slopeChangeSpeed);
     }
 

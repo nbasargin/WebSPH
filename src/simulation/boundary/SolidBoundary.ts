@@ -53,15 +53,17 @@ export class SolidBoundary extends Boundary {
 		let xMax = this.xMax;
 		let xMin = this.xMin;
 
+		let dampingFactor = 0.95;
+
 		// position outside boundary -> move inside and flip speed & acceleration
 		if (p.posX > xMax) {
 			p.posX = xMax - (p.posX - xMax);
-			p.speedX = -p.speedX;
+			p.speedX = -p.speedX * dampingFactor;
 			p.accX = -p.accX;
 
 		} else if (p.posX < xMin) {
 			p.posX = xMin + (xMin - p.posX);
-			p.speedX = -p.speedX;
+			p.speedX = -p.speedX * dampingFactor;
 			p.accX = -p.accX;
 
 		}

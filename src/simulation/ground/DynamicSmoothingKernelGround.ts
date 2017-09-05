@@ -14,11 +14,11 @@ export class DynamicSmoothingKernelGround extends GroundProfile {
         this.smoothingLength = smoothingLength;
     }
 
-    public getGroundHeight(x: number, t: number) {
+    public getGroundHeight(x: number, t: number) : number {
         return Math.min(this.maxScale, this.growSpeed * t) * SmoothingKernel.cubic1D(x, this.smoothingLength);
     }
 
-    public getGroundSlope(x: number, t: number) {
+    public getGroundSlope(x: number, t: number) : number {
         return -Math.min(this.maxScale, this.growSpeed * t) * SmoothingKernel.dCubic1D(x, this.smoothingLength);
     }
 

@@ -2,6 +2,7 @@ import {Component, Output, EventEmitter} from "@angular/core";
 import {Scenario} from "../../util/scenarios/Scenario";
 import {WetDamBreak} from "../../util/scenarios/WetDamBreak";
 import {DryDamBreak} from "../../util/scenarios/DryDamBreak";
+import {FluidSeparation} from "../../util/scenarios/FluidSeparation";
 
 @Component({
 	selector: 'websph-settings-scenario',
@@ -11,7 +12,8 @@ export class ScenarioComponent {
 
 	public scenarios : Array<Scenario> = [
 		new WetDamBreak(),
-		new DryDamBreak()
+		new DryDamBreak(),
+		new FluidSeparation()
 	];
 	private _activeScenario : Scenario = this.scenarios[0];
 	public get activeScenario() {

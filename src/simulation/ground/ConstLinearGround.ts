@@ -18,11 +18,11 @@ export class ConstLinearGround extends GroundProfile {
     }
 
 
-    public getGroundHeight(x: number, t : number) {
+    public getGroundHeight(x: number, t : number) : number {
         return this.slope * x + this.yIntercept;
     }
 
-    public getGroundSlope(x: number, t : number) {
+    public getGroundSlope(x: number, t : number) : number {
         return this.slope;
     }
 
