@@ -1,6 +1,6 @@
 {
   "name": "WebSPH",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "license": "MIT",
   "dependencies": {
     "@angular/animations": "^4.0.0",
