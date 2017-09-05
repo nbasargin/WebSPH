@@ -13,22 +13,18 @@ import {SimulationOptions} from "./SimulationOptions";
 /**
  * Main simulation class, contains the integrator and the environment.
  *
- * TODO update
- *
- * Required environment for init:
+ * simulation settings:
  * - number of particles
- * - particle distribution
- * - bounds
- *
- * Runtime changeable simulation settings:
+ * - initial particle distribution
  * - integrator
  * - time stepping mode
  * - time step limit
  * - fixed time step
  *
- * Runtime changeable environment properties:
+ * environment properties:
  * - smoothing length
  * - ground
+ * - domain size (bounds)
  * - boundary
  * - gravity
  * - particleVolume

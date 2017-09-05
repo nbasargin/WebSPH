@@ -23,7 +23,9 @@ export class Renderer {
     private drawParticles = true;
     private drawWaterHeight = true;
     private drawBaseSquare = false;
-    private drawValidation = true;
+    //private drawValidation = true;
+    private drawValidationUntil : number;
+
     private visualizationSmoothingLength;
     private waterHeightSamples = 500;
     private validationSamples = 1000;
@@ -54,6 +56,7 @@ export class Renderer {
         this.glCanvas = glCanvas;
         this.env = env;
         this.visualizationSmoothingLength = options.smoothingLength;
+        this.drawValidationUntil = options.drawValidationUntil;
 
         this.initShaders();
         this.initMatrices();
@@ -336,7 +339,7 @@ export class Renderer {
 
 
         // validation
-        if (this.drawValidation) {
+        if (this.env.getTotalTime() <= this.drawValidationUntil) {
             gl.clear(gl.DEPTH_BUFFER_BIT);
             this.updateDamBreakValidation();
             // pos

@@ -1,12 +1,14 @@
-import {IntegratorType, BoundaryType, GroundPreset, ParticleDistribution, TimeSteppingMode} from "../util/Enums";
+import {IntegratorType, BoundaryType, ParticleDistribution, TimeSteppingMode} from "../util/Enums";
 import {Bounds} from "../util/Bounds";
+import {GroundProfile} from "./ground/GroundProfile";
 
 export interface SimulationOptions {
 
 	integratorType : IntegratorType;
 	boundaryType : BoundaryType;
 	boundarySize : Bounds;
-	groundPreset : GroundPreset;
+	//groundPreset : GroundPreset;
+	ground : GroundProfile;
 	smoothingLength : number;
 	particleNumber : number;
 	particleDistribution : ParticleDistribution;

@@ -65,16 +65,6 @@ export class TimeSteppingModeString {
 }
 
 
-
-export enum GroundPreset {
-	CONST_ZERO,
-	CONST_SINE,
-	CONST_SLOPE,
-	DYN_SLOPE,
-	DYN_SMOOTHING_KERNEL
-}
-
-
 // checks if the string is contained in the enum as value
 
 export class EnumChecker {

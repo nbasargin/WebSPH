@@ -1,7 +1,8 @@
 import {Scenario} from "./Scenario";
 import {RendererOptions} from "../../rendering/RendererOptions";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
-import {IntegratorType, BoundaryType, GroundPreset, ParticleDistribution, TimeSteppingMode} from "../Enums";
+import {IntegratorType, BoundaryType, ParticleDistribution, TimeSteppingMode} from "../Enums";
+import {GroundPresets} from "../../simulation/ground/GroundPresets";
 
 export class WetDamBreak extends Scenario {
 
@@ -17,10 +18,10 @@ export class WetDamBreak extends Scenario {
 
 	getSimulationOptions(): SimulationOptions {
 		return {
-			integratorType : IntegratorType.HEUN_STD,
-			boundarySize : { xMin : -3, xMax : 3, yMin : -0.3, yMax : 1.1924 },
+			integratorType : IntegratorType.HEUN_FAST,
+			boundarySize : { xMin : -2.5, xMax : 3.5, yMin : -0.3, yMax : 1.1924 },
 			boundaryType : BoundaryType.SOLID,
-			groundPreset : GroundPreset.CONST_ZERO,
+			ground : GroundPresets.CONST_ZERO(),
 			smoothingLength : WetDamBreak.SMOOTHING_LENGTH,
 			particleNumber : 750,
 			particleDistribution : ParticleDistribution.DAM_BREAK_WET,
@@ -29,7 +30,7 @@ export class WetDamBreak extends Scenario {
 			timeStepLimit : -1,
 			timeStart : 0,
 			timeMax : -1,
-			fluidVolume : 4.75,
+			fluidVolume : 4.5,
 			gravity : 9.81
 		};
 	}
@@ -37,7 +38,8 @@ export class WetDamBreak extends Scenario {
 	getRenderOptions(): RendererOptions {
 		return {
 			particleSize : 2,
-			smoothingLength : WetDamBreak.SMOOTHING_LENGTH
+			smoothingLength : WetDamBreak.SMOOTHING_LENGTH,
+			drawValidationUntil: 1 // second
 		};
 	}
 

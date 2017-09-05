@@ -4,11 +4,7 @@ import {CyclicBoundary} from "./boundary/CyclicBoundary";
 import {Boundary} from "./boundary/Boundary";
 import {SolidBoundary} from "./boundary/SolidBoundary";
 import {GroundProfile} from "./ground/GroundProfile";
-import {ConstLinearGround} from "./ground/ConstLinearGround";
-import {ConstSineGround} from "./ground/ConstSineGround";
-import {DynamicLinearGround} from "./ground/DynamicLinearGround";
-import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGround";
-import {GroundPreset, BoundaryType, ParticleDistribution} from "../util/Enums";
+import {BoundaryType, ParticleDistribution} from "../util/Enums";
 import {SimulationOptions} from "./SimulationOptions";
 import {Bounds} from "../util/Bounds";
 import {Defaults} from "../util/Defaults";
@@ -41,7 +37,7 @@ export class Environment {
 			this.particles[i] = new Particle();
 		}
 		this.setBoundaryType(options.boundaryType);
-		this.setGroundPreset(options.groundPreset);
+		this.setGround(options.ground);
 
 		this.setFluidVolume(options.fluidVolume);
 		this.setParticleDistributionFromPreset(options.particleDistribution);
@@ -143,33 +139,6 @@ export class Environment {
 	// ground
 	public setGround(ground : GroundProfile) {
 		this.ground = ground;
-	}
-
-	public setGroundPreset(preset : GroundPreset) {
-		switch (preset) {
-			case GroundPreset.CONST_ZERO:
-				this.ground = new ConstLinearGround(0 /*slope*/, 0 /*yIntercept*/);
-				break;
-
-			case GroundPreset.CONST_SLOPE:
-				this.ground = new ConstLinearGround(0.5 /*slope*/, 0 /*yIntercept*/);
-				break;
-
-			case GroundPreset.CONST_SINE:
-				this.ground = new ConstSineGround(0.2 /*scale*/, 10 /*period*/, 0 /*phase*/);
-				break;
-
-			case GroundPreset.DYN_SLOPE:
-				this.ground = new DynamicLinearGround( 0 /*yIntercept*/, 0.2 /*maxSlope*/, 4 /*slopeChangeSpeed*/);
-				break;
-
-			case GroundPreset.DYN_SMOOTHING_KERNEL:
-				this.ground = new DynamicSmoothingKernelGround(0.75 /*maxScale*/, 3 /*growSpeed*/, 0.4 /*groundSmoothingLength*/);
-				break;
-
-			default:
-				throw new Error("unknown ground preset");
-		}
 	}
 
 	// boundary
