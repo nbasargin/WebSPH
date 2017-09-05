@@ -17,7 +17,7 @@ export class Controller {
 
 	private renderLoop : RenderLoop2;
 
-	public constructor(settingsComponent : SettingsComponent) {
+	public constructor(settingsComponent : SettingsComponent, simOpts : SimulationOptions, rendOpts : RendererOptions) {
 
 		// settings UI
 		if (!settingsComponent)	console.log("[!!] Controller constructor: settingsComponent is not set!");
@@ -28,9 +28,7 @@ export class Controller {
 		this.glCanvas = new GLCanvas(canvas);
 
 		// init simulation and renderer
-		let simOptions = new SimulationOptions();
-		let rendOptions = new RendererOptions();
-		this.resetSimulationAndRenderer(simOptions, rendOptions);
+		this.resetSimulationAndRenderer(simOpts, rendOpts);
 
 		this.renderLoop = new RenderLoop2((lastFrameDuration, avgFPS) => {
 			this.settingsUI.setFPS(avgFPS);

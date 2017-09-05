@@ -11,6 +11,7 @@ import {DynamicSmoothingKernelGround} from "./ground/DynamicSmoothingKernelGroun
 import {GroundPreset, BoundaryType, ParticleDistribution} from "../util/Enums";
 import {SimulationOptions} from "./SimulationOptions";
 import {Bounds} from "../util/Bounds";
+import {Defaults} from "../util/Defaults";
 
 export class Environment {
 
@@ -49,7 +50,7 @@ export class Environment {
 
     public copy() : Environment {
 
-    	let options = new SimulationOptions();
+    	let options = Defaults.getDefaultSimulationOptions();
     	options.particleNumber = this.getParticles().length;
 		options.boundaryType = this.getBoundary().getType();
     	options.boundarySize = this.getBoundary();

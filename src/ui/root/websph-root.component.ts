@@ -22,7 +22,11 @@ export class WebSphRootComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.controller = new Controller(this.settings);
+		let defaultSimOpts = Defaults.getDefaultSimulationOptions();
+		let defaultRendOpts = Defaults.getDefaultRendererOptions();
+
+		this.controller = new Controller(this.settings, defaultSimOpts, defaultRendOpts);
+		this.settings.setUIStateFromOptions(defaultSimOpts, defaultRendOpts);
 	}
 
 

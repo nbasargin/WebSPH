@@ -13,7 +13,7 @@ export class SimOptionsComponent {
 	}
 
 	@Output() integratorNotify : EventEmitter<IntegratorType> = new EventEmitter<IntegratorType>();
-	private _integrator : string = Defaults.SIM_INTEGRATOR + "";
+	private _integrator : string = Defaults.getDefaultSimulationOptions().integratorType + "";
 	set integrator(i : string) {
 
 		if (!EnumChecker.isValidValue(IntegratorType, i)) {
@@ -33,7 +33,7 @@ export class SimOptionsComponent {
 	}
 
 	@Output() smoothingLengthNotify : EventEmitter<number> = new EventEmitter<number>();
-	private _smoothingLength : number = Defaults.SIM_SMOOTHING_LENGTH;
+	private _smoothingLength : number = Defaults.getDefaultSimulationOptions().smoothingLength;
 	set smoothingLength(h : number) {
 		this._smoothingLength = h;
 		this.smoothingLengthNotify.emit(this._smoothingLength);
@@ -48,7 +48,7 @@ export class SimOptionsComponent {
 	}
 
 	@Output() boundaryNotify : EventEmitter<BoundaryType> = new EventEmitter<BoundaryType>();
-	private _boundary : string = Defaults.SIM_BOUNDARY_TYPE + "";
+	private _boundary : string = Defaults.getDefaultSimulationOptions().boundaryType + "";
 	set boundary(b : string) {
 		if (!EnumChecker.isValidValue(BoundaryType, b)) {
 			console.log("[!!] invalid enum type: " + b);

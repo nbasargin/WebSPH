@@ -1,8 +1,6 @@
-import {Defaults} from "../util/Defaults";
+export interface RendererOptions {
 
-export class RendererOptions {
-
-	public particleSize = Defaults.REND_PARTICLE_SIZE;
-	public smoothingLength = Defaults.REND_SMOOTHING_LENGTH;
+	particleSize : number;
+	smoothingLength : number;
 
 }

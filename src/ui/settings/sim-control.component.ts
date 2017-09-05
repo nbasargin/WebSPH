@@ -8,14 +8,14 @@ import {Defaults} from "../../util/Defaults";
 export class SimControlComponent {
 
 	// TOTAL TIME
-	public totalTime : number = Defaults.SIM_TIME_START;
+	public totalTime : number = Defaults.getDefaultSimulationOptions().timeStart;
 
 	// MAX TIME
 
 	// used to update UI only
 	public setMaxTimeSendNoEvents(maxTime : number) {
 		this._parsedMaxTime = maxTime;
-		this._maxTimeUserInput = "" + maxTime;
+		if (maxTime > 0) this._maxTimeUserInput = "" + maxTime; // change only if enabled
 		this._maxTimeEnabled = maxTime > 0;
 	}
 

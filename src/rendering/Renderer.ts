@@ -49,9 +49,7 @@ export class Renderer {
     private glProgram : GLProgram;
 
 
-    public constructor(glCanvas : GLCanvas, env : Environment, options? : RendererOptions) {
-
-    	if (!options) options = new RendererOptions();
+    public constructor(glCanvas : GLCanvas, env : Environment, options : RendererOptions) {
 
         this.glCanvas = glCanvas;
         this.env = env;
@@ -142,9 +140,10 @@ export class Renderer {
         // position
         let validationPosXY = new Float32Array(this.validationSamples * 2);
         for (let i = 0; i < this.validationSamples; i++) {
-            let x = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.validationSamples - 1);
-            validationPosXY[i*2    ] = x;
-            validationPosXY[i*2 + 1] = 0; // y
+            // x
+            validationPosXY[i*2    ] = bounds.xMin + (bounds.xMax - bounds.xMin) * i / (this.validationSamples - 1);
+            // y
+            validationPosXY[i*2 + 1] = 0;
         }
         this.glDamBreakValidationPosBuffer = new GLBuffer(this.glCanvas.gl, validationPosXY, 2);
         // color

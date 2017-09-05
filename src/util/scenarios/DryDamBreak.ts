@@ -18,41 +18,30 @@ export class DryDamBreak extends Scenario {
 
 	private static readonly SMOOTHING_LENGTH = 0.1;
 
-	getSimulationOptions(): SimulationOptions {
-		let options = new SimulationOptions();
-
-		options.integratorType = IntegratorType.HEUN_STD;
-		//options.integratorType = IntegratorType.HEUN_FAST;
-		options.boundarySize = { xMin : -3, xMax : 3, yMin : -0.3, yMax : 1.1924 };
-		//options.boundarySize = { xMin : -3, xMax : 3, yMin : -0.2, yMax : 1.1924 };
-		options.boundaryType = BoundaryType.SOLID;
-		//options.boundaryType = BoundaryType.CYCLIC;
-		options.groundPreset = GroundPreset.CONST_ZERO;
-		options.smoothingLength = DryDamBreak.SMOOTHING_LENGTH;
-		options.particleNumber = 750;
-		options.particleDistribution = ParticleDistribution.DAM_BREAK_DRY;
-		options.fixedTimeStep = 0.001;
-		//options.fixedTimeStep = 0.002;
-		options.timeSteppingMode = TimeSteppingMode.STABLE;
-		//options.timeSteppingMode = TimeSteppingMode.FAST;
-		options.timeStepLimit = -1;
-		//options.timeStepLimit = 0.003;
-		options.timeStart = 0;
-		//options.timeStart = 0.001;
-		options.timeMax = 0.5;
-		options.fluidVolume = 3.5;
-		options.gravity = 9.81;
-
-		return options;
+	getSimulationOptions() : SimulationOptions {
+		return {
+			integratorType : IntegratorType.HEUN_STD,
+			boundarySize : { xMin : -3, xMax : 3, yMin : -0.3, yMax : 1.1924 },
+			boundaryType : BoundaryType.SOLID,
+			groundPreset : GroundPreset.CONST_ZERO,
+			smoothingLength : DryDamBreak.SMOOTHING_LENGTH,
+			particleNumber : 750,
+			particleDistribution : ParticleDistribution.DAM_BREAK_DRY,
+			fixedTimeStep : 0.001,
+			timeSteppingMode : TimeSteppingMode.STABLE,
+			timeStepLimit : -1,
+			timeStart : 0,
+			timeMax : 0.5,
+			fluidVolume : 3.5,
+			gravity : 9.81
+		};
 	}
 
 	getRenderOptions(): RendererOptions {
-		let options = new RendererOptions();
-
-		options.particleSize = 4;
-		options.smoothingLength = DryDamBreak.SMOOTHING_LENGTH;
-
-		return options;
+		return {
+			particleSize : 4,
+			smoothingLength : DryDamBreak.SMOOTHING_LENGTH
+		};
 	}
 
 }

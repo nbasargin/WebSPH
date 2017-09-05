@@ -44,14 +44,12 @@ export class Simulation {
     private maxTime : number;
 
 
-	public constructor(options? : SimulationOptions) {
+	public constructor(options : SimulationOptions) {
 		this.reset(options);
 	}
 
 
-	public reset(options? : SimulationOptions) {
-		if (!options) options = new SimulationOptions();
-
+	public reset(options : SimulationOptions) {
 		// create env -> will set all environment values based on options
 		this.env = new Environment(options);
 

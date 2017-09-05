@@ -8,6 +8,7 @@ import {RendererOptions} from "../../rendering/RendererOptions";
 import {TimeSteppingMode, IntegratorType, BoundaryType} from "../../util/Enums";
 import {Scenario} from "../../util/scenarios/Scenario";
 import {SimOptionsComponent} from "./sim-options.component";
+import {Defaults} from "../../util/Defaults";
 
 @Component({
 	selector: 'websph-settings',
@@ -33,8 +34,8 @@ export class SettingsComponent {
 
 
 	public constructor() {
-		this.simOptions = new SimulationOptions();
-		this.rendOptions = new RendererOptions();
+		this.simOptions = Defaults.getDefaultSimulationOptions();
+		this.rendOptions = Defaults.getDefaultRendererOptions();
 	}
 
 

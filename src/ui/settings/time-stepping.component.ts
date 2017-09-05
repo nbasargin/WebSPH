@@ -22,7 +22,7 @@ export class TimeSteppingComponent {
 	}
 
 	@Output() dtFixedNotify : EventEmitter<number> = new EventEmitter<number>();
-	private _dtFixed : number = Defaults.SIM_TIME_STEP_SIZE_FIXED;
+	private _dtFixed : number = Defaults.getDefaultSimulationOptions().fixedTimeStep;
 	get dtFixed() {
 		return this._dtFixed;
 	}
@@ -38,7 +38,7 @@ export class TimeSteppingComponent {
 	}
 
 	@Output() dtModeNotify : EventEmitter<TimeSteppingMode> = new EventEmitter<TimeSteppingMode>();
-	private _dtMode = Defaults.SIM_TIME_STEP_MODE + "";
+	private _dtMode = Defaults.getDefaultSimulationOptions().timeSteppingMode + "";
 	get dtMode() {
 		return this._dtMode;
 	}
