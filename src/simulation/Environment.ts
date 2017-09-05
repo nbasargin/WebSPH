@@ -270,14 +270,6 @@ export class Environment {
         return height * this.particleVolume;
     }
 
-    public getFluidHeightForSpecificSmoothingLength(x : number, newSmoothingLength : number) : number {
-    	let previousSmoothingLength = this.smoothingLength;
-    	this.setSmoothingLength(newSmoothingLength);
-    	let height = this.getFluidHeight(x);
-    	this.setSmoothingLength(previousSmoothingLength);
-		return height;
-	}
-
 
     /**
      * Calculates the fluid accX at specified x position.

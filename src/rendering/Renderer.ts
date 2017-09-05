@@ -206,16 +206,27 @@ export class Renderer {
     }
 
     private updateWaterHeightBuffers() {
+    	// set new smoothing length if needed
+    	let envSmoothingLength = this.env.getSmoothingLength();
+    	if (envSmoothingLength != this.visualizationSmoothingLength) {
+			this.env.setSmoothingLength(this.visualizationSmoothingLength);
+		}
+
         let waterHeightPosXY = this.glWaterHeightPosBuffer.getData();
         // update water height
         for (let i = 0; i < this.waterHeightSamples; i++) {
             let x = waterHeightPosXY[i * 4];
             let groundHeight = this.env.getGroundHeight(x);
-            let waterHeight = this.env.getFluidHeightForSpecificSmoothingLength(x, this.visualizationSmoothingLength);
+			let waterHeight = this.env.getFluidHeight(x); // visu smoothing length already set
             waterHeightPosXY[i * 4 + 1] = groundHeight; // y water min
             waterHeightPosXY[i * 4 + 3] = groundHeight + waterHeight; // y water max
         }
         this.glWaterHeightPosBuffer.flushData();
+
+        // restore smoothing length if needed
+		if (envSmoothingLength != this.visualizationSmoothingLength) {
+			this.env.setSmoothingLength(envSmoothingLength);
+		}
     }
 
 
