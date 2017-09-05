@@ -3,6 +3,7 @@ import {Scenario} from "../../util/scenarios/Scenario";
 import {WetDamBreak} from "../../util/scenarios/WetDamBreak";
 import {DryDamBreak} from "../../util/scenarios/DryDamBreak";
 import {FluidSeparation} from "../../util/scenarios/FluidSeparation";
+import {GroundTilt} from "../../util/scenarios/GroundTilt";
 
 @Component({
 	selector: 'websph-settings-scenario',
@@ -13,7 +14,8 @@ export class ScenarioComponent {
 	public scenarios : Array<Scenario> = [
 		new WetDamBreak(),
 		new DryDamBreak(),
-		new FluidSeparation()
+		new FluidSeparation(),
+		new GroundTilt()
 	];
 	private _activeScenario : Scenario = this.scenarios[0];
 	public get activeScenario() {

@@ -3,7 +3,7 @@ import {Scenario} from "./Scenario";
 import {RendererOptions} from "../../rendering/RendererOptions";
 import {SimulationOptions} from "../../simulation/SimulationOptions";
 import {IntegratorType, BoundaryType, ParticleDistribution, TimeSteppingMode} from "../Enums";
-import {GroundPresets} from "../../simulation/ground/GroundPresets";
+import {ConstLinearGround} from "../../simulation/ground/ConstLinearGround";
 
 export class DryDamBreak extends Scenario {
 
@@ -24,7 +24,7 @@ export class DryDamBreak extends Scenario {
 			integratorType : IntegratorType.HEUN_FAST,
 			boundarySize : { xMin : -3, xMax : 3, yMin : -0.3, yMax : 1.1924 },
 			boundaryType : BoundaryType.SOLID,
-			ground : GroundPresets.CONST_ZERO(),
+			ground : new ConstLinearGround(0 /*slope*/, 0 /*yIntercept*/),
 			smoothingLength : DryDamBreak.SMOOTHING_LENGTH,
 			particleNumber : 750,
 			particleDistribution : ParticleDistribution.DAM_BREAK_DRY,
