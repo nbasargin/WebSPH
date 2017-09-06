@@ -26,8 +26,20 @@ export class SimControlComponent {
 	private _maxTimeEnabled : boolean = false;
 	set maxTimeEnabled(enabled : boolean) {
 		this._maxTimeEnabled = enabled;
-		if (this._maxTimeEnabled && this.parsedMaxTime > 0) {
-			this.maxTimeNotify.emit(this.parsedMaxTime);
+
+		// update _parsedMaxTime
+		if (enabled) {
+			let parsed = parseFloat(this._maxTimeUserInput);
+			if (isNaN(parsed) || parsed <= 0) {
+				this._parsedMaxTime = -1;
+			} else {
+				this._parsedMaxTime = parsed;
+			}
+		}
+
+		// send events
+		if (this._maxTimeEnabled && this._parsedMaxTime > 0) {
+			this.maxTimeNotify.emit(this._parsedMaxTime);
 		} else {
 			this.maxTimeNotify.emit(-1);
 		}
