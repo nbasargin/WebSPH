@@ -1,5 +1,5 @@
-import {Environment} from "../Environment";
-import {IntegratorType, BoundaryType} from "../../util/Enums";
+import { BoundaryType, IntegratorType } from '../../util/Enums';
+import { Environment } from '../Environment';
 
 
 /**
@@ -7,22 +7,22 @@ import {IntegratorType, BoundaryType} from "../../util/Enums";
  */
 export abstract class Integrator {
 
-    protected env : Environment;
+    protected env: Environment;
 
-    public constructor(env : Environment) {
+    public constructor(env: Environment) {
         this.env = env;
     }
 
-    public getEnvironment() : Environment {
+    public getEnvironment(): Environment {
         return this.env;
     }
 
-    public abstract integrate(dt : number);
+    public abstract integrate(dt: number);
 
 
-    public abstract setBoundaryType(type : BoundaryType);
+    public abstract setBoundaryType(type: BoundaryType);
 
-    public abstract setSmoothingLength(h : number);
+    public abstract setSmoothingLength(h: number);
 
-    public abstract getType() : IntegratorType;
+    public abstract getType(): IntegratorType;
 }

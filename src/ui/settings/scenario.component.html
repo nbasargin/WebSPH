@@ -1,27 +1,27 @@
 <div class="settings-block">
-	<h6>Scenario</h6>
-	<select class="select" style="width: 180px;" [(ngModel)]="activeScenario" title="select a scenario">
-		<option *ngFor="let s of scenarios" [ngValue]="s" >{{s.getName()}}</option>
-	</select>
+    <h6>Scenario</h6>
+    <select class="select" style="width: 180px;" [(ngModel)]="activeScenario" title="select a scenario">
+        <option *ngFor="let s of scenarios" [ngValue]="s">{{s.getName()}}</option>
+    </select>
 
-	<button class="button" (click)="onChangeScenario()"> Select </button>
-	<br>
+    <button class="button" (click)="onChangeScenario()"> Select</button>
+    <br>
 
-	<div style="margin-top: 2px">
-		Description: <i>{{activeScenario.getDescription()}}</i>
-	</div>
+    <div style="margin-top: 2px">
+        Description: <i>{{activeScenario.getDescription()}}</i>
+    </div>
 
-	<!--
-	<div class="settings-left">
-		Options:
-	</div>
-	<div class="settings-right">
-		<label>
-			<input type="checkbox">
-			show analytical solution
-		</label>
-	</div>
+    <!--
+    <div class="settings-left">
+        Options:
+    </div>
+    <div class="settings-right">
+        <label>
+            <input type="checkbox">
+            show analytical solution
+        </label>
+    </div>
 
-	-->
+    -->
 
 </div>

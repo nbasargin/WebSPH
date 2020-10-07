@@ -1,55 +1,56 @@
 <div class="settings-block">
-	<h6>Simulation options</h6>
+    <h6>Simulation options</h6>
 
-	<div class="settings-left middle">
-		Integrator:
-	</div>
-	<div class="settings-right middle">
-		<label>
-			<input type="radio" class="radiobutton" name="integrator" value="euler" [(ngModel)]="integrator">
-			Euler
-		</label>
-		<br>
-		<label>
-			<input type="radio" class="radiobutton" name="integrator" value="heunNaive" [(ngModel)]="integrator">
-			Heun (naive)
-		</label>
-		<br>
-		<label>
-			<input type="radio" class="radiobutton" name="integrator" value="heunStd" [(ngModel)]="integrator">
-			Heun (standard)
-		</label>
-		<br>
-		<label>
-			<input type="radio" class="radiobutton" name="integrator" value="heunFast" [(ngModel)]="integrator">
-			Heun (fast)
-		</label>
-	</div>
-	<br>
+    <div class="settings-left middle">
+        Integrator:
+    </div>
+    <div class="settings-right middle">
+        <label>
+            <input type="radio" class="radiobutton" name="integrator" value="euler" [(ngModel)]="integrator">
+            Euler
+        </label>
+        <br>
+        <label>
+            <input type="radio" class="radiobutton" name="integrator" value="heunNaive" [(ngModel)]="integrator">
+            Heun (naive)
+        </label>
+        <br>
+        <label>
+            <input type="radio" class="radiobutton" name="integrator" value="heunStd" [(ngModel)]="integrator">
+            Heun (standard)
+        </label>
+        <br>
+        <label>
+            <input type="radio" class="radiobutton" name="integrator" value="heunFast" [(ngModel)]="integrator">
+            Heun (fast)
+        </label>
+    </div>
+    <br>
 
-	<div class="settings-left">
-		Smoothing length:
-	</div>
-	<div class="settings-right">
-		<div style="display: inline-block; width: 70px;">{{smoothingLength}}</div>
-		<input class="slider" type="range" min="0.001" max="0.1" step="0.001" [(ngModel)]="smoothingLength" title="simulation smoothing length">
-	</div>
-	<br>
+    <div class="settings-left">
+        Smoothing length:
+    </div>
+    <div class="settings-right">
+        <div style="display: inline-block; width: 70px;">{{smoothingLength}}</div>
+        <input class="slider" type="range" min="0.001" max="0.1" step="0.001" [(ngModel)]="smoothingLength"
+               title="simulation smoothing length">
+    </div>
+    <br>
 
 
-	<div class="settings-left middle">
-		Boundary:
-	</div>
-	<div class="settings-right middle">
-		<label>
-			<input type="radio" class="radiobutton" name="boundary" value="cyclic" [(ngModel)]="boundary">
-			Cyclic
-		</label>
-		<br>
-		<label>
-			<input type="radio" class="radiobutton" name="boundary" value="solid" [(ngModel)]="boundary">
-			Solid
-		</label>
-	</div>
+    <div class="settings-left middle">
+        Boundary:
+    </div>
+    <div class="settings-right middle">
+        <label>
+            <input type="radio" class="radiobutton" name="boundary" value="cyclic" [(ngModel)]="boundary">
+            Cyclic
+        </label>
+        <br>
+        <label>
+            <input type="radio" class="radiobutton" name="boundary" value="solid" [(ngModel)]="boundary">
+            Solid
+        </label>
+    </div>
 
 </div>

@@ -4,11 +4,11 @@
  */
 export class GLBuffer {
 
-    private gl : WebGLRenderingContext;
-    public buffer : WebGLBuffer;
-    private data : Float32Array;
-    public itemSize : number;
-    public numItems : number;
+    private gl: WebGLRenderingContext;
+    public buffer: WebGLBuffer;
+    private data: Float32Array;
+    public itemSize: number;
+    public numItems: number;
 
     /**
      * Construct a buffer that stored float values
@@ -16,7 +16,7 @@ export class GLBuffer {
      * @param vertices      Float32Array with new vertices
      * @param itemSize      number of array elements that define one vertex
      */
-    public constructor(gl : WebGLRenderingContext, vertices : Float32Array, itemSize : number = 3) {
+    public constructor(gl: WebGLRenderingContext, vertices: Float32Array, itemSize: number = 3) {
         this.gl = gl;
         this.buffer = gl.createBuffer();
         this.setData(vertices, itemSize);
@@ -28,7 +28,7 @@ export class GLBuffer {
      * @param vertices      Float32Array with new vertices
      * @param itemSize      number of array elements that define one vertex
      */
-    public setData(vertices : Float32Array, itemSize : number = 3) {
+    public setData(vertices: Float32Array, itemSize: number = 3) {
         this.data = vertices;
         this.itemSize = itemSize;
         this.numItems = Math.floor(vertices.length / itemSize);
@@ -40,7 +40,7 @@ export class GLBuffer {
      * Get data of this buffer.
      * @returns {Float32Array}
      */
-    public getData() : Float32Array {
+    public getData(): Float32Array {
         return this.data;
     }
 
@@ -57,8 +57,6 @@ export class GLBuffer {
         gl.bufferData(gl.ARRAY_BUFFER, this.data, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null); // unbind the buffer
     }
-
-
 
 
 }

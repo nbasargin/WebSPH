@@ -1,4 +1,4 @@
-import {Particle} from "./Particle";
+import { Particle } from './Particle';
 
 export class TimeStepping {
 
@@ -6,7 +6,7 @@ export class TimeStepping {
      * Calculate maximal time step:
      * dt = factor * smoothing length / (max particle speed + wave propagation speed)
      */
-    public static getMaxTimeStepStable(particles : Array<Particle>, smoothingLength : number, gAcceleration : number) : number {
+    public static getMaxTimeStepStable(particles: Array<Particle>, smoothingLength: number, gAcceleration: number): number {
         let maxSpeed = 0;
         for (let i = 0; i < particles.length; i++) {
             maxSpeed = Math.max(maxSpeed, Math.abs(particles[i].speedX));
@@ -26,7 +26,7 @@ export class TimeStepping {
      *
      * dt = factor * smoothing length / (max particle speed * 0.2 + wave propagation speed)
      */
-    public static getMaxTimeStepFast(particles : Array<Particle>, smoothingLength : number, gAcceleration : number) : number {
+    public static getMaxTimeStepFast(particles: Array<Particle>, smoothingLength: number, gAcceleration: number): number {
         let maxSpeed = 0;
         for (let i = 0; i < particles.length; i++) {
             maxSpeed = Math.max(maxSpeed, Math.abs(particles[i].speedX));

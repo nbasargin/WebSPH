@@ -1,4 +1,4 @@
-import {FrameTiming} from "../util/Timing";
+import { FrameTiming } from '../util/Timing';
 
 /**
  * Render loop will repeatedly call the callback function and update the FPS.
@@ -6,12 +6,12 @@ import {FrameTiming} from "../util/Timing";
 export class RenderLoop {
 
     private static numberOfFramesToAvgFPS = 10;
-    private callback : (dt : number) => void;
-    private timing : FrameTiming;
-    private fpsElement : HTMLElement;
-    private running : boolean;
+    private callback: (dt: number) => void;
+    private timing: FrameTiming;
+    private fpsElement: HTMLElement;
+    private running: boolean;
 
-    public constructor(callback : (dt : number) => void, fpsElm? : HTMLElement) {
+    public constructor(callback: (dt: number) => void, fpsElm?: HTMLElement) {
         this.callback = callback;
         this.timing = new FrameTiming(RenderLoop.numberOfFramesToAvgFPS);
         this.fpsElement = fpsElm;
@@ -20,7 +20,7 @@ export class RenderLoop {
 
     public start() {
         if (this.running) {
-            console.log("RenderLoop already running!");
+            console.log('RenderLoop already running!');
             return;
         }
 
@@ -33,7 +33,7 @@ export class RenderLoop {
         // check if running
         if (!this.running) {
             if (this.fpsElement) {
-                this.fpsElement.innerHTML = "<s>" + this.timing.getAvgFPS().toFixed(1) + "</s>";
+                this.fpsElement.innerHTML = '<s>' + this.timing.getAvgFPS().toFixed(1) + '</s>';
             }
             return;
         }
@@ -42,7 +42,9 @@ export class RenderLoop {
         this.timing.nextFrame();
 
         this.callback(this.timing.getLastFrameDuration());
-        window.requestAnimationFrame(() => {this.loop()});
+        window.requestAnimationFrame(() => {
+            this.loop()
+        });
 
         if (this.fpsElement) {
             this.fpsElement.innerText = this.timing.getAvgFPS().toFixed(1);
@@ -54,12 +56,12 @@ export class RenderLoop {
         this.running = false;
     }
 
-    public isRunning() : boolean {
+    public isRunning(): boolean {
         return this.running;
     }
 
 
-    public getAvgFPS() : number {
-    	return this.timing.getAvgFPS();
-	}
+    public getAvgFPS(): number {
+        return this.timing.getAvgFPS();
+    }
 }

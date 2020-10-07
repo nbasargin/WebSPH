@@ -1,12 +1,12 @@
 export class Particle {
 
     //public pos : Array<number>;
-    public posX : number;
+    public posX: number;
     //public speed : Array<number>;
-    public speedX : number;
-    public accX : number;
+    public speedX: number;
+    public accX: number;
 
-    public color : Array<number>;
+    public color: Array<number>;
 
     public constructor() {
         //this.pos = [0, 0, 0];

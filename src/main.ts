@@ -1,6 +1,6 @@
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { WebSphModule } from "./ui/root/websph.module";
+import { WebSphModule } from './ui/root/websph.module';
 //  enableProdMode();
 
 platformBrowserDynamic().bootstrapModule(WebSphModule);

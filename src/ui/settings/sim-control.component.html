@@ -1,47 +1,48 @@
 <div class="settings-block">
-	<h6>Simulation control</h6>
+    <h6>Simulation control</h6>
 
-	<div class="settings-left">
-		Simulation time:
-	</div>
-	<div class="settings-right">
-		{{totalTime.toFixed(4)}}
-		{{maxTimeEnabled && parsedMaxTime > 0 ? " of " + parsedMaxTime : ""}}
-		seconds
-	</div>
-	<br>
+    <div class="settings-left">
+        Simulation time:
+    </div>
+    <div class="settings-right">
+        {{totalTime.toFixed(4)}}
+        {{maxTimeEnabled && parsedMaxTime > 0 ? " of " + parsedMaxTime : ""}}
+        seconds
+    </div>
+    <br>
 
-	<div class="settings-left">
-		<button class="button" (click)='onStartStopClick()'> {{isRunning ? "Stop" : "Start"}} </button>
-	</div>
-	<div class="settings-right">
-		<label>
-			<input type="checkbox" class="checkbox" [(ngModel)]="maxTimeEnabled">
-			{{maxTimeEnabled ? "Run until:" : "Set maximal time"}}
-		</label>
-		<input type="text" *ngIf="maxTimeEnabled" style="display: inline; width: 80px;" maxlength="7" title="maximal time" [(ngModel)]="maxTimeUserInput">
-	</div>
-	<br>
+    <div class="settings-left">
+        <button class="button" (click)='onStartStopClick()'> {{isRunning ? "Stop" : "Start"}} </button>
+    </div>
+    <div class="settings-right">
+        <label>
+            <input type="checkbox" class="checkbox" [(ngModel)]="maxTimeEnabled">
+            {{maxTimeEnabled ? "Run until:" : "Set maximal time"}}
+        </label>
+        <input type="text" *ngIf="maxTimeEnabled" style="display: inline; width: 80px;" maxlength="7"
+               title="maximal time" [(ngModel)]="maxTimeUserInput">
+    </div>
+    <br>
 
-	<div class="settings-left" *ngIf="!isRunning">
-		<button class="button" (click)='onDoStepsClick()'> Do steps </button>
-	</div>
-	<div class="settings-right" *ngIf="!isRunning">
-		<select class="select" [(ngModel)]="numSteps" title="number of steps">
-			<option *ngFor="let steps of stepValues" [ngValue]="steps" >{{steps}}</option>
-		</select>
-		step(s)
-	</div>
-	<br>
+    <div class="settings-left" *ngIf="!isRunning">
+        <button class="button" (click)='onDoStepsClick()'> Do steps</button>
+    </div>
+    <div class="settings-right" *ngIf="!isRunning">
+        <select class="select" [(ngModel)]="numSteps" title="number of steps">
+            <option *ngFor="let steps of stepValues" [ngValue]="steps">{{steps}}</option>
+        </select>
+        step(s)
+    </div>
+    <br>
 
-	<div class="settings-left" *ngIf="!isRunning">
-		<button class="button" (click)="onResetClick()"> Reset </button>
-	</div>
-	<div class="settings-right" *ngIf="!isRunning">
-		<select class="select" [(ngModel)]="numParticles" title="number of particles">
-			<option *ngFor="let ps of particleValues" [ngValue]="ps" >{{ps}}</option>
-		</select>
-		particles
-	</div>
+    <div class="settings-left" *ngIf="!isRunning">
+        <button class="button" (click)="onResetClick()"> Reset</button>
+    </div>
+    <div class="settings-right" *ngIf="!isRunning">
+        <select class="select" [(ngModel)]="numParticles" title="number of particles">
+            <option *ngFor="let ps of particleValues" [ngValue]="ps">{{ps}}</option>
+        </select>
+        particles
+    </div>
 </div>
 

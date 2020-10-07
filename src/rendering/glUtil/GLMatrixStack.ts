@@ -1,6 +1,7 @@
-import {mat4} from "gl-matrix";
-import {GLCanvas} from "./GLCanvas";
-import {Bounds} from "../../util/Bounds";
+import { mat4 } from 'gl-matrix';
+import { Bounds } from '../../util/Bounds';
+import { GLCanvas } from './GLCanvas';
+
 /**
  * Matrix stack:
  * - contains the actual matrix,
@@ -9,13 +10,13 @@ import {Bounds} from "../../util/Bounds";
  */
 export class GLMatrixStack {
 
-    private gl : WebGLRenderingContext;
-    private matrixUniform : WebGLUniformLocation;
+    private gl: WebGLRenderingContext;
+    private matrixUniform: WebGLUniformLocation;
 
-    private matrix : mat4;
-    private stack : Array<mat4>;
+    private matrix: mat4;
+    private stack: Array<mat4>;
 
-    public constructor(gl : WebGLRenderingContext, matrixUniformLoc : WebGLUniformLocation) {
+    public constructor(gl: WebGLRenderingContext, matrixUniformLoc: WebGLUniformLocation) {
         this.gl = gl;
         this.matrixUniform = matrixUniformLoc;
 
@@ -34,7 +35,7 @@ export class GLMatrixStack {
      * Get the actual matrix.
      * @returns {mat4}
      */
-    public get() : mat4 {
+    public get(): mat4 {
         return this.matrix;
     }
 
@@ -53,7 +54,7 @@ export class GLMatrixStack {
      */
     public pop() {
         if (this.stack.length < 1) {
-            throw new Error("Matrix stack is empty!");
+            throw new Error('Matrix stack is empty!');
         }
         let fromStack = this.stack.pop();
         mat4.copy(this.matrix, fromStack);
@@ -76,15 +77,15 @@ export class GLMatrixStack {
      * @param y
      * @param z
      */
-    public translate3f(x: number, y : number, z : number) {
-        mat4.translate(this.matrix, this.matrix, [x,y,z]);
+    public translate3f(x: number, y: number, z: number) {
+        mat4.translate(this.matrix, this.matrix, [x, y, z]);
     }
 
     /**
      * Translates the actual matrix by vec = (x,y,z).
      * @param vec
      */
-    public translate3fp(vec : Array<number>) {
+    public translate3fp(vec: Array<number>) {
         mat4.translate(this.matrix, this.matrix, vec);
     }
 
@@ -94,15 +95,15 @@ export class GLMatrixStack {
      * @param y
      * @param z
      */
-    public scale3f(x: number, y : number, z : number) {
-        mat4.scale(this.matrix, this.matrix, [x,y,z]);
+    public scale3f(x: number, y: number, z: number) {
+        mat4.scale(this.matrix, this.matrix, [x, y, z]);
     }
 
     /**
      * Scales the actual matrix by vec = (x,y,z).
      * @param vec
      */
-    public scale3fp(vec : Array<number>) {
+    public scale3fp(vec: Array<number>) {
         mat4.scale(this.matrix, this.matrix, vec);
     }
 
@@ -117,7 +118,7 @@ export class GLMatrixStack {
      * @param near      near clipping distance
      * @param far       far clipping distance
      */
-    public setPerspectiveProjection(glCanvas : GLCanvas, fovy : number, near : number, far : number) {
+    public setPerspectiveProjection(glCanvas: GLCanvas, fovy: number, near: number, far: number) {
         let w = glCanvas.viewWidthPx();
         let h = glCanvas.viewHeightPx();
         if (h != 0) {
@@ -134,7 +135,7 @@ export class GLMatrixStack {
      * @param near      near clipping distance
      * @param far       far clipping distance
      */
-    public setOrthographicProjection(glCanvas : GLCanvas, domain : Bounds, near : number, far : number) {
+    public setOrthographicProjection(glCanvas: GLCanvas, domain: Bounds, near: number, far: number) {
         let b = glCanvas.getOrthographicBounds(domain);
         mat4.ortho(this.matrix, b.xMin, b.xMax, b.yMin, b.yMax, near, far);
     }

@@ -1,14 +1,14 @@
-import {Environment} from "../Environment";
-import {Integrator} from "./Integrator";
-import {BoundaryType, IntegratorType} from "../../util/Enums";
+import { BoundaryType, IntegratorType } from '../../util/Enums';
+import { Environment } from '../Environment';
+import { Integrator } from './Integrator';
 
 export class Euler extends Integrator {
 
-    public constructor(env : Environment) {
+    public constructor(env: Environment) {
         super(env);
     }
 
-    public integrate(dt : number) {
+    public integrate(dt: number) {
         let env = this.getEnvironment();
         let particles = env.getParticles();
 
@@ -41,7 +41,7 @@ export class Euler extends Integrator {
     }
 
     public getType() {
-    	return IntegratorType.EULER;
-	}
+        return IntegratorType.EULER;
+    }
 
 }

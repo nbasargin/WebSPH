@@ -1,115 +1,135 @@
 /* You can add global styles to this file, and also import other style files */
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
+
 body {
-	font-family: 		Helvetica, sans-serif;
-	background-color: 	honeydew;
+    font-family: Helvetica, sans-serif;
+    background-color: honeydew;
 }
+
 .root {
-	margin: 			0 auto;
-	max-width: 			1200px;
-	min-width: 			200px;
+    margin: 0 auto;
+    max-width: 1200px;
+    min-width: 200px;
 }
+
 .scalable-wrapper {
-	height: 0;
-	padding-bottom: 25%;
-	position: relative;
+    height: 0;
+    padding-bottom: 25%;
+    position: relative;
 }
+
 .scaled-content {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	border: 1px solid green;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid green;
 }
+
 .settings-container {
-	margin-top:			10px;
-	width:				100%;
-	overflow:			hidden;
-	column-width: 		330px;
-	column-gap: 		15px;
+    margin-top: 10px;
+    width: 100%;
+    overflow: hidden;
+    column-width: 330px;
+    column-gap: 15px;
 }
+
 .settings-block {
-	margin-bottom: 		10px;
-	width: 				100%;
-	display:			inline-block;
-	/*word-break: 		break-all;*/
+    margin-bottom: 10px;
+    width: 100%;
+    display: inline-block;
+    /*word-break: 		break-all;*/
 }
+
 .settings-left {
-	width: 				130px;
-	display:			inline-block;
-	vertical-align: 	baseline;
-	padding-bottom:		2px;
+    width: 130px;
+    display: inline-block;
+    vertical-align: baseline;
+    padding-bottom: 2px;
 }
+
 .settings-left.middle {
-	vertical-align: 	middle;
+    vertical-align: middle;
 }
+
 .settings-right {
-	display:			inline-block;
-	vertical-align: 	baseline;
-	padding-bottom:		2px;
+    display: inline-block;
+    vertical-align: baseline;
+    padding-bottom: 2px;
 }
+
 .settings-right.middle {
-	vertical-align: 	middle;
+    vertical-align: middle;
 }
+
 .settings-tab {
-	margin-left: 		20px;
-	display:			inline-block;
+    margin-left: 20px;
+    display: inline-block;
 }
+
 .settings-tab.last {
-	margin-bottom:		7px;
+    margin-bottom: 7px;
 }
+
 h1 {
-	width:				100%;
-	font-family: 		Helvetica, sans-serif;
-	font-weight: 		bold;
-	text-align:			left;
-	margin-bottom: 		0;
-	margin-top: 		0;
+    width: 100%;
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 0;
+    margin-top: 0;
 }
+
 h2 {
-	width:				100%;
-	font-family:		Helvetica, sans-serif;
-	color: 				#3E3E3E;
-	text-align:			left;
-	margin-bottom: 		7px;
-	margin-top: 		0;
+    width: 100%;
+    font-family: Helvetica, sans-serif;
+    color: #3E3E3E;
+    text-align: left;
+    margin-bottom: 7px;
+    margin-top: 0;
 }
+
 h6 {
-	width:				100%;
-	font: 				bold 18px Helvetica, sans-serif;
-	color: 				#3E3E3E;
-	text-align:			left;
-	margin-bottom: 		4px;
-	margin-top: 		0;
-	border-bottom: 		1px solid #A6A6A6;
+    width: 100%;
+    font: bold 18px Helvetica, sans-serif;
+    color: #3E3E3E;
+    text-align: left;
+    margin-bottom: 4px;
+    margin-top: 0;
+    border-bottom: 1px solid #A6A6A6;
 }
 
 .button {
-	background-color: lightblue;
-	color: black;
-	width: 120px;
-	height: 26px;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
-	font-size: 16px;
+    background-color: lightblue;
+    color: black;
+    width: 120px;
+    height: 26px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
 }
+
 .button:hover {
-	background-color: skyblue;
+    background-color: skyblue;
 }
+
 .slider {
-	width: 110px;
-	margin-left: 0;
+    width: 110px;
+    margin-left: 0;
 }
+
 .radiobutton {
-	margin-left: 0;
+    margin-left: 0;
 }
+
 .checkbox {
-	margin-left: 0;
+    margin-left: 0;
 }
+
 .select {
-	width: 70px;
+    width: 70px;
 }

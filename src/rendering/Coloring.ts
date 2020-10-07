@@ -1,7 +1,8 @@
-import {Particle} from "../simulation/Particle";
+import { Particle } from '../simulation/Particle';
+
 export class Coloring {
 
-    public static speedColoring(particles : Array<Particle>) {
+    public static speedColoring(particles: Array<Particle>) {
         let maxSpeed = Number.MIN_VALUE;
         let minSpeed = Number.MAX_VALUE;
         for (let i = 0; i < particles.length; i++) {
@@ -20,16 +21,16 @@ export class Coloring {
 
                 // distinguish direction
                 if (particles[i].speedX > 0) {
-                    particles[i].color = [col,0,0,1];
+                    particles[i].color = [col, 0, 0, 1];
                 } else {
-                    particles[i].color = [0,col,0,1];
+                    particles[i].color = [0, col, 0, 1];
                 }
 
             }
         } else {
             // no speed difference - all black
             for (let i = 0; i < particles.length; i++) {
-                particles[i].color = [0,0,0,1];
+                particles[i].color = [0, 0, 0, 1];
             }
         }
     }
