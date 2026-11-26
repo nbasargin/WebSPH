@@ -1,52 +1,40 @@
-import { FrameTiming } from '../util/timing';
+/** Calls the callback on every animation frame while running, passes the average FPS of the last frames. */
+export class RenderLoop {
+  private static readonly framesToAverage = 10;
 
-export class RenderLoop2 {
-  private static numberOfFramesToAvgFPS = 10;
-  private callback: (lastFrameDuration: number, avgFPS: number) => void;
-  private timing: FrameTiming;
-  private running: boolean;
+  private running = false;
+  private lastFrameStart = 0;
+  private frameDurations: number[] = [];
 
-  public constructor(callback: (lastFrameDuration: number, avgFPS: number) => void) {
-    this.callback = callback;
-    this.timing = new FrameTiming(RenderLoop2.numberOfFramesToAvgFPS);
-    this.running = false;
+  constructor(private readonly callback: (avgFps: number) => void) {}
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.lastFrameStart = performance.now();
+    this.frameDurations = [];
+    requestAnimationFrame(() => this.loop());
   }
 
-  public start() {
-    if (this.running) {
-      console.log('RenderLoop already running!');
-      return;
-    }
-
-    this.running = true;
-    this.timing.reset(RenderLoop2.numberOfFramesToAvgFPS);
-    //this.loop();
-    window.requestAnimationFrame(() => {
-      this.loop();
-    });
+  stop() {
+    this.running = false;
   }
 
   private loop() {
-    // check if running
     if (!this.running) return;
+    this.callback(this.avgFps());
 
-    // call callback
-    this.callback(this.timing.getLastFrameDuration(), this.timing.getAvgFPS());
+    const now = performance.now();
+    this.frameDurations.push(now - this.lastFrameStart);
+    if (this.frameDurations.length > RenderLoop.framesToAverage) this.frameDurations.shift();
+    this.lastFrameStart = now;
 
-    // update fps
-    this.timing.nextFrame();
-
-    // request next frame
-    window.requestAnimationFrame(() => {
-      this.loop();
-    });
+    requestAnimationFrame(() => this.loop());
   }
 
-  public stop() {
-    this.running = false;
-  }
-
-  public isRunning(): boolean {
-    return this.running;
+  private avgFps(): number {
+    if (this.frameDurations.length == 0) return 0;
+    const avgDuration = this.frameDurations.reduce((a, b) => a + b, 0) / this.frameDurations.length;
+    return avgDuration == 0 ? 0 : 1000 / avgDuration;
   }
 }

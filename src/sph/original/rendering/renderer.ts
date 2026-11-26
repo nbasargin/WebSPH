@@ -1,354 +1,216 @@
-import { Environment } from '../simulation/environment';
+import { Environment, FluidState } from '../simulation/environment';
+import { GRAVITY } from '../simulation/simulation-options';
 import { AnalyticalDamBreak } from '../simulation/validation/analytical-dam-break';
-import { Coloring } from './coloring';
-import { GLBuffer } from './gl-util/gl-buffer';
-import { GLCanvas } from './gl-util/gl-canvas';
-import { GLMatrixStack } from './gl-util/gl-matrix-stack';
-import { GLProgram } from './gl-util/gl-program';
+import { createProgram, GLBuffer, orthographicBounds, orthoMatrix } from './gl-utils';
 import { RendererOptions } from './renderer-options';
-import { ShaderLoader } from './shader-loader';
 
-/**
- * Renders the state of the environment to the canvas.
- */
+const vertexShader = `
+  attribute vec3 aVertexPosition;
+  attribute vec4 aVertexColor;
+  uniform mat4 uPMatrix;
+  uniform float uPointSize;
+  varying vec4 vColor;
+
+  void main(void) {
+    gl_Position = uPMatrix * vec4(aVertexPosition, 1.0);
+    vColor = aVertexColor;
+    gl_PointSize = uPointSize;
+  }
+`;
+
+const fragmentShader = `
+  precision mediump float;
+  varying vec4 vColor;
+
+  void main(void) {
+    gl_FragColor = vColor;
+  }
+`;
+
+const heightSamples = 500;
+const validationSamples = 1000;
+
+/** Renders the state of the environment to the canvas: particles, fluid, ground and dam break validation. */
 export class Renderer {
-  // TODO: clamp water and ground height at domain y bounds, particle y positions can remain outside domain
+  private readonly gl: WebGLRenderingContext;
+  private readonly program: WebGLProgram;
+  private readonly attrPosition: number;
+  private readonly attrColor: number;
+  private readonly unifProjection: WebGLUniformLocation | null;
 
-  // environment
-  public env: Environment;
+  private readonly particlePos: GLBuffer;
+  private readonly particleCol: GLBuffer;
+  private readonly waterPos: GLBuffer;
+  private readonly waterCol: GLBuffer;
+  private readonly groundPos: GLBuffer;
+  private readonly groundCol: GLBuffer;
+  private readonly validationPos: GLBuffer;
+  private readonly validationCol: GLBuffer;
 
-  // drawing options
-  // TODO: move these options to RendererOptions
   private drawParticles = true;
-  private drawWaterHeight = true;
-  private drawBaseSquare = false;
-  //private drawValidation = true;
-  private drawValidationUntil: number;
+  private readonly drawValidationUntil: number;
+  private readonly validation = new AnalyticalDamBreak(GRAVITY);
 
-  private visualizationSmoothingLength;
-  private waterHeightSamples = 500;
-  private validationSamples = 1000;
+  /** smoothing length used to draw the fluid height, can differ from the simulation */
+  visualizationSmoothingLength: number;
 
-  // buffers
-  private glParticlePosBuffer: GLBuffer;
-  private glParticleColBuffer: GLBuffer;
-  private glLinePosBuffer: GLBuffer;
-  private glLineColBuffer: GLBuffer;
-
-  private glWaterHeightPosBuffer: GLBuffer;
-  private glWaterHeightColBuffer: GLBuffer;
-  private glGroundHeightPosBuffer: GLBuffer;
-  private glGroundHeightColBuffer: GLBuffer;
-
-  private glDamBreakValidationPosBuffer: GLBuffer;
-  private glDamBreakValidationColBuffer: GLBuffer;
-
-  // gl stuff
-  public mvMatrix: GLMatrixStack;
-  public pMatrix: GLMatrixStack;
-  public glCanvas: GLCanvas;
-  private glProgram: GLProgram;
-
-  public constructor(glCanvas: GLCanvas, env: Environment, options: RendererOptions) {
-    this.glCanvas = glCanvas;
-    this.env = env;
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly env: Environment,
+    options: RendererOptions,
+  ) {
+    const gl = canvas.getContext('webgl');
+    if (!gl) throw new Error('WebGL is not supported');
+    this.gl = gl;
     this.visualizationSmoothingLength = options.smoothingLength;
     this.drawValidationUntil = options.drawValidationUntil;
 
-    this.initShaders();
-    this.initMatrices();
-    this.initParticleBuffers();
-    this.initBorderLines();
-    this.initWaterHeightBuffers();
-    this.initGroundHeightBuffers();
-    this.initDamBreakValidationBuffers();
+    this.program = createProgram(gl, vertexShader, fragmentShader);
+    gl.useProgram(this.program);
+    this.attrPosition = gl.getAttribLocation(this.program, 'aVertexPosition');
+    this.attrColor = gl.getAttribLocation(this.program, 'aVertexColor');
+    this.unifProjection = gl.getUniformLocation(this.program, 'uPMatrix');
+    gl.enableVertexAttribArray(this.attrPosition);
+    gl.enableVertexAttribArray(this.attrColor);
+
+    const n = env.state.particles.length;
+    this.particlePos = new GLBuffer(gl, new Float32Array(n * 2), 2);
+    this.particleCol = new GLBuffer(gl, new Float32Array(n * 4), 4);
+
+    // triangle strips: (x, y bottom), (x, y top) for each sample
+    const { xMin, xMax, yMin } = env.bounds;
+    const sampleX = (i: number, count: number) => xMin + ((xMax - xMin) * i) / (count - 1);
+    const waterPos = new Float32Array(heightSamples * 4);
+    const groundPos = new Float32Array(heightSamples * 4);
+    for (let i = 0; i < heightSamples; i++) {
+      const x = sampleX(i, heightSamples);
+      waterPos.set([x, env.groundHeight(x), x, 0], i * 4);
+      groundPos.set([x, yMin, x, env.groundHeight(x)], i * 4);
+    }
+    this.waterPos = new GLBuffer(gl, waterPos, 2);
+    this.waterCol = new GLBuffer(gl, constantColor(heightSamples * 2, [0, 0, 1, 1]), 4);
+    this.groundPos = new GLBuffer(gl, groundPos, 2);
+    this.groundCol = new GLBuffer(gl, constantColor(heightSamples * 2, [0, 0, 0, 1]), 4);
+
+    const validationPos = new Float32Array(validationSamples * 2);
+    for (let i = 0; i < validationSamples; i++) {
+      validationPos[i * 2] = sampleX(i, validationSamples);
+    }
+    this.validationPos = new GLBuffer(gl, validationPos, 2);
+    this.validationCol = new GLBuffer(gl, constantColor(validationSamples, [1, 1, 0, 1]), 4);
+
     this.setPointSize(options.particleSize);
   }
 
-  private initShaders() {
-    let fragShaderSrc = ShaderLoader.getDummyColorFragShader();
-    let vertShaderSrc = ShaderLoader.getDummyColorVertShader();
-    this.glProgram = new GLProgram(this.glCanvas.gl, vertShaderSrc, fragShaderSrc);
-    this.glProgram.use();
-    this.glProgram.enableVertexAttribArray('aVertexPosition');
-    this.glProgram.enableVertexAttribArray('aVertexColor');
-  }
-
-  private initMatrices() {
-    this.mvMatrix = new GLMatrixStack(this.glCanvas.gl, this.glProgram.getUnifLoc('uMVMatrix'));
-    this.pMatrix = new GLMatrixStack(this.glCanvas.gl, this.glProgram.getUnifLoc('uPMatrix'));
-  }
-
-  private initParticleBuffers() {
-    let particlePosXY = new Float32Array(this.env.getParticles().length * 2);
-    let particleColRGBA = new Float32Array(this.env.getParticles().length * 4);
-    this.glParticlePosBuffer = new GLBuffer(this.glCanvas.gl, particlePosXY, 2);
-    this.glParticleColBuffer = new GLBuffer(this.glCanvas.gl, particleColRGBA, 4);
-  }
-
-  private initWaterHeightBuffers() {
-    let bounds = this.env.getBoundary();
-    // position
-    let waterHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
-    for (let i = 0; i < this.waterHeightSamples; i++) {
-      let x = bounds.xMin + ((bounds.xMax - bounds.xMin) * i) / (this.waterHeightSamples - 1);
-      waterHeightPosXY[i * 4] = x; // x
-      waterHeightPosXY[i * 4 + 1] = this.env.getGroundHeight(x); // y ground
-      waterHeightPosXY[i * 4 + 2] = x; // x
-      waterHeightPosXY[i * 4 + 3] = 0; // y water (undefined)
-    }
-    this.glWaterHeightPosBuffer = new GLBuffer(this.glCanvas.gl, waterHeightPosXY, 2);
-
-    // color (constant color)
-    let waterHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
-    for (let i = 0; i < waterHeightColRGBA.length / 4; i++) {
-      waterHeightColRGBA[i * 4] = 0; // r
-      waterHeightColRGBA[i * 4 + 1] = 0; // g
-      waterHeightColRGBA[i * 4 + 2] = 1; // b
-      waterHeightColRGBA[i * 4 + 3] = 1; // a
-    }
-    this.glWaterHeightColBuffer = new GLBuffer(this.glCanvas.gl, waterHeightColRGBA, 4);
-  }
-
-  private initGroundHeightBuffers() {
-    let bounds = this.env.getBoundary();
-    // position
-    let groundHeightPosXY = new Float32Array(this.waterHeightSamples * 4); // (x,y) ground; (x,y) water
-    for (let i = 0; i < this.waterHeightSamples; i++) {
-      let x = bounds.xMin + ((bounds.xMax - bounds.xMin) * i) / (this.waterHeightSamples - 1);
-      groundHeightPosXY[i * 4] = x; // x
-      groundHeightPosXY[i * 4 + 1] = this.env.getBoundary().yMin; // y min
-      groundHeightPosXY[i * 4 + 2] = x; // x
-      groundHeightPosXY[i * 4 + 3] = this.env.getGroundHeight(x); // y ground
-    }
-    this.glGroundHeightPosBuffer = new GLBuffer(this.glCanvas.gl, groundHeightPosXY, 2);
-
-    // color (constant color)
-    let groundHeightColRGBA = new Float32Array(this.waterHeightSamples * 8); // 2 points x 4 color values
-    for (let i = 0; i < groundHeightColRGBA.length / 4; i++) {
-      groundHeightColRGBA[i * 4] = 0; // r
-      groundHeightColRGBA[i * 4 + 1] = 0; // g
-      groundHeightColRGBA[i * 4 + 2] = 0; // b
-      groundHeightColRGBA[i * 4 + 3] = 1; // a
-    }
-    this.glGroundHeightColBuffer = new GLBuffer(this.glCanvas.gl, groundHeightColRGBA, 4);
-  }
-
-  private initDamBreakValidationBuffers() {
-    let bounds = this.env.getBoundary();
-    // position
-    let validationPosXY = new Float32Array(this.validationSamples * 2);
-    for (let i = 0; i < this.validationSamples; i++) {
-      // x
-      validationPosXY[i * 2] = bounds.xMin + ((bounds.xMax - bounds.xMin) * i) / (this.validationSamples - 1);
-      // y
-      validationPosXY[i * 2 + 1] = 0;
-    }
-    this.glDamBreakValidationPosBuffer = new GLBuffer(this.glCanvas.gl, validationPosXY, 2);
-    // color
-    let validationColorRGBA = new Float32Array(this.validationSamples * 4);
-    for (let i = 0; i < this.validationSamples; i++) {
-      validationColorRGBA[i * 4] = 1; // r
-      validationColorRGBA[i * 4 + 1] = 1; // g
-      validationColorRGBA[i * 4 + 2] = 0; // b
-      validationColorRGBA[i * 4 + 3] = 1; // a
-    }
-    this.glDamBreakValidationColBuffer = new GLBuffer(this.glCanvas.gl, validationColorRGBA, 4);
-  }
-
-  private initBorderLines() {
-    let lines = [];
-    lines = lines.concat([0, 0, 1, 0]); // y = 0
-    lines = lines.concat([0, 1, 1, 1]); // y = 1
-    lines = lines.concat([0, 0, 0, 1]); // x = 0
-    lines = lines.concat([1, 0, 1, 1]); // x = 1
-    let colors = [];
-    this.glLinePosBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(lines), 2);
-    for (let i = 0; i < this.glLinePosBuffer.numItems; i++) colors = colors.concat([1, 1, 1, 1]);
-    this.glLineColBuffer = new GLBuffer(this.glCanvas.gl, new Float32Array(colors), 4);
-  }
-
-  /**
-   * Transfer position & color to the GPU
-   */
-  private updateParticleBuffers() {
-    let particles = this.env.getParticles();
-
-    Coloring.speedColoring(particles);
-
-    let particlePosXY = this.glParticlePosBuffer.getData();
-    let particleColRGBA = this.glParticleColBuffer.getData();
-
-    for (let i = 0; i < particles.length; i++) {
-      let pi = particles[i];
-      // position
-      particlePosXY[i * 2] = pi.posX;
-      particlePosXY[i * 2 + 1] = this.env.getFluidHeight(pi.posX) + this.env.getGroundHeight(pi.posX);
-
-      // color
-      particleColRGBA[i * 4] = particles[i].color[0];
-      particleColRGBA[i * 4 + 1] = particles[i].color[1];
-      particleColRGBA[i * 4 + 2] = particles[i].color[2];
-      particleColRGBA[i * 4 + 3] = particles[i].color[3];
-    }
-
-    this.glParticlePosBuffer.flushData(); //setData(particlePosXY, 2);
-    this.glParticleColBuffer.flushData(); //setData(particleColRGBA, 4);
-  }
-
-  private updateWaterHeightBuffers() {
-    // set new smoothing length if needed
-    let envSmoothingLength = this.env.getSmoothingLength();
-    if (envSmoothingLength != this.visualizationSmoothingLength) {
-      this.env.setSmoothingLength(this.visualizationSmoothingLength);
-    }
-
-    let waterHeightPosXY = this.glWaterHeightPosBuffer.getData();
-    // update water height
-    for (let i = 0; i < this.waterHeightSamples; i++) {
-      let x = waterHeightPosXY[i * 4];
-      let groundHeight = this.env.getGroundHeight(x);
-      let waterHeight = this.env.getFluidHeight(x); // visu smoothing length already set
-      waterHeightPosXY[i * 4 + 1] = groundHeight; // y water min
-      waterHeightPosXY[i * 4 + 3] = groundHeight + waterHeight; // y water max
-    }
-    this.glWaterHeightPosBuffer.flushData();
-
-    // restore smoothing length if needed
-    if (envSmoothingLength != this.visualizationSmoothingLength) {
-      this.env.setSmoothingLength(envSmoothingLength);
-    }
-  }
-
-  private updateGroundHeightBuffers() {
-    let groundHeightPosXY = this.glGroundHeightPosBuffer.getData();
-    // update ground height
-    for (let i = 0; i < this.waterHeightSamples; i++) {
-      let x = groundHeightPosXY[i * 4];
-      groundHeightPosXY[i * 4 + 3] = this.env.getGroundHeight(x); // y ground
-    }
-    this.glGroundHeightPosBuffer.flushData();
-  }
-
-  private updateDamBreakValidation() {
-    let t = this.env.getTotalTime();
-    let validator = new AnalyticalDamBreak(9.81);
-    let validationPosXY = this.glDamBreakValidationPosBuffer.getData();
-    for (let i = 0; i < this.validationSamples; i++) {
-      let x = validationPosXY[i * 2]; // x
-      validationPosXY[i * 2 + 1] = validator.h(x, t);
-    }
-    this.glDamBreakValidationPosBuffer.flushData();
-  }
-
-  public setPointSize(size: number) {
+  /** Particles are hidden for sizes < 1. */
+  setPointSize(size: number) {
     this.drawParticles = size >= 1;
-    let uPointSizeLoc = this.glProgram.getUnifLoc('uPointSize');
-    this.glCanvas.gl.uniform1f(uPointSizeLoc, size);
+    this.gl.uniform1f(this.gl.getUniformLocation(this.program, 'uPointSize'), size);
   }
 
-  public setVisualizationSmoothingLength(h: number) {
-    this.visualizationSmoothingLength = h;
-  }
+  render() {
+    const gl = this.gl;
+    const width = this.canvas.clientWidth;
+    const height = this.canvas.clientHeight;
+    if (this.canvas.width != width) this.canvas.width = width;
+    if (this.canvas.height != height) this.canvas.height = height;
 
-  public getVisualizationSmoothingLength(): number {
-    return this.visualizationSmoothingLength;
-  }
-
-  public render(): void {
-    let gl = this.glCanvas.gl;
-    let mvMatrix = this.mvMatrix;
-    let pMatrix = this.pMatrix;
-
-    this.glCanvas.updateCanvasDimensions(); // width and height must be set for webgl
-    pMatrix.setOrthographicProjection(this.glCanvas, this.env.getBoundary(), -1, 1);
+    const projection = orthoMatrix(orthographicBounds(width, height, this.env.bounds), -1, 1);
+    gl.uniformMatrix4fv(this.unifProjection, false, projection);
 
     gl.clearColor(0.5, 0.7, 0.9, 1.0);
     gl.enable(gl.DEPTH_TEST);
-    gl.viewport(0, 0, this.glCanvas.viewWidthPx(), this.glCanvas.viewHeightPx());
+    gl.viewport(0, 0, width, height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    let vertexPositionAttribute = this.glProgram.getAttrLoc('aVertexPosition');
-    let vertexColorAttribute = this.glProgram.getAttrLoc('aVertexColor');
-
-    // draw base square
-    if (this.drawBaseSquare) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glLinePosBuffer.buffer);
-      gl.vertexAttribPointer(vertexPositionAttribute, this.glLinePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glLineColBuffer.buffer);
-      gl.vertexAttribPointer(vertexColorAttribute, this.glLineColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      pMatrix.updateUniform();
-      mvMatrix.updateUniform();
-      gl.drawArrays(gl.LINES, 0, this.glLinePosBuffer.numItems);
-    }
-
-    // draw particles
+    // everything is at z = 0: with depth test, elements drawn first stay on top
     if (this.drawParticles) {
-      this.updateParticleBuffers();
-
-      mvMatrix.push();
-      // positions
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticlePosBuffer.buffer);
-      gl.vertexAttribPointer(vertexPositionAttribute, this.glParticlePosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      // colors
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glParticleColBuffer.buffer);
-      gl.vertexAttribPointer(vertexColorAttribute, this.glParticleColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      // matrix setup + draw
-      pMatrix.updateUniform();
-      mvMatrix.updateUniform();
-      gl.drawArrays(gl.POINTS, 0, this.glParticlePosBuffer.numItems);
-      mvMatrix.pop();
+      this.updateParticles();
+      this.draw(gl.POINTS, this.particlePos, this.particleCol);
     }
+    this.updateWater();
+    this.draw(gl.TRIANGLE_STRIP, this.waterPos, this.waterCol);
+    this.updateGround();
+    this.draw(gl.TRIANGLE_STRIP, this.groundPos, this.groundCol);
 
-    // draw water level
-    if (this.drawWaterHeight) {
-      this.updateWaterHeightBuffers();
-
-      // positions
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightPosBuffer.buffer);
-      gl.vertexAttribPointer(vertexPositionAttribute, this.glWaterHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      // colors
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glWaterHeightColBuffer.buffer);
-      gl.vertexAttribPointer(vertexColorAttribute, this.glWaterHeightColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      // matrix setup + draw
-      pMatrix.updateUniform();
-      mvMatrix.updateUniform();
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glWaterHeightPosBuffer.numItems);
-    }
-
-    // update ground
-    this.updateGroundHeightBuffers();
-    // draw ground
-    // positions
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.glGroundHeightPosBuffer.buffer);
-    gl.vertexAttribPointer(vertexPositionAttribute, this.glGroundHeightPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    // colors
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.glGroundHeightColBuffer.buffer);
-    gl.vertexAttribPointer(vertexColorAttribute, this.glGroundHeightColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.glGroundHeightPosBuffer.numItems);
-
-    // validation
-    if (this.env.getTotalTime() <= this.drawValidationUntil) {
+    if (this.env.state.time <= this.drawValidationUntil) {
       gl.clear(gl.DEPTH_BUFFER_BIT);
-      this.updateDamBreakValidation();
-      // pos
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationPosBuffer.buffer);
-      gl.vertexAttribPointer(
-        vertexPositionAttribute,
-        this.glDamBreakValidationPosBuffer.itemSize,
-        gl.FLOAT,
-        false,
-        0,
-        0,
-      );
-      // color
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.glDamBreakValidationColBuffer.buffer);
-      gl.vertexAttribPointer(vertexColorAttribute, this.glDamBreakValidationColBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      // matrix setup + draw
-      pMatrix.updateUniform();
-      mvMatrix.updateUniform();
-      gl.drawArrays(gl.LINE_STRIP, 0, this.glDamBreakValidationPosBuffer.numItems);
+      this.updateValidation();
+      this.draw(gl.LINE_STRIP, this.validationPos, this.validationCol);
     }
   }
+
+  private draw(mode: number, pos: GLBuffer, col: GLBuffer) {
+    const gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, pos.buffer);
+    gl.vertexAttribPointer(this.attrPosition, pos.itemSize, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, col.buffer);
+    gl.vertexAttribPointer(this.attrColor, col.itemSize, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(mode, 0, pos.count);
+  }
+
+  /** Particles on the fluid surface, colored by speed: red moving right, green moving left. */
+  private updateParticles() {
+    const particles = this.env.state.particles;
+    let maxSpeed = Number.MIN_VALUE;
+    let minSpeed = Number.MAX_VALUE;
+    for (const p of particles) {
+      const speed = Math.abs(p.speedX);
+      maxSpeed = Math.max(maxSpeed, speed);
+      minSpeed = Math.min(minSpeed, speed);
+    }
+    const speedDiff = maxSpeed - minSpeed;
+
+    const pos = this.particlePos.data;
+    const col = this.particleCol.data;
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      pos[i * 2] = p.posX;
+      pos[i * 2 + 1] = this.env.fluidHeight(p.posX) + this.env.groundHeight(p.posX);
+
+      const c = speedDiff > 0 ? Math.sqrt((Math.abs(p.speedX) - minSpeed) / speedDiff) : 0;
+      col.set(p.speedX > 0 ? [c, 0, 0, 1] : [0, c, 0, 1], i * 4);
+    }
+    this.particlePos.flush();
+    this.particleCol.flush();
+  }
+
+  private updateWater() {
+    const h = this.visualizationSmoothingLength;
+    const env = this.env;
+    // ghost particles depend on the smoothing length
+    const state: FluidState =
+      h == env.smoothingLength ? env.state : { ...env.state, ghosts: env.boundary.ghosts(env.state.particles, h) };
+    const pos = this.waterPos.data;
+    for (let i = 0; i < heightSamples; i++) {
+      const x = pos[i * 4];
+      const groundHeight = env.groundHeight(x);
+      pos[i * 4 + 1] = groundHeight;
+      pos[i * 4 + 3] = groundHeight + env.fluidHeight(x, state, h);
+    }
+    this.waterPos.flush();
+  }
+
+  private updateGround() {
+    const pos = this.groundPos.data;
+    for (let i = 0; i < heightSamples; i++) {
+      pos[i * 4 + 3] = this.env.groundHeight(pos[i * 4]);
+    }
+    this.groundPos.flush();
+  }
+
+  private updateValidation() {
+    const t = this.env.state.time;
+    const pos = this.validationPos.data;
+    for (let i = 0; i < validationSamples; i++) {
+      pos[i * 2 + 1] = this.validation.h(pos[i * 2], t);
+    }
+    this.validationPos.flush();
+  }
+}
+
+function constantColor(vertices: number, rgba: number[]): Float32Array {
+  const data = new Float32Array(vertices * 4);
+  for (let i = 0; i < vertices; i++) data.set(rgba, i * 4);
+  return data;
 }
