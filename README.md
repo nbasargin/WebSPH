@@ -16,10 +16,11 @@ Requires Node.js (22.22+, 24.15+ or 26+) with npm.
 
 ## Changelog
 
-### v1.0.0 (in progress)
+### v1.0.0 – modernized (2026)
 
 - Toolchain modernized: Angular 22 (standalone components, zoneless, signals), TypeScript 6, npm instead of yarn.
 - Code cleanup and simplification with the same look, functionality and simulation results; unused code removed.
+- Performance: same in Firefox, about 5x faster in Chrome than the original demo (3000 particles).
 - Reference tests (Jest) verify that simulation results stay identical.
 - Euler integrator computes the acceleration before moving the particles (first step after a reset no longer ignores forces).
 
