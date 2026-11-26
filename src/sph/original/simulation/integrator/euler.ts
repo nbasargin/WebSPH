@@ -1,44 +1,26 @@
-import { BoundaryType, IntegratorType } from '../../util/enums';
 import { Environment } from '../environment';
 import { Integrator } from './integrator';
 
-export class Euler extends Integrator {
-  public constructor(env: Environment) {
-    super(env);
-  }
+/** Explicit (semi-implicit) Euler: speed is updated first, the position uses the new speed. */
+export class Euler implements Integrator {
+  constructor(private readonly env: Environment) {}
 
-  public integrate(dt: number) {
-    let env = this.getEnvironment();
-    let particles = env.getParticles();
+  integrate(dt: number) {
+    const env = this.env;
+    const state = env.state;
 
-    // force computation (for the current state, before any particle is moved)
-    for (let i = 0; i < particles.length; i++) {
-      let pi = particles[i];
-      pi.accX = env.getFluidAcc(pi.posX);
+    // acc_0 = acc(pos_0)
+    for (const p of state.particles) {
+      p.accX = env.fluidAcc(p.posX);
     }
 
-    // position & speed update
-    for (let i = 0; i < particles.length; i++) {
-      let pi = particles[i];
-      // speed
-      pi.speedX += pi.accX * dt;
-      // position
-      particles[i].posX = pi.posX + pi.speedX * dt;
-      env.getBoundary().mapParticleInsideBoundary(particles[i]);
+    // speed_1 = speed_0 + acc_0 * dt, pos_1 = pos_0 + speed_1 * dt
+    for (const p of state.particles) {
+      p.speedX += p.accX * dt;
+      p.posX = p.posX + p.speedX * dt;
+      env.boundary.mapInside(p);
     }
-    env.setTotalTime(env.getTotalTime() + dt);
-    env.updateBoundary();
-  }
-
-  public setBoundaryType(type: BoundaryType) {
-    this.env.setBoundaryType(type);
-  }
-
-  public setSmoothingLength(h: number) {
-    this.env.setSmoothingLength(h);
-  }
-
-  public getType() {
-    return IntegratorType.EULER;
+    state.time = state.time + dt;
+    env.updateGhosts(state);
   }
 }

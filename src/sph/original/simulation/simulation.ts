@@ -1,174 +1,85 @@
-import { BoundaryType, IntegratorType, TimeSteppingMode } from '../util/enums';
 import { Environment } from './environment';
 import { Euler } from './integrator/euler';
 import { HeunFast } from './integrator/heun-fast';
 import { HeunNaive } from './integrator/heun-naive';
 import { HeunOriginal } from './integrator/heun-original';
 import { Integrator } from './integrator/integrator';
-import { SimulationOptions } from './simulation-options';
-import { TimeStepping } from './time-stepping';
+import { GRAVITY, IntegratorType, SimulationOptions, TimeSteppingMode } from './simulation-options';
+import { maxTimeStepFast, maxTimeStepStable } from './time-stepping';
 
-/**
- * Main simulation class, contains the integrator and the environment.
- *
- * simulation settings:
- * - number of particles
- * - initial particle distribution
- * - integrator
- * - time stepping mode
- * - time step limit
- * - fixed time step
- *
- * environment properties:
- * - smoothing length
- * - ground
- * - domain size (bounds)
- * - boundary
- * - gravity
- * - particleVolume
- */
+/** Main simulation class: environment, integrator and time stepping. */
 export class Simulation {
-  private env: Environment;
+  readonly env: Environment;
   private integrator: Integrator;
 
-  private dtMode: TimeSteppingMode;
-  private dtFixed: number;
-  private dtLimit: number;
-  private maxTime: number;
+  timeSteppingMode: TimeSteppingMode;
+  fixedTimeStep: number;
+  /** upper limit for the time step, disabled if <= 0 */
+  timeStepLimit: number;
+  /** simulation stops at this time, disabled if <= 0 */
+  maxTime: number;
 
-  public constructor(options: SimulationOptions) {
-    this.reset(options);
-  }
-
-  public reset(options: SimulationOptions) {
-    // create env -> will set all environment values based on options
+  constructor(options: SimulationOptions) {
     this.env = new Environment(options);
-
-    // set simulation values from options
-    this.setIntegratorType(options.integratorType);
-    this.setBoundaryType(options.boundaryType); // depends on integrator
-    this.setSmoothingLength(options.smoothingLength); // depends on integrator
-    this.setTimeSteppingMode(options.timeSteppingMode);
-    this.setFixedTimeStep(options.fixedTimeStep);
-    this.dtLimit = options.timeStepLimit;
+    this.integrator = createIntegrator(options.integratorType, this.env);
+    this.timeSteppingMode = options.timeSteppingMode;
+    this.fixedTimeStep = options.fixedTimeStep;
+    this.timeStepLimit = options.timeStepLimit;
     this.maxTime = options.timeMax;
   }
 
-  public update() {
-    let dt = this.getNextTimeStep();
-    if (dt <= 0) {
-      return; // max time reached
-    }
-    // total time is updated by the integrator
-    this.integrator.integrate(dt);
+  get totalTime(): number {
+    return this.env.state.time;
   }
 
-  // INTEGRATOR
-
-  public setIntegratorType(type: IntegratorType) {
-    switch (type) {
-      case IntegratorType.EULER:
-        this.integrator = new Euler(this.env);
-        break;
-      case IntegratorType.HEUN_STD:
-        this.integrator = new HeunOriginal(this.env);
-        break;
-      case IntegratorType.HEUN_NAIVE:
-        this.integrator = new HeunNaive(this.env);
-        break;
-      case IntegratorType.HEUN_FAST:
-        this.integrator = new HeunFast(this.env);
-        break;
-      default:
-        throw new Error('Unknown integrator type!');
+  /** Advances the simulation by one time step (if max time is not reached yet). */
+  update() {
+    const dt = this.nextTimeStep();
+    if (dt > 0) {
+      this.integrator.integrate(dt);
     }
   }
 
-  // SMOOTHING LENGTH
-
-  public setSmoothingLength(h: number) {
-    this.integrator.setSmoothingLength(h);
+  setIntegratorType(type: IntegratorType) {
+    this.integrator = createIntegrator(type, this.env);
   }
 
-  public getSmoothingLength(): number {
-    return this.env.getSmoothingLength();
-  }
-
-  // TIME STEPPING
-
-  public setTimeSteppingMode(mode: TimeSteppingMode) {
-    this.dtMode = mode;
-  }
-
-  /**
-   * Calculate the next time step based on mode, limit (if set) and maxTime (if set).
-   * @returns {number} next time step
-   */
-  public getNextTimeStep(): number {
-    let dtNext = this.getTimeStepForMode(this.dtMode);
-    if (this.dtLimit > 0) {
-      dtNext = Math.min(dtNext, this.dtLimit);
+  /** Next time step based on mode, limit and max time; 0 if max time is reached. */
+  nextTimeStep(): number {
+    let dtNext = this.timeStepForMode(this.timeSteppingMode);
+    if (this.timeStepLimit > 0) {
+      dtNext = Math.min(dtNext, this.timeStepLimit);
     }
-    if (this.maxTime > 0 && this.env.getTotalTime() + dtNext > this.maxTime) {
-      dtNext = this.maxTime - this.env.getTotalTime();
+    if (this.maxTime > 0 && this.totalTime + dtNext > this.maxTime) {
+      dtNext = this.maxTime - this.totalTime;
     }
     return Math.max(0, dtNext);
   }
 
-  /**
-   * Calculate next time step depending on the mode (no limit).
-   * @param mode
-   * @returns {number}
-   */
-  public getTimeStepForMode(mode): number {
+  /** Time step for the given mode, without limits. */
+  timeStepForMode(mode: TimeSteppingMode): number {
+    const { particles } = this.env.state;
+    const h = this.env.smoothingLength;
     switch (mode) {
-      case TimeSteppingMode.FIXED:
-        return this.dtFixed;
-
-      case TimeSteppingMode.FAST:
-        return TimeStepping.getMaxTimeStepFast(
-          this.env.getParticles(),
-          this.env.getSmoothingLength(),
-          this.env.getGravity(),
-        );
-
-      case TimeSteppingMode.STABLE:
-        return TimeStepping.getMaxTimeStepStable(
-          this.env.getParticles(),
-          this.env.getSmoothingLength(),
-          this.env.getGravity(),
-        );
-
-      default:
-        throw new Error('Unknown time stepping mode!');
+      case 'fixed':
+        return this.fixedTimeStep;
+      case 'dynFast':
+        return maxTimeStepFast(particles, h, GRAVITY);
+      case 'dynStable':
+        return maxTimeStepStable(particles, h, GRAVITY);
     }
   }
+}
 
-  public setFixedTimeStep(dt: number) {
-    this.dtFixed = dt;
-  }
-
-  public setTimeStepLimit(limit: number) {
-    this.dtLimit = limit;
-  }
-
-  public setMaxTime(maxTime: number) {
-    this.maxTime = maxTime;
-  }
-
-  public getTotalTime(): number {
-    return this.env.getTotalTime();
-  }
-
-  // BOUNDARY
-
-  public setBoundaryType(type: BoundaryType) {
-    this.integrator.setBoundaryType(type);
-  }
-
-  // ENVIRONMENT
-
-  public getEnvironment(): Environment {
-    return this.env;
+function createIntegrator(type: IntegratorType, env: Environment): Integrator {
+  switch (type) {
+    case 'euler':
+      return new Euler(env);
+    case 'heunStd':
+      return new HeunOriginal(env);
+    case 'heunNaive':
+      return new HeunNaive(env);
+    case 'heunFast':
+      return new HeunFast(env);
   }
 }

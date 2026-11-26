@@ -41,5 +41,7 @@ Angular 10 + TypeScript 4 (migration in progress, see `planning/plan.md`), raw W
 - Keep `src/simulation/` free of Angular dependencies.
 - Remove outdated code instead of commenting it out.
 - Add a very brief entry to the changelog at the bottom of `README.md` for each significant change since the thesis version (v0.9.2).
+- Tests: `npm test` (Jest). Jest runs code in Node vm contexts where global lookups (e.g. `Math`) are ~70x slower;
+  cache globals at module level in hot simulation code (see `smoothing-kernel.ts`).
 - Simulation results must stay identical to `src/sph/original/test/reference.json` unless a change is intended;
   intended changes regenerate the reference in the same commit and are noted in `planning/plan.md`.

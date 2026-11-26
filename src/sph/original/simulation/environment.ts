@@ -1,295 +1,150 @@
-import { Bounds } from '../util/bounds';
-import { Defaults } from '../util/defaults';
-import { BoundaryType, ParticleDistribution } from '../util/enums';
-import { Boundary } from './boundary/boundary';
+import { Boundary, Ghosts } from './boundary/boundary';
 import { CyclicBoundary } from './boundary/cyclic-boundary';
 import { SolidBoundary } from './boundary/solid-boundary';
 import { GroundProfile } from './ground/ground-profile';
-import { Particle } from './particle';
-import { SimulationOptions } from './simulation-options';
-import { SmoothingKernel } from './smoothing-kernel';
+import { createParticles, Particle } from './particle';
+import { cubic1D, dCubic1D } from './smoothing-kernel';
+import { BoundaryType, Bounds, GRAVITY, ParticleDistribution, SimulationOptions } from './simulation-options';
 
+/** Particles at a specific point in time, including the ghost particles of the boundary. */
+export interface FluidState {
+  particles: Particle[];
+  ghosts: Ghosts;
+  time: number;
+}
+
+/**
+ * Simulation parameters and the current fluid state.
+ * Fluid height and acceleration can be evaluated for any state (e.g. a prediction of an integrator).
+ */
 export class Environment {
-  // read write
-  private totalTime: number;
-  private smoothingLength: number;
+  readonly bounds: Bounds;
+  readonly ground: GroundProfile;
+  readonly particleVolume: number;
+  readonly state: FluidState;
+  boundary: Boundary;
+  smoothingLength: number;
 
-  // read only
-  private particleVolume: number;
-  private gravity: number;
-  private boundary: Boundary;
-  private boundarySize: Bounds;
-  private ground: GroundProfile;
-  private particles: Array<Particle>;
-
-  public constructor(options: SimulationOptions) {
-    this.totalTime = options.timeStart;
+  constructor(options: SimulationOptions) {
+    this.bounds = options.bounds;
+    this.ground = options.ground;
     this.smoothingLength = options.smoothingLength;
-    this.gravity = options.gravity;
-    this.boundarySize = options.boundarySize;
-
-    // particles (numParticles + distribution) + volume
-    this.particles = [];
-    for (let i = 0; i < options.particleNumber; i++) {
-      this.particles[i] = new Particle();
-    }
-    this.setBoundaryType(options.boundaryType);
-    this.setGround(options.ground);
-
-    this.setFluidVolume(options.fluidVolume);
-    this.setParticleDistributionFromPreset(options.particleDistribution);
+    this.boundary = createBoundary(options.boundaryType, options.bounds);
+    const particles = createParticles(options.particleNumber);
+    this.particleVolume = options.fluidVolume / particles.length;
+    this.state = { particles, ghosts: { left: [], right: [] }, time: options.timeStart };
+    distributeParticles(particles, options.particleDistribution, options.bounds);
+    this.updateGhosts(this.state);
   }
 
-  public copy(): Environment {
-    let options = Defaults.getDefaultSimulationOptions();
-    options.particleNumber = this.getParticles().length;
-    options.boundaryType = this.getBoundary().getType();
-    options.boundarySize = this.getBoundary();
-    options.smoothingLength = this.getSmoothingLength();
-    options.gravity = this.getGravity();
-    options.timeStart = this.totalTime;
-
-    let env2 = new Environment(options);
-    env2.setParticleVolume(this.getParticleVolume());
-    env2.setGround(this.ground);
-
-    // checks
-    if (!this.isEqualToEnvironment(env2)) {
-      console.log('[!!] Copy environment failed!');
-      console.log('me: ', this);
-      console.log('copy: ', env2);
-    }
-
-    return env2;
+  /** Creates a state with the same number of particles, e.g. for predictions. */
+  createState(): FluidState {
+    return { particles: createParticles(this.state.particles.length), ghosts: { left: [], right: [] }, time: 0 };
   }
 
-  private isEqualToEnvironment(env: Environment) {
-    if (this.boundarySize.xMin != env.boundarySize.xMin) return false;
-    if (this.boundarySize.xMax != env.boundarySize.xMax) return false;
-    if (this.boundarySize.yMin != env.boundarySize.yMin) return false;
-    if (this.boundarySize.yMax != env.boundarySize.yMax) return false;
-
-    if (this.boundary.getType() != env.boundary.getType()) return false;
-    if (this.particles.length != env.particles.length) return false;
-    if (this.ground != env.ground) return false;
-    if (this.totalTime != env.totalTime) return false;
-    if (this.gravity != env.getGravity()) return false;
-    if (this.particleVolume != env.particleVolume) return false;
-    if (this.smoothingLength != env.smoothingLength) return false;
-
-    // should be equal
-    return true;
+  updateGhosts(state: FluidState) {
+    state.ghosts = this.boundary.ghosts(state.particles, this.smoothingLength);
   }
 
-  // smoothing length
-  public getSmoothingLength(): number {
-    return this.smoothingLength;
+  setSmoothingLength(h: number) {
+    this.smoothingLength = h;
+    this.updateGhosts(this.state);
   }
 
-  public setSmoothingLength(smoothingLength: number) {
-    if (smoothingLength == this.smoothingLength) return;
-    if (smoothingLength <= 0) return;
-
-    this.smoothingLength = smoothingLength;
-    this.boundary.update(this);
+  setBoundaryType(type: BoundaryType) {
+    this.boundary = createBoundary(type, this.bounds);
+    this.updateGhosts(this.state);
   }
 
-  // particles
-  public getParticles(): Array<Particle> {
-    return this.particles;
-  }
-
-  // fluid volume
-  public setFluidVolume(fluidVolume: number) {
-    this.particleVolume = fluidVolume / this.particles.length;
-  }
-
-  public getParticleVolume() {
-    return this.particleVolume;
-  }
-
-  public setParticleVolume(particleVolume: number) {
-    this.particleVolume = particleVolume;
-  }
-
-  // gravity
-  public setGravity(gravity: number) {
-    this.gravity = gravity;
-  }
-
-  public getGravity(): number {
-    return this.gravity;
-  }
-
-  // total time
-  public getTotalTime(): number {
-    return this.totalTime;
-  }
-
-  public setTotalTime(newTime: number) {
-    this.totalTime = newTime;
-  }
-
-  // ground
-  public setGround(ground: GroundProfile) {
-    this.ground = ground;
-  }
-
-  // boundary
-  public setBoundaryType(type: BoundaryType) {
-    if (type == BoundaryType.CYCLIC) {
-      this.boundary = new CyclicBoundary(this.boundarySize);
-      this.boundary.update(this);
-    } else if (type == BoundaryType.SOLID) {
-      this.boundary = new SolidBoundary(this.boundarySize);
-      this.boundary.update(this);
-    } else {
-      console.log('invalid boundary type');
-    }
-  }
-
-  public getBoundary(): Boundary {
-    return this.boundary;
-  }
-
-  public updateBoundary() {
-    this.boundary.update(this);
-  }
-
-  private setParticleDistributionFromPreset(distribution: ParticleDistribution) {
-    let b = this.boundarySize;
-
-    switch (distribution) {
-      // Resets particles to the same water level.
-      case ParticleDistribution.UNIFORM:
-        this.distributeParticles(b.xMin, b.xMax, 0, this.particles.length - 1);
-        break;
-
-      // Resets particles to the initial state of a dam break.
-      case ParticleDistribution.DAM_BREAK_WET:
-        let leftSpacePercentage = (0.5 - b.xMin) / (b.xMax - b.xMin);
-        // 2 left / (2 left + 1 right)
-        let leftMassPercentage = (leftSpacePercentage * 2) / (1 + leftSpacePercentage);
-        let lastDamBreakID = Math.floor(this.particles.length * leftMassPercentage) - 1;
-        // leftMassPercentage equals to 2 * (0.5 - b.xMin) / ((b.xMax - b.xMin) + (0.5 - b.xMin)) @see thesis
-        this.distributeParticles(b.xMin, 0.5, 0, lastDamBreakID);
-        this.distributeParticles(0.5, b.xMax, lastDamBreakID + 1, this.particles.length - 1);
-        break;
-
-      case ParticleDistribution.DAM_BREAK_DRY:
-        this.distributeParticles(b.xMin, 0.5, 0, this.particles.length - 1);
-        break;
-
-      // Resets particles to the initial state of a water column.
-      case ParticleDistribution.WATER_DROP:
-        let numStackedParticles = Math.floor(this.particles.length / 3);
-        let lastWaterDropID = this.particles.length - numStackedParticles - 1;
-        this.distributeParticles(b.xMin, b.xMax, 0, lastWaterDropID);
-        this.distributeParticles(0, 1, lastWaterDropID + 1, this.particles.length - 1);
-        break;
-
-      default:
-        throw new Error('Unknown particle distribution');
-    }
-
-    this.boundary.update(this);
+  groundHeight(x: number, time = this.state.time): number {
+    return this.ground.height(x, time);
   }
 
   /**
-   * Evenly distribute particles with IDs in [firstID, lastID] over domain [xMin, xMax].
-   * Also sets the speed of the moved particles to 0.
-   *
-   * @param xMin          min x position
-   * @param xMax          max x position
-   * @param firstID       first particles ID
-   * @param lastID        last particle ID
+   * Fluid height at position x (not including the ground height).
+   * The ghosts of the state must match the smoothing length h.
    */
-  private distributeParticles(xMin: number, xMax: number, firstID: number, lastID: number) {
-    if (firstID < 0) firstID = 0;
-    if (lastID > this.particles.length) lastID = this.particles.length;
-    let width = xMax - xMin;
-
-    for (let i = firstID; i <= lastID; i++) {
-      this.particles[i].posX = xMin + (width * (i + 0.5 - firstID)) / (lastID - firstID + 1);
-      this.particles[i].speedX = 0;
-    }
-  }
-
-  //region physics
-
-  public getGroundHeight(x: number): number {
-    return this.ground.getGroundHeight(x, this.totalTime);
-  }
-
-  public getGroundSlope(x: number): number {
-    return this.ground.getGroundSlope(x, this.totalTime);
-  }
-
-  /**
-   * Calculates the fluid height at specified x position.
-   * Fluid height is not affected by ground height.
-   *
-   * @param x                     position
-   * @returns {number}            fluid height at the position
-   */
-  public getFluidHeight(x: number): number {
-    let particles = this.particles;
-
+  fluidHeight(x: number, state = this.state, h = this.smoothingLength): number {
     let height = 0;
-
-    for (let i = 0; i < particles.length; i++) {
-      let dist = x - particles[i].posX;
-      height += SmoothingKernel.cubic1D(dist, this.smoothingLength); // W
+    for (const p of state.particles) {
+      height += cubic1D(x - p.posX, h);
     }
-    // boundaries
-    if (this.boundary.isInsideLeftInnerBoundary(x, this.smoothingLength)) {
-      let lps = this.boundary.particlesLeft;
-      for (let i = 0; i < lps.length; i++) {
-        let dist = x - lps[i].posX;
-        height += SmoothingKernel.cubic1D(dist, this.smoothingLength); // W
+    if (this.boundary.isInsideLeftInnerBoundary(x, h)) {
+      for (const g of state.ghosts.left) {
+        height += cubic1D(x - g, h);
       }
-    } else if (this.boundary.isInsideRightInnerBoundary(x, this.smoothingLength)) {
-      let rps = this.boundary.particlesRight;
-      for (let i = 0; i < rps.length; i++) {
-        let dist = x - rps[i].posX;
-        height += SmoothingKernel.cubic1D(dist, this.smoothingLength); // W
+    } else if (this.boundary.isInsideRightInnerBoundary(x, h)) {
+      for (const g of state.ghosts.right) {
+        height += cubic1D(x - g, h);
       }
     }
-
     return height * this.particleVolume;
   }
 
-  /**
-   * Calculates the fluid accX at specified x position.
-   *
-   * @param x                     position
-   * @returns {number}            fluid height at the position
-   */
-  public getFluidAcc(x: number): number {
-    let particles = this.particles;
+  /** Fluid acceleration at position x. */
+  fluidAcc(x: number, state = this.state): number {
+    const h = this.smoothingLength;
     let acc = 0;
-
-    for (let i = 0; i < particles.length; i++) {
-      let dist = x - particles[i].posX;
-      acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength); // dW
+    for (const p of state.particles) {
+      acc += dCubic1D(x - p.posX, h);
     }
-    // boundaries
-    if (this.boundary.isInsideLeftInnerBoundary(x, this.smoothingLength)) {
-      let lps = this.boundary.particlesLeft;
-      for (let i = 0; i < lps.length; i++) {
-        let dist = x - lps[i].posX;
-        acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength); // dW
+    if (this.boundary.isInsideLeftInnerBoundary(x, h)) {
+      for (const g of state.ghosts.left) {
+        acc += dCubic1D(x - g, h);
       }
-    } else if (this.boundary.isInsideRightInnerBoundary(x, this.smoothingLength)) {
-      let rps = this.boundary.particlesRight;
-      for (let i = 0; i < rps.length; i++) {
-        let dist = x - rps[i].posX;
-        acc += SmoothingKernel.dCubic1D(dist, this.smoothingLength); // dW
+    } else if (this.boundary.isInsideRightInnerBoundary(x, h)) {
+      for (const g of state.ghosts.right) {
+        acc += dCubic1D(x - g, h);
       }
     }
-
-    return acc * this.particleVolume * this.gravity - this.getGroundSlope(x) * this.gravity;
+    return acc * this.particleVolume * GRAVITY - this.ground.slope(x, state.time) * GRAVITY;
   }
+}
 
-  //endregion
+function createBoundary(type: BoundaryType, bounds: Bounds): Boundary {
+  return type === 'cyclic' ? new CyclicBoundary(bounds) : new SolidBoundary(bounds);
+}
+
+function distributeParticles(particles: Particle[], distribution: ParticleDistribution, b: Bounds) {
+  const n = particles.length;
+  switch (distribution) {
+    // same water level everywhere
+    case 'uniform':
+      distribute(particles, b.xMin, b.xMax, 0, n - 1);
+      break;
+
+    // dam at x = 0.5, fluid height 1 on the left and 0.5 on the right side
+    case 'damBreakWet': {
+      const leftSpacePercentage = (0.5 - b.xMin) / (b.xMax - b.xMin);
+      // 2 left / (2 left + 1 right), see thesis
+      const leftMassPercentage = (leftSpacePercentage * 2) / (1 + leftSpacePercentage);
+      const lastDamBreakID = Math.floor(n * leftMassPercentage) - 1;
+      distribute(particles, b.xMin, 0.5, 0, lastDamBreakID);
+      distribute(particles, 0.5, b.xMax, lastDamBreakID + 1, n - 1);
+      break;
+    }
+
+    // dam at x = 0.5, no fluid on the right side
+    case 'damBreakDry':
+      distribute(particles, b.xMin, 0.5, 0, n - 1);
+      break;
+
+    // uniform water level with an additional column of water at [0, 1]
+    case 'waterDrop': {
+      const numStackedParticles = Math.floor(n / 3);
+      const lastWaterDropID = n - numStackedParticles - 1;
+      distribute(particles, b.xMin, b.xMax, 0, lastWaterDropID);
+      distribute(particles, 0, 1, lastWaterDropID + 1, n - 1);
+      break;
+    }
+  }
+}
+
+/** Evenly distributes particles with IDs in [firstID, lastID] over [xMin, xMax] and sets their speed to 0. */
+function distribute(particles: Particle[], xMin: number, xMax: number, firstID: number, lastID: number) {
+  const width = xMax - xMin;
+  for (let i = firstID; i <= lastID; i++) {
+    particles[i].posX = xMin + (width * (i + 0.5 - firstID)) / (lastID - firstID + 1);
+    particles[i].speedX = 0;
+  }
 }

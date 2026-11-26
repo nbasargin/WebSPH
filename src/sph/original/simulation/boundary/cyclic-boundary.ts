@@ -1,65 +1,33 @@
-import { Bounds } from '../../util/bounds';
-import { BoundaryType } from '../../util/enums';
-import { Environment } from '../environment';
 import { Particle } from '../particle';
-import { Boundary } from './boundary';
+import { Boundary, Ghosts } from './boundary';
 
+/**
+ * Cyclic domain: particles near the right bound affect particles near the left bound and vice versa.
+ */
 export class CyclicBoundary extends Boundary {
-  public constructor(bounds: Bounds) {
-    super(bounds);
-  }
+  readonly type = 'cyclic';
 
-  /**
-   * Simulates cyclic field. Particles on the left boundary
-   * affect particles on the right boundary.
-   *
-   * Copy particles:
-   * - from left inner to right outer boundary
-   * - from right inner to left outer boundary
-   */
-  public update(env: Environment) {
-    let xMax = this.xMax;
-    let xMin = this.xMin;
-    let width = xMax - xMin;
-    let ps = env.getParticles();
-    let h = env.getSmoothingLength();
-
-    // clear boundary
-    this.particlesLeft = [];
-    this.particlesRight = [];
-
-    // copy particles
-    for (let i = 0; i < ps.length; i++) {
-      if (this.isInsideRightInnerBoundary(ps[i].posX, h)) {
-        // inside right inner boundary
-        // -> copy to the left outer boundary
-        let p = new Particle();
-        p.posX = ps[i].posX - width;
-        this.particlesLeft[this.particlesLeft.length] = p;
+  /** Copies particles from the left inner to the right outer boundary and from the right inner to the left outer. */
+  ghosts(particles: Particle[], h: number): Ghosts {
+    const width = this.bounds.xMax - this.bounds.xMin;
+    const ghosts: Ghosts = { left: [], right: [] };
+    for (const p of particles) {
+      if (this.isInsideRightInnerBoundary(p.posX, h)) {
+        ghosts.left.push(p.posX - width);
       }
-
-      if (this.isInsideLeftInnerBoundary(ps[i].posX, h)) {
-        // inside left inner boundary
-        // -> copy to the right outer boundary
-        let p = new Particle();
-        p.posX = ps[i].posX + width;
-        this.particlesRight[this.particlesRight.length] = p;
+      if (this.isInsideLeftInnerBoundary(p.posX, h)) {
+        ghosts.right.push(p.posX + width);
       }
     }
+    return ghosts;
   }
 
-  public mapParticleInsideBoundary(p: Particle) {
-    let xMax = this.xMax;
-    let xMin = this.xMin;
-
+  mapInside(p: Particle) {
+    const { xMin, xMax } = this.bounds;
     if (p.posX > xMax) {
       p.posX -= xMax - xMin;
     } else if (p.posX < xMin) {
       p.posX += xMax - xMin;
     }
-  }
-
-  public getType(): BoundaryType {
-    return BoundaryType.CYCLIC;
   }
 }

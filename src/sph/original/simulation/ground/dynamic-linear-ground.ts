@@ -1,30 +1,18 @@
 import { GroundProfile } from './ground-profile';
 
-export class DynamicLinearGround extends GroundProfile {
-  private yIntercept: number;
-  private maxSlope: number;
-  private slopeChangeSpeed: number;
+/** Linear ground profile: y = slope * x + yIntercept, the slope is changing over time. */
+export class DynamicLinearGround implements GroundProfile {
+  constructor(
+    private readonly yIntercept: number,
+    private readonly maxSlope: number,
+    private readonly slopeChangeSpeed: number,
+  ) {}
 
-  /**
-   * Linear ground profile: y = slope * x + yIntercept
-   * Slope is changing over time.
-   *
-   * @param yIntercept
-   * @param maxSlope
-   * @param slopeChangeSpeed
-   */
-  public constructor(yIntercept: number, maxSlope: number, slopeChangeSpeed: number) {
-    super();
-    this.yIntercept = yIntercept;
-    this.maxSlope = maxSlope;
-    this.slopeChangeSpeed = slopeChangeSpeed;
+  height(x: number, t: number): number {
+    return this.slope(x, t) * x + this.yIntercept;
   }
 
-  public getGroundHeight(x: number, t: number): number {
-    return this.getGroundSlope(x, t) * x + this.yIntercept;
-  }
-
-  public getGroundSlope(x: number, t: number): number {
+  slope(x: number, t: number): number {
     return this.maxSlope * Math.sin(t * this.slopeChangeSpeed);
   }
 }

@@ -1,51 +1,37 @@
-import { Bounds } from '../../util/bounds';
-import { BoundaryType } from '../../util/enums';
-import { Environment } from '../environment';
 import { Particle } from '../particle';
+import { Bounds, BoundaryType } from '../simulation-options';
 
-export abstract class Boundary implements Bounds {
-  public xMin: number;
-  public xMax: number;
-  public yMin: number;
-  public yMax: number;
+/** Positions of ghost particles outside the left and right domain bounds. */
+export interface Ghosts {
+  left: number[];
+  right: number[];
+}
 
-  public particlesLeft: Array<Particle>;
-  public particlesRight: Array<Particle>;
+export abstract class Boundary {
+  abstract readonly type: BoundaryType;
 
-  public constructor(bounds: Bounds) {
-    this.particlesLeft = [];
-    this.particlesRight = [];
-
-    this.xMin = bounds.xMin;
-    this.xMax = bounds.xMax;
-    this.yMin = bounds.yMin;
-    this.yMax = bounds.yMax;
-  }
+  constructor(readonly bounds: Bounds) {}
 
   /**
-   * Copies all particles near the boundary into boundary arrays.
-   * This is needed each time the position of the particles is changed.
+   * Creates ghost particles for all particles near the boundary (within 2h).
+   * Needed each time the particle positions change.
    */
-  public abstract update(env: Environment);
+  abstract ghosts(particles: Particle[], smoothingLength: number): Ghosts;
 
   /**
-   * Maps the particle into the environment if its outside the boundary.
+   * Maps the particle into the domain if it is outside the bounds.
    * Can affect position and speed of the particle (depends on boundary type).
    *
-   * Note: may produce invalid results if the distance to the bounds of
-   * this domain is greater than the domain width (performance reasons).
-   *
-   * @param p Particle
+   * Note: may produce invalid results if the distance to the bounds
+   * is greater than the domain width.
    */
-  public abstract mapParticleInsideBoundary(p: Particle);
+  abstract mapInside(p: Particle): void;
 
-  public isInsideLeftInnerBoundary(xPos: number, smoothingLength: number) {
-    return xPos < this.xMin + 2 * smoothingLength;
+  isInsideLeftInnerBoundary(xPos: number, smoothingLength: number) {
+    return xPos < this.bounds.xMin + 2 * smoothingLength;
   }
 
-  public isInsideRightInnerBoundary(xPos: number, smoothingLength: number) {
-    return xPos > this.xMax - 2 * smoothingLength;
+  isInsideRightInnerBoundary(xPos: number, smoothingLength: number) {
+    return xPos > this.bounds.xMax - 2 * smoothingLength;
   }
-
-  public abstract getType(): BoundaryType;
 }

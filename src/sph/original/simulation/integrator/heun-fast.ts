@@ -1,85 +1,46 @@
-import { BoundaryType, IntegratorType } from '../../util/enums';
-import { Environment } from '../environment';
+import { Environment, FluidState } from '../environment';
 import { Integrator } from './integrator';
 
 /**
- * Reduced/Fast Heun's method: predicts position and acceleration
- * for the next step and uses those values for this step.
- * No averaging with current acceleration.
+ * Reduced/fast Heun's method: predicts the position for the next step and uses
+ * the acceleration of the prediction for this step. No averaging with the current acceleration.
  */
-export class HeunFast extends Integrator {
-  private envPred: Environment;
+export class HeunFast implements Integrator {
+  private readonly pred: FluidState;
 
-  public constructor(env: Environment) {
-    super(env);
-
-    this.envPred = env.copy();
+  constructor(private readonly env: Environment) {
+    this.pred = env.createState();
   }
 
-  public integrate(dt: number) {
-    // check if prediction has the same size as particles
+  integrate(dt: number) {
+    const env = this.env;
+    const state = env.state;
+    const particles = state.particles;
+    const predParticles = this.pred.particles;
+    const totalTime = state.time;
 
-    let env = this.getEnvironment();
-    let particles = env.getParticles();
-
-    let particlesPred = this.envPred.getParticles();
-
-    let totalTime = this.env.getTotalTime();
-
-    if (particles.length != particlesPred.length) {
-      console.log('Invalid number of particles!');
-      return;
-    }
-    if (this.env.getSmoothingLength() != this.envPred.getSmoothingLength()) {
-      this.envPred.setSmoothingLength(this.env.getSmoothingLength());
-    }
-
-    // given: pos_0, speed_0 -> calc: pos_1
+    // pos_1 = pos_0 + speed_0 * dt
     for (let i = 0; i < particles.length; i++) {
-      let part = particles[i];
-      let pred = particlesPred[i];
-      // calc: pos_1          = pos_0 + speed_0 * dt
-      pred.posX = part.posX + part.speedX * dt;
-      this.envPred.getBoundary().mapParticleInsideBoundary(pred);
+      const pred = predParticles[i];
+      pred.posX = particles[i].posX + particles[i].speedX * dt;
+      env.boundary.mapInside(pred);
+    }
+    this.pred.time = totalTime + dt;
+    env.updateGhosts(this.pred);
+
+    // acc_1 = acc(pos_1)
+    for (const pred of predParticles) {
+      pred.accX = env.fluidAcc(pred.posX, this.pred);
     }
 
-    this.envPred.setTotalTime(totalTime + dt);
-    this.envPred.updateBoundary();
-
-    // given: pos_1 -> calc: acc_1
-    for (let i = 0; i < particlesPred.length; i++) {
-      let pred = particlesPred[i];
-      // calc: acc_1          = prediction.getAcc ( pos )
-      pred.accX = this.envPred.getFluidAcc(pred.posX);
-    }
-
-    // given: acc_1, speed_0, pos_0 -> calc: new speed_0, new pos_0
+    // speed_new = speed_0 + acc_1 * dt, pos_new = pos_0 + speed_new * dt
     for (let i = 0; i < particles.length; i++) {
-      let part = particles[i];
-      let pred = particlesPred[i];
-
-      // calc: NEW speed_0    = OLD speed_0 + acc_1 * dt
-      part.speedX += pred.accX * dt;
-
-      // calc: NEW pos_0      = OLD pos_0  +  NEW speed_0 * dt
+      const part = particles[i];
+      part.speedX += predParticles[i].accX * dt;
       part.posX = part.posX + part.speedX * dt;
-      env.getBoundary().mapParticleInsideBoundary(part);
+      env.boundary.mapInside(part);
     }
-    this.env.setTotalTime(totalTime + dt);
-    this.env.updateBoundary();
-  }
-
-  public setBoundaryType(type: BoundaryType) {
-    this.env.setBoundaryType(type);
-    this.envPred.setBoundaryType(type);
-  }
-
-  public setSmoothingLength(h: number) {
-    this.env.setSmoothingLength(h);
-    this.envPred.setSmoothingLength(h);
-  }
-
-  public getType() {
-    return IntegratorType.HEUN_FAST;
+    state.time = totalTime + dt;
+    env.updateGhosts(state);
   }
 }

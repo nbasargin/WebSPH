@@ -1,26 +1,17 @@
 import { GroundProfile } from './ground-profile';
 
-export class ConstLinearGround extends GroundProfile {
-  private slope: number;
-  private yIntercept: number;
+/** Linear ground profile: y = slope * x + yIntercept */
+export class ConstLinearGround implements GroundProfile {
+  constructor(
+    private readonly slopeValue: number,
+    private readonly yIntercept: number,
+  ) {}
 
-  /**
-   * Linear ground profile: y = slope * x + yIntercept
-   *
-   * @param slope
-   * @param yIntercept
-   */
-  public constructor(slope: number, yIntercept: number) {
-    super();
-    this.slope = slope;
-    this.yIntercept = yIntercept;
+  height(x: number): number {
+    return this.slopeValue * x + this.yIntercept;
   }
 
-  public getGroundHeight(x: number, t: number): number {
-    return this.slope * x + this.yIntercept;
-  }
-
-  public getGroundSlope(x: number, t: number): number {
-    return this.slope;
+  slope(): number {
+    return this.slopeValue;
   }
 }
