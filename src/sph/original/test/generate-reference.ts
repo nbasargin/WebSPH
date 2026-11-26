@@ -9,16 +9,16 @@
  */
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { Simulation } from '../../../simulation/Simulation';
-import { SimulationOptions } from '../../../simulation/SimulationOptions';
-import { BoundaryType, IntegratorType, TimeSteppingMode } from '../../../util/Enums';
-import { CollapsingWaterColumn } from '../../../util/scenarios/CollapsingWaterColumn';
-import { ConstantSlope } from '../../../util/scenarios/ConstantSlope';
-import { DryDamBreak } from '../../../util/scenarios/DryDamBreak';
-import { DynamicSlope } from '../../../util/scenarios/DynamicSlope';
-import { FluidSeparation } from '../../../util/scenarios/FluidSeparation';
-import { Scenario } from '../../../util/scenarios/Scenario';
-import { WetDamBreak } from '../../../util/scenarios/WetDamBreak';
+import { Simulation } from '../simulation/simulation';
+import { SimulationOptions } from '../simulation/simulation-options';
+import { BoundaryType, IntegratorType, TimeSteppingMode } from '../util/enums';
+import { CollapsingWaterColumn } from '../scenarios/collapsing-water-column';
+import { ConstantSlope } from '../scenarios/constant-slope';
+import { DryDamBreak } from '../scenarios/dry-dam-break';
+import { DynamicSlope } from '../scenarios/dynamic-slope';
+import { FluidSeparation } from '../scenarios/fluid-separation';
+import { Scenario } from '../scenarios/scenario';
+import { WetDamBreak } from '../scenarios/wet-dam-break';
 
 const STEPS = 200;
 

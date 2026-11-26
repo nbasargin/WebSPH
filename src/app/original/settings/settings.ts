@@ -1,0 +1,200 @@
+import { Component, Input, ViewChild } from '@angular/core';
+import { RendererOptions } from '../../../sph/original/rendering/renderer-options';
+import { SimulationOptions } from '../../../sph/original/simulation/simulation-options';
+import { Defaults } from '../../../sph/original/util/defaults';
+import { BoundaryType, IntegratorType, TimeSteppingMode } from '../../../sph/original/util/enums';
+import { Scenario } from '../../../sph/original/scenarios/scenario';
+import { Controller } from '../controller';
+import { RenderingComponent } from './rendering';
+import { SimControlComponent } from './sim-control';
+import { SimOptionsComponent } from './sim-options';
+import { TimeSteppingComponent } from './time-stepping';
+
+@Component({
+    selector: 'websph-settings',
+    templateUrl: 'settings.html'
+})
+export class SettingsComponent {
+
+    // logging
+    private logInfo = true;
+
+    // options for reset
+    private simOptions: SimulationOptions;
+    private rendOptions: RendererOptions;
+
+
+    @Input() private controller: Controller;
+
+    // @ViewChild('scenario') private compScenario : ScenarioComponent;
+    @ViewChild('simControl') private compSimControl: SimControlComponent;
+    @ViewChild('simOptions') private compSimOptions: SimOptionsComponent;
+    @ViewChild('timeStepping') private compTimeStepping: TimeSteppingComponent;
+    @ViewChild('rendering') private compRendering: RenderingComponent;
+
+
+    public constructor() {
+        this.simOptions = Defaults.getDefaultSimulationOptions();
+        this.rendOptions = Defaults.getDefaultRendererOptions();
+    }
+
+
+    // direct property access
+
+    public setDtDynStable(dtDynStable: number) {
+        this.compTimeStepping.dtDynStable = dtDynStable;
+    }
+
+    public setDtDynFast(dtDynFast: number) {
+        this.compTimeStepping.dtDynFast = dtDynFast;
+    }
+
+    public setDtNext(dtNext: number) {
+        this.compTimeStepping.dtNext = dtNext;
+    }
+
+    public setTotalTime(totalTime: number) {
+        this.compSimControl.totalTime = totalTime;
+    }
+
+    public setFPS(fps: number) {
+        this.compRendering.fps = fps;
+    }
+
+    public stopSimulation() {
+        this.compSimControl.stopSimulation();
+    }
+
+    public showMessage(message: string) {
+        alert(message);
+    }
+
+
+    // ---------------------
+    // event listeners
+
+    // scenarios
+    public onScenarioChanged(scenario: Scenario) {
+        if (this.logInfo) console.log('[SettingsComponent Info] new scenario: ' + scenario.getName());
+
+        // update UI
+        this.stopSimulation();
+        this.setUIStateFromOptions(scenario.getSimulationOptions(), scenario.getRenderOptions());
+
+        // inform controller
+        this.controller.resetSimulationAndRenderer(scenario.getSimulationOptions(), scenario.getRenderOptions());
+
+    }
+
+    public setUIStateFromOptions(simOptions: SimulationOptions, rendOptions: RendererOptions) {
+        this.simOptions = simOptions;
+        this.rendOptions = rendOptions;
+
+        // TODO: merge single functions in components to component.updateStateFromOptions(options)
+
+        // sim control
+        this.compSimControl.setMaxTimeSendNoEvents(simOptions.timeMax);
+        this.compSimControl.totalTime = simOptions.timeStart;
+        this.compSimControl.numParticles = simOptions.particleNumber;
+
+        // sim options
+        this.compSimOptions.setBoundarySendNoEvents(simOptions.boundaryType);
+        this.compSimOptions.setIntegratorSendNoEvents(simOptions.integratorType);
+        this.compSimOptions.setSmoothingLengthSendNoEvents(simOptions.smoothingLength);
+
+        // time stepping
+        this.compTimeStepping.setDtFixedSendNoEvents(simOptions.fixedTimeStep);
+        this.compTimeStepping.setDtModeSendNoEvents(simOptions.timeSteppingMode);
+        this.compTimeStepping.setDtLimitSendNoEvents(simOptions.timeStepLimit);
+
+        // rendering
+        this.compRendering.setParticleSizeSendNoEvents(rendOptions.particleSize);
+        this.compRendering.setVisuSmoothingLengthSendNoEvents(rendOptions.smoothingLength);
+
+    }
+
+
+    // time stepping
+    public onDtFixedChanged(newDtFixed: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] new fixed dt: ' + newDtFixed);
+        this.simOptions.fixedTimeStep = newDtFixed;
+        this.controller.updateSimulationTiming(this.simOptions);
+    }
+
+    public onDtLimitChanged(newDtLimit: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] new dt limit: ' + newDtLimit);
+        this.simOptions.timeStepLimit = newDtLimit;
+        this.controller.updateSimulationTiming(this.simOptions);
+    }
+
+    public onDtModeChanged(newDtMode: TimeSteppingMode) {
+        if (this.logInfo) console.log('[SettingsComponent Info] new dt mode: ' + newDtMode);
+        this.simOptions.timeSteppingMode = newDtMode;
+        this.controller.updateSimulationTiming(this.simOptions);
+    }
+
+    public onMaxTimeChanged(maxTime: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] new max time: ' + maxTime);
+        this.simOptions.timeMax = maxTime;
+        this.controller.updateSimulationTiming(this.simOptions);
+    }
+
+
+    // simulation control
+    public onStart() {
+        if (this.logInfo) console.log('[SettingsComponent Info] start');
+        this.controller.startRenderLoop();
+    }
+
+    public onStop() {
+        if (this.logInfo) console.log('[SettingsComponent Info] stop');
+        this.controller.stopRenderLoop();
+    }
+
+    public onDoSteps(numSteps: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] do ' + numSteps + ' steps');
+        this.controller.doSteps(numSteps);
+    }
+
+    public onReset(numParticles: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] resetSimulationAndRenderer to ' + numParticles + ' particles');
+        this.simOptions.particleNumber = numParticles;
+        this.controller.resetSimulationAndRenderer(this.simOptions, this.rendOptions);
+    }
+
+
+    // simulation options
+    public onIntegratorChanged(integrator: IntegratorType) {
+        if (this.logInfo) console.log('[SettingsComponent Info] integrator changed to ' + integrator);
+        this.simOptions.integratorType = integrator;
+        this.controller.setIntegrator(integrator);
+    }
+
+    public onSmoothingLengthChanged(h: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] smoothing length changed to ' + h);
+        this.compRendering.visuSmoothingLength = h;
+
+        this.simOptions.smoothingLength = h;
+        this.controller.setSimulationSmoothingLength(h);
+    }
+
+    public onBoundaryChanged(boundary: BoundaryType) {
+        if (this.logInfo) console.log('[SettingsComponent Info] boundary changed to ' + boundary);
+        this.simOptions.boundaryType = boundary;
+        this.controller.setBoundary(boundary);
+    }
+
+
+    // rendering
+    public onVisuSmoothingLengthChanged(vh: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] visualization smoothing length changed to: ' + vh);
+        this.rendOptions.smoothingLength = vh;
+        this.controller.setRendererSmoothingLength(vh);
+    }
+
+    public onParticleSizeChanged(pSize: number) {
+        if (this.logInfo) console.log('[SettingsComponent Info] visualization particle size changed to: ' + pSize);
+        this.rendOptions.particleSize = pSize;
+        this.controller.setParticleSize(pSize);
+    }
+}
