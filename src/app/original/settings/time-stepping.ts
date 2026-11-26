@@ -1,85 +1,116 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { Defaults } from '../../../sph/original/util/defaults';
-import { EnumChecker, TimeSteppingMode, TimeSteppingModeString } from '../../../sph/original/util/enums';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { SimController } from '../controller';
 
 @Component({
-  selector: 'websph-settings-time-stepping',
-  templateUrl: 'time-stepping.html',
+  selector: 'sph-time-stepping',
+  imports: [FormsModule],
+  template: `
+    <div class="settings-block">
+      <h6>Time stepping</h6>
+
+      <div class="settings-left">Next time step:</div>
+      <div class="settings-right">
+        <div style="display: inline-block; width: 70px">
+          <b>{{ c.dtNext().toFixed(4) }}</b>
+        </div>
+      </div>
+      <br />
+
+      <div class="settings-left">
+        <label>
+          <input
+            type="radio"
+            class="radiobutton"
+            value="fixed"
+            name="timestep-type"
+            [ngModel]="c.dtMode()"
+            (ngModelChange)="c.setDtMode($event)"
+          />
+          Fixed
+        </label>
+      </div>
+      <div class="settings-right">
+        <div style="display: inline-block; width: 70px">{{ c.dtFixed().toFixed(4) }}</div>
+        <input
+          class="slider"
+          type="range"
+          min="0.0001"
+          max="0.01"
+          step="0.0001"
+          title="fixed time step size"
+          [ngModel]="c.dtFixed()"
+          (ngModelChange)="c.setDtFixed($event)"
+        />
+      </div>
+      <br />
+
+      <div class="settings-left">
+        <label>
+          <input
+            type="radio"
+            class="radiobutton"
+            value="dynStable"
+            name="timestep-type"
+            [ngModel]="c.dtMode()"
+            (ngModelChange)="c.setDtMode($event)"
+          />
+          Dyn. stable
+        </label>
+      </div>
+      <div class="settings-right">
+        <div style="display: inline-block; width: 70px">{{ c.dtDynStable().toFixed(4) }}</div>
+      </div>
+      <br />
+
+      <div class="settings-left">
+        <label>
+          <input
+            type="radio"
+            class="radiobutton"
+            value="dynFast"
+            name="timestep-type"
+            [ngModel]="c.dtMode()"
+            (ngModelChange)="c.setDtMode($event)"
+          />
+          Dyn. fast
+        </label>
+      </div>
+      <div class="settings-right">
+        <div style="display: inline-block; width: 70px">{{ c.dtDynFast().toFixed(4) }}</div>
+      </div>
+      <br />
+
+      <div class="settings-left">
+        <label>
+          <input
+            type="checkbox"
+            style="margin-top: 5px"
+            class="checkbox"
+            [ngModel]="c.dtLimitEnabled()"
+            (ngModelChange)="c.setDtLimitEnabled($event)"
+          />
+          {{ c.dtLimitEnabled() ? 'Limit to: ' : 'Set limit' }}
+        </label>
+      </div>
+      @if (c.dtLimitEnabled()) {
+        <div class="settings-right">
+          <div style="display: inline-block; width: 70px">{{ c.dtLimit().toFixed(4) }}</div>
+          <input
+            class="slider"
+            type="range"
+            min="0.0001"
+            max="0.01"
+            step="0.0001"
+            title="time step limit"
+            [ngModel]="c.dtLimit()"
+            (ngModelChange)="c.setDtLimit($event)"
+          />
+        </div>
+      }
+    </div>
+  `,
 })
 export class TimeSteppingComponent {
-  public dtDynStable: number = 0;
-  public dtDynFast: number = 0;
-  public dtNext: number = 0;
-
-  public constructor() {}
-
-  // FIXED TIME STEP
-  public setDtFixedSendNoEvents(dtFixed: number) {
-    this._dtFixed = dtFixed;
-  }
-
-  @Output() dtFixedNotify: EventEmitter<number> = new EventEmitter<number>();
-  private _dtFixed: number = Defaults.getDefaultSimulationOptions().fixedTimeStep;
-  get dtFixed() {
-    return this._dtFixed;
-  }
-
-  set dtFixed(dtFixed) {
-    this._dtFixed = dtFixed;
-    this.dtFixedNotify.emit(dtFixed);
-  }
-
-  // TIME STEP MODE
-  public setDtModeSendNoEvents(mode: TimeSteppingMode) {
-    this._dtMode = mode + '';
-  }
-
-  @Output() dtModeNotify: EventEmitter<TimeSteppingMode> = new EventEmitter<TimeSteppingMode>();
-  private _dtMode = Defaults.getDefaultSimulationOptions().timeSteppingMode + '';
-  get dtMode() {
-    return this._dtMode;
-  }
-
-  set dtMode(mode: string) {
-    if (!EnumChecker.isValidValue(TimeSteppingMode, mode)) {
-      console.log('[!!] invalid enum type: ' + mode);
-    }
-    this._dtMode = mode;
-    this.dtModeNotify.emit(TimeSteppingModeString.toEnum(mode));
-  }
-
-  // TIME STEP LIMIT
-  public setDtLimitSendNoEvents(limit: number) {
-    if (limit > 0) this._dtLimit = limit;
-    this._dtLimitEnabled = limit > 0;
-  }
-
-  @Output() dtLimitNotify: EventEmitter<number> = new EventEmitter<number>();
-  private _dtLimit: number = 0.005;
-  get dtLimit() {
-    return this._dtLimit;
-  }
-
-  set dtLimit(limit) {
-    this._dtLimit = limit;
-    if (this._dtLimitEnabled) {
-      this.dtLimitNotify.emit(limit);
-    } else {
-      this.dtLimitNotify.emit(-1); // no limit
-    }
-  }
-
-  private _dtLimitEnabled: boolean = false;
-  get dtLimitEnabled() {
-    return this._dtLimitEnabled;
-  }
-
-  set dtLimitEnabled(dtLimitEnabled) {
-    this._dtLimitEnabled = dtLimitEnabled;
-    if (dtLimitEnabled) {
-      this.dtLimitNotify.emit(this._dtLimit);
-    } else {
-      this.dtLimitNotify.emit(-1);
-    }
-  }
+  protected readonly c = inject(SimController);
 }

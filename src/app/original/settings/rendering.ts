@@ -1,42 +1,51 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { Defaults } from '../../../sph/original/util/defaults';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { SimController } from '../controller';
 
 @Component({
-  selector: 'websph-settings-rendering',
-  templateUrl: 'rendering.html',
+  selector: 'sph-rendering',
+  imports: [FormsModule],
+  template: `
+    <div class="settings-block">
+      <h6>Rendering</h6>
+
+      <div class="settings-left">Average FPS:</div>
+      <div class="settings-right">{{ c.fps().toFixed(2) }}</div>
+      <br />
+
+      <div class="settings-left middle">Visualization smoothing length:</div>
+      <div class="settings-right middle">
+        <div style="display: inline-block; width: 70px">{{ c.visuSmoothingLength() }}</div>
+        <input
+          class="slider"
+          type="range"
+          min="0.001"
+          max="0.1"
+          step="0.001"
+          title="visual smoothing length"
+          [ngModel]="c.visuSmoothingLength()"
+          (ngModelChange)="c.setVisuSmoothingLength($event)"
+        />
+      </div>
+      <br />
+
+      <div class="settings-left">Particle size:</div>
+      <div class="settings-right">
+        <select
+          class="select"
+          title="visual particle size"
+          [ngModel]="c.particleSize()"
+          (ngModelChange)="c.setParticleSize($event)"
+        >
+          @for (size of sizes; track size) {
+            <option [ngValue]="size">{{ size == 0 ? 'hidden' : size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  `,
 })
 export class RenderingComponent {
-  public setVisuSmoothingLengthSendNoEvents(vh: number) {
-    this._visuSmoothingLength = vh;
-  }
-
-  @Output() visuSmoothingLengthNotify: EventEmitter<number> = new EventEmitter<number>();
-  private _visuSmoothingLength: number = Defaults.getDefaultRendererOptions().smoothingLength;
-  set visuSmoothingLength(vh: number) {
-    this._visuSmoothingLength = vh;
-    this.visuSmoothingLengthNotify.emit(this._visuSmoothingLength);
-  }
-
-  get visuSmoothingLength() {
-    return this._visuSmoothingLength;
-  }
-
-  // particle size
-  public setParticleSizeSendNoEvents(pSize: number) {
-    this._pSize = pSize;
-  }
-
-  @Output() pSizeNotify: EventEmitter<number> = new EventEmitter<number>();
-  public sizes: Array<number> = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  private _pSize: number = Defaults.getDefaultRendererOptions().particleSize;
-  get pSize() {
-    return this._pSize;
-  }
-
-  set pSize(size: number) {
-    this._pSize = size;
-    this.pSizeNotify.emit(this._pSize);
-  }
-
-  public fps: number = 0;
+  protected readonly c = inject(SimController);
+  protected readonly sizes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 }

@@ -1,68 +1,86 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { Defaults } from '../../../sph/original/util/defaults';
-import {
-  BoundaryType,
-  BoundaryTypeString,
-  EnumChecker,
-  IntegratorType,
-  IntegratorTypeString,
-} from '../../../sph/original/util/enums';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { SimController } from '../controller';
 
 @Component({
-  selector: 'websph-settings-sim-settings',
-  templateUrl: 'sim-options.html',
+  selector: 'sph-sim-options',
+  imports: [FormsModule],
+  template: `
+    <div class="settings-block">
+      <h6>Simulation options</h6>
+
+      <div class="settings-left middle">Integrator:</div>
+      <div class="settings-right middle">
+        @for (i of integrators; track i.value; let last = $last) {
+          <label>
+            <input
+              type="radio"
+              class="radiobutton"
+              name="integrator"
+              [value]="i.value"
+              [ngModel]="c.integrator()"
+              (ngModelChange)="c.setIntegrator($event)"
+            />
+            {{ i.label }}
+          </label>
+          @if (!last) {
+            <br />
+          }
+        }
+      </div>
+      <br />
+
+      <div class="settings-left">Smoothing length:</div>
+      <div class="settings-right">
+        <div style="display: inline-block; width: 70px">{{ c.smoothingLength() }}</div>
+        <input
+          class="slider"
+          type="range"
+          min="0.001"
+          max="0.1"
+          step="0.001"
+          title="simulation smoothing length"
+          [ngModel]="c.smoothingLength()"
+          (ngModelChange)="c.setSmoothingLength($event)"
+        />
+      </div>
+      <br />
+
+      <div class="settings-left middle">Boundary:</div>
+      <div class="settings-right middle">
+        <label>
+          <input
+            type="radio"
+            class="radiobutton"
+            name="boundary"
+            value="cyclic"
+            [ngModel]="c.boundary()"
+            (ngModelChange)="c.setBoundary($event)"
+          />
+          Cyclic
+        </label>
+        <br />
+        <label>
+          <input
+            type="radio"
+            class="radiobutton"
+            name="boundary"
+            value="solid"
+            [ngModel]="c.boundary()"
+            (ngModelChange)="c.setBoundary($event)"
+          />
+          Solid
+        </label>
+      </div>
+    </div>
+  `,
 })
 export class SimOptionsComponent {
-  public setIntegratorSendNoEvents(i: IntegratorType) {
-    this._integrator = i + '';
-  }
-
-  @Output() integratorNotify: EventEmitter<IntegratorType> = new EventEmitter<IntegratorType>();
-  private _integrator: string = Defaults.getDefaultSimulationOptions().integratorType + '';
-  set integrator(i: string) {
-    if (!EnumChecker.isValidValue(IntegratorType, i)) {
-      console.log('[!!] invalid enum type: ' + i);
-    }
-
-    this._integrator = i;
-    this.integratorNotify.emit(IntegratorTypeString.toEnum(i));
-  }
-
-  get integrator() {
-    return this._integrator;
-  }
-
-  public setSmoothingLengthSendNoEvents(h: number) {
-    this._smoothingLength = h;
-  }
-
-  @Output() smoothingLengthNotify: EventEmitter<number> = new EventEmitter<number>();
-  private _smoothingLength: number = Defaults.getDefaultSimulationOptions().smoothingLength;
-  set smoothingLength(h: number) {
-    this._smoothingLength = h;
-    this.smoothingLengthNotify.emit(this._smoothingLength);
-  }
-
-  get smoothingLength() {
-    return this._smoothingLength;
-  }
-
-  public setBoundarySendNoEvents(b: BoundaryType) {
-    this._boundary = b + '';
-  }
-
-  @Output() boundaryNotify: EventEmitter<BoundaryType> = new EventEmitter<BoundaryType>();
-  private _boundary: string = Defaults.getDefaultSimulationOptions().boundaryType + '';
-  set boundary(b: string) {
-    if (!EnumChecker.isValidValue(BoundaryType, b)) {
-      console.log('[!!] invalid enum type: ' + b);
-    }
-
-    this._boundary = b;
-    this.boundaryNotify.emit(BoundaryTypeString.toEnum(b));
-  }
-
-  get boundary() {
-    return this._boundary;
-  }
+  protected readonly c = inject(SimController);
+  protected readonly integrators = [
+    { value: 'euler', label: 'Euler' },
+    { value: 'heunNaive', label: 'Heun (naive)' },
+    { value: 'heunStd', label: 'Heun (standard)' },
+    { value: 'heunFast', label: 'Heun (fast)' },
+  ] as const;
 }

@@ -1,37 +1,36 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { CollapsingWaterColumn } from '../../../sph/original/scenarios/collapsing-water-column';
-import { ConstantSlope } from '../../../sph/original/scenarios/constant-slope';
-import { DryDamBreak } from '../../../sph/original/scenarios/dry-dam-break';
-import { DynamicSlope } from '../../../sph/original/scenarios/dynamic-slope';
-import { FluidSeparation } from '../../../sph/original/scenarios/fluid-separation';
-import { Scenario } from '../../../sph/original/scenarios/scenario';
-import { WetDamBreak } from '../../../sph/original/scenarios/wet-dam-break';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { scenarios } from '../../../sph/original/scenarios/scenarios';
+import { SimController } from '../controller';
 
 @Component({
-  selector: 'websph-settings-scenario',
-  templateUrl: 'scenario.html',
+  selector: 'sph-scenario',
+  imports: [FormsModule],
+  template: `
+    <div class="settings-block">
+      <h6>Scenario</h6>
+      <select
+        class="select"
+        style="width: 180px"
+        title="select a scenario"
+        [ngModel]="c.selectedScenario()"
+        (ngModelChange)="c.selectedScenario.set($event)"
+      >
+        @for (s of scenarios; track s.name) {
+          <option [ngValue]="s">{{ s.name }}</option>
+        }
+      </select>
+
+      <button class="button" (click)="c.applyScenario(c.selectedScenario())">Select</button>
+      <br />
+
+      <div style="margin-top: 2px">
+        Description: <i>{{ c.selectedScenario().description }}</i>
+      </div>
+    </div>
+  `,
 })
 export class ScenarioComponent {
-  public scenarios: Array<Scenario> = [
-    new WetDamBreak(),
-    new DryDamBreak(),
-    new FluidSeparation(),
-    new ConstantSlope(),
-    new DynamicSlope(),
-    new CollapsingWaterColumn(),
-  ];
-  private _activeScenario: Scenario = this.scenarios[0];
-  public get activeScenario() {
-    return this._activeScenario;
-  }
-
-  public set activeScenario(s: Scenario) {
-    this._activeScenario = s;
-  }
-
-  @Output() changeScenarioNotify: EventEmitter<Scenario> = new EventEmitter<Scenario>();
-
-  public onChangeScenario() {
-    this.changeScenarioNotify.emit(this._activeScenario);
-  }
+  protected readonly c = inject(SimController);
+  protected readonly scenarios = scenarios;
 }
