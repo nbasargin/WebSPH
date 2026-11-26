@@ -4,7 +4,7 @@
 
 ⬜ not started · 🟨 in progress · ✅ done
 
-1. 🟨 **Agentic structure** – `AGENTS.md` and `planning/`.
+1. ✅ **Agentic structure** – `AGENTS.md` and `planning/`.
 2. ⬜ **Toolchain modernization** – Angular 10 → latest stable, standalone components, strict TS,
    project structure as in `homepage`; remove leftovers along the way. Prettier reformat as a separate commit.
    Done when it runs on current Node and behaves like the live demo.

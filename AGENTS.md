@@ -27,6 +27,14 @@ Angular 10 + TypeScript 4 (migration in progress, see `planning/plan.md`), raw W
 - `src/ui/` – Angular components; `Controller.ts` connects UI, simulation and renderer.
 - `src/util/` – enums, defaults, predefined scenarios.
 
+## Working Agreement
+
+- Ask clarifying questions before starting; do not assume too much.
+- Share suggestions, and point out unfeasible requests or logic errors in instructions.
+- Commit only when explicitly asked. If a session is explicitly autonomous, commit after each step;
+  when unsure, ask for review instead.
+- Before starting a new task, check for uncommitted changes and remind the user if there are any.
+
 ## Conventions
 
 - Code is formatted with Prettier.
