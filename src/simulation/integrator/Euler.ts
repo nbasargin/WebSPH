@@ -12,6 +12,12 @@ export class Euler extends Integrator {
         let env = this.getEnvironment();
         let particles = env.getParticles();
 
+        // force computation (for the current state, before any particle is moved)
+        for (let i = 0; i < particles.length; i++) {
+            let pi = particles[i];
+            pi.accX = env.getFluidAcc(pi.posX);
+        }
+
         // position & speed update
         for (let i = 0; i < particles.length; i++) {
             let pi = particles[i];
@@ -23,12 +29,6 @@ export class Euler extends Integrator {
         }
         env.setTotalTime(env.getTotalTime() + dt);
         env.updateBoundary();
-
-        // force computation
-        for (let i = 0; i < particles.length; i++) {
-            let pi = particles[i];
-            pi.accX = env.getFluidAcc(pi.posX);
-        }
     }
 
 

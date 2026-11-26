@@ -16,5 +16,8 @@ Original demo (thesis version): http://websph.azurewebsites.net/
 
 ## Changelog
 
+### v1.0.0 (in progress)
+- Euler integrator computes the acceleration before moving the particles (first step after a reset no longer ignores forces).
+
 ### v0.9.2 – thesis version (2017)
 - Version described in the bachelor's thesis *"Interactive Simulation of Floods Using the SPH Method"* (TUM, 2017).
