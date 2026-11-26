@@ -10,6 +10,7 @@ import { TimeSteppingComponent } from './settings/time-stepping';
 /** Original UI from the thesis (v0.9.2), same look and functionality. */
 @Component({
   selector: 'sph-page-original',
+  preserveWhitespaces: true, // as in the original Angular 4 UI
   imports: [ScenarioComponent, SimControlComponent, SimOptionsComponent, TimeSteppingComponent, RenderingComponent],
   providers: [SimController],
   template: `

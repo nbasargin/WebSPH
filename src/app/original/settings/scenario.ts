@@ -5,6 +5,7 @@ import { SimController } from '../controller';
 
 @Component({
   selector: 'sph-scenario',
+  preserveWhitespaces: true, // as in the original Angular 4 UI
   imports: [FormsModule],
   template: `
     <div class="settings-block">
