@@ -44,7 +44,9 @@ Commands: `npm start` (dev server), `npm run build`, `npm test`, `npm run format
 - Keep `src/sph/` free of Angular dependencies.
 - Remove outdated code instead of commenting it out.
 - Add a very brief entry to the changelog at the bottom of `README.md` for each significant change since the thesis version (v0.9.2).
-- Tests: `npm test` (Jest). Jest runs code in Node vm contexts where global lookups (e.g. `Math`) are ~70x slower;
-  cache globals at module level in hot simulation code (see `smoothing-kernel.ts`).
+- Tests: `npm test` (Jest).
+- Hot simulation loops (N² kernel sums): index loops instead of `for...of` (~40% faster in Firefox) and no global lookups
+  like `Math.abs` (~70x slower in Jest's Node vm contexts), see `environment.ts` and `smoothing-kernel.ts`.
+  Check performance in Firefox and Chrome, they behave differently.
 - Simulation results must stay identical to `src/sph/original/test/reference.json` unless a change is intended;
   intended changes regenerate the reference in the same commit and are noted in `planning/plan.md`.

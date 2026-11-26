@@ -51,7 +51,7 @@
 - 2026-11-26 Gravity is a single constant (`9.81`) – it was never configurable in the UI.
 - 2026-11-26 String union types instead of enums – plain string literals work in templates, no runtime code (rejected: TS string enums).
 - 2026-11-26 Pushing branches and tags is left to the user.
-- 2026-11-26 Kernel functions cache `Math.abs`/`Math.sign` at module level – global lookups in Jest's vm contexts made tests ~150x slower (rejected: other test runner).
+- 2026-11-26 Hot loops use index loops and compute abs/sign via comparisons – `for...of` was ~40% slower in Firefox, global `Math` lookups ~150x slower in Jest's vm contexts (rejected: other test runner, caching `Math.abs` – ~8% slower in Firefox).
 
 ## Open questions
 

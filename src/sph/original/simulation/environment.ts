@@ -6,6 +6,8 @@ import { createParticles, Particle } from './particle';
 import { cubic1D, dCubic1D } from './smoothing-kernel';
 import { BoundaryType, Bounds, GRAVITY, ParticleDistribution, SimulationOptions } from './simulation-options';
 
+const noGhosts: number[] = [];
+
 /** Particles at a specific point in time, including the ghost particles of the boundary. */
 export interface FluidState {
   particles: Particle[];
@@ -65,18 +67,19 @@ export class Environment {
    * The ghosts of the state must match the smoothing length h.
    */
   fluidHeight(x: number, state = this.state, h = this.smoothingLength): number {
+    // hot loops (N² per step): index loops are much faster than for-of in Firefox
+    const particles = state.particles;
     let height = 0;
-    for (const p of state.particles) {
-      height += cubic1D(x - p.posX, h);
+    for (let i = 0; i < particles.length; i++) {
+      height += cubic1D(x - particles[i].posX, h);
     }
-    if (this.boundary.isInsideLeftInnerBoundary(x, h)) {
-      for (const g of state.ghosts.left) {
-        height += cubic1D(x - g, h);
-      }
-    } else if (this.boundary.isInsideRightInnerBoundary(x, h)) {
-      for (const g of state.ghosts.right) {
-        height += cubic1D(x - g, h);
-      }
+    const ghosts = this.boundary.isInsideLeftInnerBoundary(x, h)
+      ? state.ghosts.left
+      : this.boundary.isInsideRightInnerBoundary(x, h)
+        ? state.ghosts.right
+        : noGhosts;
+    for (let i = 0; i < ghosts.length; i++) {
+      height += cubic1D(x - ghosts[i], h);
     }
     return height * this.particleVolume;
   }
@@ -84,18 +87,18 @@ export class Environment {
   /** Fluid acceleration at position x. */
   fluidAcc(x: number, state = this.state): number {
     const h = this.smoothingLength;
+    const particles = state.particles;
     let acc = 0;
-    for (const p of state.particles) {
-      acc += dCubic1D(x - p.posX, h);
+    for (let i = 0; i < particles.length; i++) {
+      acc += dCubic1D(x - particles[i].posX, h);
     }
-    if (this.boundary.isInsideLeftInnerBoundary(x, h)) {
-      for (const g of state.ghosts.left) {
-        acc += dCubic1D(x - g, h);
-      }
-    } else if (this.boundary.isInsideRightInnerBoundary(x, h)) {
-      for (const g of state.ghosts.right) {
-        acc += dCubic1D(x - g, h);
-      }
+    const ghosts = this.boundary.isInsideLeftInnerBoundary(x, h)
+      ? state.ghosts.left
+      : this.boundary.isInsideRightInnerBoundary(x, h)
+        ? state.ghosts.right
+        : noGhosts;
+    for (let i = 0; i < ghosts.length; i++) {
+      acc += dCubic1D(x - ghosts[i], h);
     }
     return acc * this.particleVolume * GRAVITY - this.ground.slope(x, state.time) * GRAVITY;
   }
