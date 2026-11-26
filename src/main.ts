@@ -1,9 +1,9 @@
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { provideBrowserGlobalErrorListeners } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { AppComponent } from './app/app';
+import { routes } from './app/routes';
 
-import { WebSphModule } from './ui/root/websph.module';
-//  enableProdMode();
-
-platformBrowserDynamic().bootstrapModule(WebSphModule);
-//platformBrowserDynamic().bootstrapModule(AppModule);
-//platformBrowserDynamic().bootstrapModule(CommunicationModule);
-//platformBrowserDynamic().bootstrapModule(RadioButtonsModule);
+bootstrapApplication(AppComponent, {
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
+}).catch((err) => console.error(err));
