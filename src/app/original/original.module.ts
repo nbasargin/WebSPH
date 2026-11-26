@@ -11,25 +11,19 @@ import { TimeSteppingComponent } from './settings/time-stepping';
 
 import { WebSphRootComponent } from './page-original';
 
-
 @NgModule({
-    declarations: [
-        WebSphRootComponent,
-        SettingsComponent,
-        ScenarioComponent,
-        SimControlComponent,
-        SimOptionsComponent,
-        TimeSteppingComponent,
-        RenderingComponent,
-        MiscComponent
-    ],
-    imports: [
-        BrowserModule,
-        FormsModule
-    ],
-    providers: [],
-    bootstrap: [WebSphRootComponent]
+  declarations: [
+    WebSphRootComponent,
+    SettingsComponent,
+    ScenarioComponent,
+    SimControlComponent,
+    SimOptionsComponent,
+    TimeSteppingComponent,
+    RenderingComponent,
+    MiscComponent,
+  ],
+  imports: [BrowserModule, FormsModule],
+  providers: [],
+  bootstrap: [WebSphRootComponent],
 })
-export class WebSphModule {
-
-}
+export class WebSphModule {}

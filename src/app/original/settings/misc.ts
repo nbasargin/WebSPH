@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'websph-settings-misc',
-    templateUrl: 'misc.html'
+  selector: 'websph-settings-misc',
+  templateUrl: 'misc.html',
 })
-export class MiscComponent {
-
-}
+export class MiscComponent {}

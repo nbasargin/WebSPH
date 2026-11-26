@@ -3,21 +3,19 @@ import { BoundaryType, IntegratorType, ParticleDistribution, TimeSteppingMode } 
 import { GroundProfile } from './ground/ground-profile';
 
 export interface SimulationOptions {
-
-    integratorType: IntegratorType;
-    boundaryType: BoundaryType;
-    boundarySize: Bounds;
-    //groundPreset : GroundPreset;
-    ground: GroundProfile;
-    smoothingLength: number;
-    particleNumber: number;
-    particleDistribution: ParticleDistribution;
-    fixedTimeStep: number;
-    timeSteppingMode: TimeSteppingMode;
-    timeStepLimit: number;
-    timeStart: number;
-    timeMax: number;
-    fluidVolume: number;
-    gravity: number;
-
+  integratorType: IntegratorType;
+  boundaryType: BoundaryType;
+  boundarySize: Bounds;
+  //groundPreset : GroundPreset;
+  ground: GroundProfile;
+  smoothingLength: number;
+  particleNumber: number;
+  particleDistribution: ParticleDistribution;
+  fixedTimeStep: number;
+  timeSteppingMode: TimeSteppingMode;
+  timeStepLimit: number;
+  timeStart: number;
+  timeMax: number;
+  fluidVolume: number;
+  gravity: number;
 }

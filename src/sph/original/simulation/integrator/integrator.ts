@@ -1,28 +1,25 @@
 import { BoundaryType, IntegratorType } from '../../util/enums';
 import { Environment } from '../environment';
 
-
 /**
  * Abstract integrator class for 1D shallow water environments.
  */
 export abstract class Integrator {
+  protected env: Environment;
 
-    protected env: Environment;
+  public constructor(env: Environment) {
+    this.env = env;
+  }
 
-    public constructor(env: Environment) {
-        this.env = env;
-    }
+  public getEnvironment(): Environment {
+    return this.env;
+  }
 
-    public getEnvironment(): Environment {
-        return this.env;
-    }
+  public abstract integrate(dt: number);
 
-    public abstract integrate(dt: number);
+  public abstract setBoundaryType(type: BoundaryType);
 
+  public abstract setSmoothingLength(h: number);
 
-    public abstract setBoundaryType(type: BoundaryType);
-
-    public abstract setSmoothingLength(h: number);
-
-    public abstract getType(): IntegratorType;
+  public abstract getType(): IntegratorType;
 }

@@ -2,33 +2,30 @@
  * Ring buffer: pushing a new value will overwrite the oldest value if there is no space left.
  */
 export class RingBuffer {
+  private capacity: number;
+  private buffer: Array<number>;
+  private nextPos: number;
 
-    private capacity: number;
-    private buffer: Array<number>;
-    private nextPos: number;
+  public constructor(capacity: number) {
+    this.capacity = capacity;
+    this.buffer = [];
+    this.nextPos = 0;
+  }
 
-    public constructor(capacity: number) {
-        this.capacity = capacity;
-        this.buffer = [];
-        this.nextPos = 0;
-    }
+  public push(value: number) {
+    this.buffer[this.nextPos] = value;
+    this.nextPos = (this.nextPos + 1) % this.capacity;
+  }
 
-    public push(value: number) {
-        this.buffer[this.nextPos] = value;
-        this.nextPos = (this.nextPos + 1) % this.capacity;
-    }
+  public avg(): number {
+    if (this.buffer.length == 0) return 0;
 
-    public avg(): number {
-        if (this.buffer.length == 0) return 0;
+    let sum = 0;
+    for (let i = 0; i < this.buffer.length; i++) sum += this.buffer[i];
+    return sum / this.buffer.length;
+  }
 
-        let sum = 0;
-        for (let i = 0; i < this.buffer.length; i++) sum += this.buffer[i];
-        return sum / this.buffer.length;
-    }
-
-    public toString(): string {
-        return this.buffer.toString();
-    }
-
-
+  public toString(): string {
+    return this.buffer.toString();
+  }
 }

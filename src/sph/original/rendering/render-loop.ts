@@ -1,60 +1,52 @@
 import { FrameTiming } from '../util/timing';
 
 export class RenderLoop2 {
+  private static numberOfFramesToAvgFPS = 10;
+  private callback: (lastFrameDuration: number, avgFPS: number) => void;
+  private timing: FrameTiming;
+  private running: boolean;
 
+  public constructor(callback: (lastFrameDuration: number, avgFPS: number) => void) {
+    this.callback = callback;
+    this.timing = new FrameTiming(RenderLoop2.numberOfFramesToAvgFPS);
+    this.running = false;
+  }
 
-    private static numberOfFramesToAvgFPS = 10;
-    private callback: (lastFrameDuration: number, avgFPS: number) => void;
-    private timing: FrameTiming;
-    private running: boolean;
-
-
-    public constructor(callback: (lastFrameDuration: number, avgFPS: number) => void) {
-        this.callback = callback;
-        this.timing = new FrameTiming(RenderLoop2.numberOfFramesToAvgFPS);
-        this.running = false;
+  public start() {
+    if (this.running) {
+      console.log('RenderLoop already running!');
+      return;
     }
 
+    this.running = true;
+    this.timing.reset(RenderLoop2.numberOfFramesToAvgFPS);
+    //this.loop();
+    window.requestAnimationFrame(() => {
+      this.loop();
+    });
+  }
 
-    public start() {
-        if (this.running) {
-            console.log('RenderLoop already running!');
-            return;
-        }
+  private loop() {
+    // check if running
+    if (!this.running) return;
 
-        this.running = true;
-        this.timing.reset(RenderLoop2.numberOfFramesToAvgFPS);
-        //this.loop();
-        window.requestAnimationFrame(() => {
-            this.loop()
-        });
-    }
+    // call callback
+    this.callback(this.timing.getLastFrameDuration(), this.timing.getAvgFPS());
 
+    // update fps
+    this.timing.nextFrame();
 
-    private loop() {
-        // check if running
-        if (!this.running) return;
+    // request next frame
+    window.requestAnimationFrame(() => {
+      this.loop();
+    });
+  }
 
-        // call callback
-        this.callback(this.timing.getLastFrameDuration(), this.timing.getAvgFPS());
+  public stop() {
+    this.running = false;
+  }
 
-        // update fps
-        this.timing.nextFrame();
-
-        // request next frame
-        window.requestAnimationFrame(() => {
-            this.loop()
-        });
-
-    }
-
-
-    public stop() {
-        this.running = false;
-    }
-
-    public isRunning(): boolean {
-        return this.running;
-    }
-
+  public isRunning(): boolean {
+    return this.running;
+  }
 }

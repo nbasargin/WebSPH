@@ -2,9 +2,8 @@
  * Loads shaders from separate files.
  */
 export class ShaderLoader {
-
-    public static getDummyColorFragShader() {
-        return `
+  public static getDummyColorFragShader() {
+    return `
 			precision mediump float;
 
 			varying vec4 vColor;
@@ -13,10 +12,10 @@ export class ShaderLoader {
 				gl_FragColor = vColor;
 			}
 		`;
-    }
+  }
 
-    public static getDummyColorVertShader() {
-        return `
+  public static getDummyColorVertShader() {
+    return `
 			attribute vec3 aVertexPosition;
 			attribute vec4 aVertexColor;
 			
@@ -32,5 +31,5 @@ export class ShaderLoader {
 				gl_PointSize = uPointSize;
 			}
 		`;
-    }
+  }
 }

@@ -23,62 +23,74 @@ import { WetDamBreak } from '../scenarios/wet-dam-break';
 const STEPS = 200;
 
 interface ReferenceCase {
-    name: string;
-    scenario: Scenario;
-    overrides?: Partial<SimulationOptions>;
-    /** optional action applied after half of the steps */
-    midRun?: (sim: Simulation) => void;
+  name: string;
+  scenario: Scenario;
+  overrides?: Partial<SimulationOptions>;
+  /** optional action applied after half of the steps */
+  midRun?: (sim: Simulation) => void;
 }
 
 const cases: ReferenceCase[] = [
-    // scenario defaults
-    { name: 'wet-dam-break', scenario: new WetDamBreak() },
-    { name: 'dry-dam-break', scenario: new DryDamBreak() },
-    { name: 'fluid-separation', scenario: new FluidSeparation() },
-    { name: 'constant-slope', scenario: new ConstantSlope() },
-    { name: 'dynamic-slope', scenario: new DynamicSlope() },
-    { name: 'collapsing-water-column', scenario: new CollapsingWaterColumn() },
-    // integrators
-    { name: 'wet-dam-break-euler', scenario: new WetDamBreak(), overrides: { integratorType: IntegratorType.EULER } },
-    { name: 'wet-dam-break-heun-naive', scenario: new WetDamBreak(), overrides: { integratorType: IntegratorType.HEUN_NAIVE } },
-    { name: 'wet-dam-break-heun-std', scenario: new WetDamBreak(), overrides: { integratorType: IntegratorType.HEUN_STD } },
-    // boundary, time stepping
-    { name: 'constant-slope-cyclic', scenario: new ConstantSlope(), overrides: { boundaryType: BoundaryType.CYCLIC } },
-    { name: 'wet-dam-break-fixed-dt', scenario: new WetDamBreak(), overrides: { timeSteppingMode: TimeSteppingMode.FIXED } },
-    { name: 'wet-dam-break-dt-limit', scenario: new WetDamBreak(), overrides: { timeStepLimit: 0.002 } },
-    // parameter change during the simulation
-    { name: 'wet-dam-break-h-change', scenario: new WetDamBreak(), midRun: (sim) => sim.setSmoothingLength(0.05) },
+  // scenario defaults
+  { name: 'wet-dam-break', scenario: new WetDamBreak() },
+  { name: 'dry-dam-break', scenario: new DryDamBreak() },
+  { name: 'fluid-separation', scenario: new FluidSeparation() },
+  { name: 'constant-slope', scenario: new ConstantSlope() },
+  { name: 'dynamic-slope', scenario: new DynamicSlope() },
+  { name: 'collapsing-water-column', scenario: new CollapsingWaterColumn() },
+  // integrators
+  { name: 'wet-dam-break-euler', scenario: new WetDamBreak(), overrides: { integratorType: IntegratorType.EULER } },
+  {
+    name: 'wet-dam-break-heun-naive',
+    scenario: new WetDamBreak(),
+    overrides: { integratorType: IntegratorType.HEUN_NAIVE },
+  },
+  {
+    name: 'wet-dam-break-heun-std',
+    scenario: new WetDamBreak(),
+    overrides: { integratorType: IntegratorType.HEUN_STD },
+  },
+  // boundary, time stepping
+  { name: 'constant-slope-cyclic', scenario: new ConstantSlope(), overrides: { boundaryType: BoundaryType.CYCLIC } },
+  {
+    name: 'wet-dam-break-fixed-dt',
+    scenario: new WetDamBreak(),
+    overrides: { timeSteppingMode: TimeSteppingMode.FIXED },
+  },
+  { name: 'wet-dam-break-dt-limit', scenario: new WetDamBreak(), overrides: { timeStepLimit: 0.002 } },
+  // parameter change during the simulation
+  { name: 'wet-dam-break-h-change', scenario: new WetDamBreak(), midRun: (sim) => sim.setSmoothingLength(0.05) },
 ];
 
 function toBase64(values: number[]): string {
-    return Buffer.from(new Float64Array(values).buffer).toString('base64');
+  return Buffer.from(new Float64Array(values).buffer).toString('base64');
 }
 
 const results = cases.map((c) => {
-    const options = { ...c.scenario.getSimulationOptions(), ...c.overrides };
-    const sim = new Simulation(options);
-    let executedSteps = 0;
-    for (let step = 0; step < STEPS; step++) {
-        if (c.midRun && step === STEPS / 2) {
-            c.midRun(sim);
-        }
-        if (sim.getNextTimeStep() > 0) executedSteps++;
-        sim.update();
+  const options = { ...c.scenario.getSimulationOptions(), ...c.overrides };
+  const sim = new Simulation(options);
+  let executedSteps = 0;
+  for (let step = 0; step < STEPS; step++) {
+    if (c.midRun && step === STEPS / 2) {
+      c.midRun(sim);
     }
-    const particles = sim.getEnvironment().getParticles();
-    return {
-        name: c.name,
-        steps: executedSteps,
-        particles: particles.length,
-        totalTime: sim.getTotalTime(),
-        positions: toBase64(particles.map((p) => p.posX)),
-        speeds: toBase64(particles.map((p) => p.speedX)),
-    };
+    if (sim.getNextTimeStep() > 0) executedSteps++;
+    sim.update();
+  }
+  const particles = sim.getEnvironment().getParticles();
+  return {
+    name: c.name,
+    steps: executedSteps,
+    particles: particles.length,
+    totalTime: sim.getTotalTime(),
+    positions: toBase64(particles.map((p) => p.posX)),
+    speeds: toBase64(particles.map((p) => p.speedX)),
+  };
 });
 
 const file = join(__dirname, 'reference.json');
 writeFileSync(file, JSON.stringify({ cases: results }, null, 2) + '\n');
 console.log(`Wrote ${results.length} cases to ${file}`);
 for (const r of results) {
-    console.log(`  ${r.name.padEnd(26)} n=${r.particles} steps=${r.steps} t=${r.totalTime}`);
+  console.log(`  ${r.name.padEnd(26)} n=${r.particles} steps=${r.steps} t=${r.totalTime}`);
 }
