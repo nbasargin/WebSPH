@@ -40,3 +40,6 @@ Angular 10 + TypeScript 4 (migration in progress, see `planning/plan.md`), raw W
 - Code is formatted with Prettier.
 - Keep `src/simulation/` free of Angular dependencies.
 - Remove outdated code instead of commenting it out.
+- Add a very brief entry to the changelog at the bottom of `README.md` for each significant change since the thesis version (v0.9.2).
+- Simulation results must stay identical to `src/sph/original/test/reference.json` unless a change is intended;
+  intended changes regenerate the reference in the same commit and are noted in `planning/plan.md`.
