@@ -6,15 +6,16 @@
 
 1. ✅ **Agentic structure** – `AGENTS.md` and `planning/`.
 2. 🟨 **Toolchain modernization (v1.0.0)** – Angular 10 → 22, keeping functionality, look and feel. Steps:
-   1. Reference data from the original simulation (`src/sph/original/test/`), then Euler fix + regenerated reference.
-   2. Fresh Angular 22 scaffold (setup as in `homepage`, Node 26), remove old configs and leftovers.
-   3. `git mv` sources into the new layout, kebab-case file names: `src/sph/original/` (simulation, rendering, scenarios), `src/app/original/` (thesis UI).
-   4. Prettier reformat only.
-   5. Migration + simplification (see below), Jest reference test passes bit-exact.
-   6. Docs, changelog, version `1.0.0`.
+   1. ✅ Reference data from the original simulation (`src/sph/original/test/`), then Euler fix + regenerated reference.
+   2. ✅ Fresh Angular 22 scaffold (setup as in `homepage`, Node 26), remove old configs and leftovers.
+   3. ✅ `git mv` sources into the new layout, kebab-case file names: `src/sph/original/` (simulation, rendering, scenarios), `src/app/original/` (thesis UI).
+   4. ✅ Prettier reformat only.
+   5. ✅ Migration + simplification (see below), Jest reference test passes bit-exact.
+   6. 🟨 Docs and changelog ✅; visual check against the live demo (user), then version `1.0.0`.
 3. ⬜ **GitHub Pages** – deploy action, `/WebSPH/` base href, `404.html` routing workaround, README update.
 4. ⬜ **Rename `master` → `main`**.
 5. ⬜ **Routing + new UI (v2.0.0)** – new minimalistic UI with Angular Material; thesis UI kept on a separate route.
+   Original UI styles are global (`src/styles.scss`) and must be scoped to the original page then.
 6. ⬜ **Faster simulation** – new variant faster than O(N²), see [`ideas/fast-neighbor-search.md`](ideas/fast-neighbor-search.md).
    Generator can be pointed to the migrated code to serve as reference.
 7. ⬜ **More features** – pick from [`ideas/`](ideas/).
@@ -50,6 +51,7 @@
 - 2026-11-26 Gravity is a single constant (`9.81`) – it was never configurable in the UI.
 - 2026-11-26 String union types instead of enums – plain string literals work in templates, no runtime code (rejected: TS string enums).
 - 2026-11-26 Pushing branches and tags is left to the user.
+- 2026-11-26 Kernel functions cache `Math.abs`/`Math.sign` at module level – global lookups in Jest's vm contexts made tests ~150x slower (rejected: other test runner).
 
 ## Open questions
 

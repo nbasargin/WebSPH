@@ -4,7 +4,7 @@
 
 Interactive web-based fluid simulation: **1D Shallow Water Equations** discretized with
 **Smoothed Particle Hydrodynamics (SPH)**, rendered with WebGL. Originally the bachelor's thesis
-*"Interactive Simulation of Floods Using the SPH Method"* (TUM, 2017), now being revived.
+_"Interactive Simulation of Floods Using the SPH Method"_ (TUM, 2017), now being revived.
 
 Roadmap, decisions and ideas are in `planning/` – read `planning/README.md` first and keep it up to date.
 
@@ -17,15 +17,18 @@ Roadmap, decisions and ideas are in `planning/` – read `planning/README.md` fi
 
 ## Tech Stack
 
-Angular 10 + TypeScript 4 (migration in progress, see `planning/plan.md`), raw WebGL with `gl-matrix`.
+Angular 22 (standalone, zoneless, signals) + TypeScript 6, raw WebGL 1, Jest for tests, Prettier (config in `package.json`).
+Commands: `npm start` (dev server), `npm run build`, `npm test`, `npm run format`.
 
 ## Project Structure
 
-- `src/simulation/` – framework-agnostic simulation core: `Simulation` (time stepping, integrator),
-  `Environment` (particles, SPH height/acceleration sums), integrators, boundaries, ground profiles.
-- `src/rendering/` – WebGL renderer and helpers.
-- `src/ui/` – Angular components; `Controller.ts` connects UI, simulation and renderer.
-- `src/util/` – enums, defaults, predefined scenarios.
+- `src/main.ts` – bootstrap, `src/app/app.ts` – root component, `src/app/routes.ts` – routes.
+- `src/sph/original/` – original (thesis) simulation, framework-agnostic, no Angular imports:
+  - `simulation/` – `Simulation` (time stepping, integrator), `Environment` (parameters + `FluidState`,
+    SPH height/acceleration sums, O(N²)), integrators, boundaries, ground profiles.
+  - `rendering/` – WebGL renderer, render loop. `scenarios/` – predefined scenarios.
+  - `test/` – reference data, generator and Jest spec.
+- `src/app/original/` – original UI: `page-original.ts`, `controller.ts` (signal-based state + actions), `settings/` panels.
 
 ## Working Agreement
 
@@ -38,7 +41,7 @@ Angular 10 + TypeScript 4 (migration in progress, see `planning/plan.md`), raw W
 ## Conventions
 
 - Code is formatted with Prettier.
-- Keep `src/simulation/` free of Angular dependencies.
+- Keep `src/sph/` free of Angular dependencies.
 - Remove outdated code instead of commenting it out.
 - Add a very brief entry to the changelog at the bottom of `README.md` for each significant change since the thesis version (v0.9.2).
 - Tests: `npm test` (Jest). Jest runs code in Node vm contexts where global lookups (e.g. `Math`) are ~70x slower;
