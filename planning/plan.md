@@ -15,8 +15,8 @@
 3. ✅ **GitHub Pages** – deploy action, `/WebSPH/` base href, `404.html` routing workaround, README update.
    The commit that completes it gets tag `v1.0.0`, and its message names the version.
 4. ✅ **Rename `master` → `main`**.
-5. ⬜ **Routing + new UI (v2.0.0)** – new minimalistic UI with Angular Material; thesis UI kept on a separate route.
-   Original UI styles are global (`src/styles.scss`) and must be scoped to the original page then.
+5. 🟨 **Routing + new UI (v2.0.0)** – new minimalistic UI with Angular Material; thesis UI kept on a separate route.
+   Design and steps in [`new-ui.md`](new-ui.md), work on branch `new-ui`.
 6. ⬜ **Faster simulation** – new variant faster than O(N²), see [`ideas/fast-neighbor-search.md`](ideas/fast-neighbor-search.md).
    Generator can be pointed to the migrated code to serve as reference.
 7. ⬜ **More features** – pick from [`ideas/`](ideas/).
@@ -56,12 +56,14 @@
 - 2026-11-27 `deploy` branch is created from `modernization`; `master` stays untouched until the rename to `main`.
 - 2026-11-27 `master` renamed to `main` and fast-forwarded to the modernized state; development continues on `main`.
 - 2026-11-27 Deployment switched to the official Pages actions (`upload-pages-artifact`, `deploy-pages`) – no committed builds in a `gh-pages` branch (supersedes the `GITHUB_TOKEN` + `gh-pages` decision above).
+- 2026-11-27 New UI at `/`, thesis UI at `/original` – showcase first (rejected: separate landing page linking `/original` and `/updated`).
+- 2026-11-27 Scenarios via URL: `?scenario=<preset>` plus overriding parameters; copy link contains only differences to the preset – shareable without encoding all defaults (rejected: switching to `custom` on any change).
+- 2026-11-27 Particle count, distribution and ground are fixed per simulation, set only before start – changing them requires a reset anyway.
+- 2026-11-27 UI mockups as local standalone HTML files before Angular code – cheap to compare and discard.
+- 2026-11-28 Boundaries shown with ~10% margins: solid = gray wall with half-transparent mirrored fluid, cyclic = thin line and continued fluid – makes the boundary condition visible (rejected: drawing only the 2h ghost zone).
 - 2026-11-26 Hot loops use index loops and compute abs/sign via comparisons – `for...of` was ~40% slower in Firefox, global `Math` lookups ~150x slower in Jest's vm contexts (rejected: other test runner, caching `Math.abs` – ~8% slower in Firefox).
-
-## Open questions
-
-- Route names, e.g. landing page at `/` linking to `/original` and `/updated`?
 
 ## Known quirks (kept for now)
 
 - Analytical dam break overlay assumes the wet dam break setup (dam at x = 0.5, heights 1 and 0.5).
+- Cyclic boundary with different ground heights at both ends is a discontinuity, particles jump in height (see `new-ui.md`).
