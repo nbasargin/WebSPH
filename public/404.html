@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <title>404 Redirect</title>
+  </head>
+  <body>
+    <script>
+      // GitHub Pages does not support SPA routing: store the requested path and redirect to the app,
+      // which then navigates to the stored path (see src/app/app.ts).
+      const path = window.location.pathname.slice(1);
+      localStorage.setItem('coming-from', path);
+      console.log('Setting redirect request to', path);
+      window.location.href = '/WebSPH/';
+    </script>
+    <div>GitHub pages redirector</div>
+    <div>Redirecting to base url: https://nbasargin.github.io/WebSPH/</div>
+  </body>
+</html>

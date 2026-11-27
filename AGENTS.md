@@ -30,6 +30,13 @@ Commands: `npm start` (dev server), `npm run build`, `npm test`, `npm run format
   - `test/` – reference data, generator and Jest spec.
 - `src/app/original/` – original UI: `page-original.ts`, `controller.ts` (signal-based state + actions), `settings/` panels.
 
+## Hosting
+
+Static website on GitHub Pages: https://nbasargin.github.io/WebSPH/. Pushing to the `deploy` branch runs
+`.github/workflows/main.yaml` (tests, `npm run build:prod` with base href `/WebSPH/`), which pushes `dist/websph/browser`
+to the `gh-pages` branch using the built-in `GITHUB_TOKEN`. GitHub Pages has no SPA routing: `public/404.html` stores
+the requested path in `localStorage` and redirects to the root, `src/app/app.ts` then navigates to the stored path.
+
 ## Working Agreement
 
 - Ask clarifying questions before starting; do not assume too much.

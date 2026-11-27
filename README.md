@@ -4,6 +4,8 @@ This project aims to bring an interactive fluid simulation based on the Smoothed
 
 ## Web demo
 
+Demo: https://nbasargin.github.io/WebSPH/
+
 Original demo (thesis version): http://websph.azurewebsites.net/
 
 ## How to run locally
@@ -18,6 +20,7 @@ Requires Node.js (22.22+, 24.15+ or 26+) with npm.
 
 ### v1.0.0 – modernized (2026)
 
+- Hosted on GitHub Pages, deployed automatically by a GitHub Action.
 - Toolchain modernized: Angular 22 (standalone components, zoneless, signals), TypeScript 6, npm instead of yarn.
 - Code cleanup and simplification with the same look, functionality and simulation results; unused code removed.
 - Performance: same in Firefox, about 5x faster in Chrome than the original demo (3000 particles).

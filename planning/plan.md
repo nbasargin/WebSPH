@@ -12,7 +12,7 @@
    4. ✅ Prettier reformat only.
    5. ✅ Migration + simplification (see below), Jest reference test passes bit-exact.
    6. ✅ Docs, changelog, visual and performance check against the live demo, version `1.0.0`.
-3. ⬜ **GitHub Pages** – deploy action, `/WebSPH/` base href, `404.html` routing workaround, README update.
+3. ✅ **GitHub Pages** – deploy action, `/WebSPH/` base href, `404.html` routing workaround, README update.
    The commit that completes it gets tag `v1.0.0`, and its message names the version.
 4. ⬜ **Rename `master` → `main`**.
 5. ⬜ **Routing + new UI (v2.0.0)** – new minimalistic UI with Angular Material; thesis UI kept on a separate route.
@@ -52,6 +52,8 @@
 - 2026-11-26 Gravity is a single constant (`9.81`) – it was never configurable in the UI.
 - 2026-11-26 String union types instead of enums – plain string literals work in templates, no runtime code (rejected: TS string enums).
 - 2026-11-26 Pushing branches and tags is left to the user.
+- 2026-11-27 Deployment uses the built-in `GITHUB_TOKEN` instead of a personal access token – no token renewal (rejected: official Pages actions without `gh-pages` branch, to stay similar to `homepage`).
+- 2026-11-27 `deploy` branch is created from `modernization`; `master` stays untouched until the rename to `main`.
 - 2026-11-26 Hot loops use index loops and compute abs/sign via comparisons – `for...of` was ~40% slower in Firefox, global `Math` lookups ~150x slower in Jest's vm contexts (rejected: other test runner, caching `Math.abs` – ~8% slower in Firefox).
 
 ## Open questions
