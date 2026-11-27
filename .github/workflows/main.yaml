@@ -5,13 +5,16 @@ on:
     branches:
       - deploy
 
-# GITHUB_TOKEN may push the build result to the gh-pages branch, no personal access token needed
+# deploy to GitHub Pages directly (Pages source "GitHub Actions"), no gh-pages branch with committed builds
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
+# one deployment at a time, a running deployment is not cancelled
 concurrency:
-  group: deploy
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -35,8 +38,18 @@ jobs:
       - name: Build Angular app to prod
         run: npm run build:prod
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload build result
+        uses: actions/upload-pages-artifact@v5
         with:
-          folder: dist/websph/browser
-          branch: gh-pages
+          path: dist/websph/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

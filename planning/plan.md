@@ -55,6 +55,7 @@
 - 2026-11-27 Deployment uses the built-in `GITHUB_TOKEN` instead of a personal access token – no token renewal (rejected: official Pages actions without `gh-pages` branch, to stay similar to `homepage`).
 - 2026-11-27 `deploy` branch is created from `modernization`; `master` stays untouched until the rename to `main`.
 - 2026-11-27 `master` renamed to `main` and fast-forwarded to the modernized state; development continues on `main`.
+- 2026-11-27 Deployment switched to the official Pages actions (`upload-pages-artifact`, `deploy-pages`) – no committed builds in a `gh-pages` branch (supersedes the `GITHUB_TOKEN` + `gh-pages` decision above).
 - 2026-11-26 Hot loops use index loops and compute abs/sign via comparisons – `for...of` was ~40% slower in Firefox, global `Math` lookups ~150x slower in Jest's vm contexts (rejected: other test runner, caching `Math.abs` – ~8% slower in Firefox).
 
 ## Open questions

@@ -33,9 +33,12 @@ Commands: `npm start` (dev server), `npm run build`, `npm test`, `npm run format
 ## Hosting
 
 Static website on GitHub Pages: https://nbasargin.github.io/WebSPH/. Pushing to the `deploy` branch runs
-`.github/workflows/main.yaml` (tests, `npm run build:prod` with base href `/WebSPH/`), which pushes `dist/websph/browser`
-to the `gh-pages` branch using the built-in `GITHUB_TOKEN`. GitHub Pages has no SPA routing: `public/404.html` stores
-the requested path in `localStorage` and redirects to the root, `src/app/app.ts` then navigates to the stored path.
+`.github/workflows/main.yaml` (tests, `npm run build:prod` with base href `/WebSPH/`), which uploads `dist/websph/browser`
+as Pages artifact and deploys it with the official Pages actions (Pages source "GitHub Actions", no `gh-pages` branch).
+GitHub Pages has no SPA routing: `public/404.html` stores the requested path in `localStorage` and redirects to the root,
+`src/app/app.ts` then navigates to the stored path.
+
+Development happens on `main` (feature branches when useful); `deploy` is only for deployments.
 
 ## Working Agreement
 
