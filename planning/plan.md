@@ -60,6 +60,8 @@
 - 2026-11-27 Scenarios via URL: `?scenario=<preset>` plus overriding parameters; copy link contains only differences to the preset – shareable without encoding all defaults (rejected: switching to `custom` on any change).
 - 2026-11-27 Particle count, distribution and ground are fixed per simulation, set only before start – changing them requires a reset anyway.
 - 2026-11-27 UI mockups as local standalone HTML files before Angular code – cheap to compare and discard.
+- 2026-11-28 Layout "immersive" (mockup A): full-screen canvas, controls in sky and ground areas, scenario sheet – uncluttered, clear selection step (rejected: page with cards below the canvas, side panel).
+- 2026-11-28 One smoothing length for simulation and visualization, no rendering settings – simpler UI (rejected: separate visualization h as in the thesis UI).
 - 2026-11-28 Boundaries shown with ~10% margins: solid = gray wall with half-transparent mirrored fluid, cyclic = thin line and continued fluid – makes the boundary condition visible (rejected: drawing only the 2h ghost zone).
 - 2026-11-26 Hot loops use index loops and compute abs/sign via comparisons – `for...of` was ~40% slower in Firefox, global `Math` lookups ~150x slower in Jest's vm contexts (rejected: other test runner, caching `Math.abs` – ~8% slower in Firefox).
 

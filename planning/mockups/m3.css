@@ -1,0 +1,358 @@
+/* Approximation of Angular Material 3 (dark, cyan palette, Fira Sans) as on the homepage – mockup only. */
+:root {
+  color-scheme: dark;
+  --primary: #4fd8eb;
+  --on-primary: #00363d;
+  --primary-container: #004f58;
+  --on-primary-container: #97f0ff;
+  --secondary-container: #334b4f;
+  --on-secondary-container: #cde7ec;
+  --surface: #0e1415;
+  --surface-container-low: #161d1e;
+  --surface-container: #1a2122;
+  --surface-container-high: #242b2c;
+  --surface-container-highest: #2f3637;
+  --on-surface: #dee3e5;
+  --on-surface-variant: #bfc8ca;
+  --outline: #899294;
+  --outline-variant: #3f484a;
+  --xs: 4px;
+  --s: 8px;
+  --m: 16px;
+  --l: 24px;
+  --sim-sky: #1d3d52;
+  --sim-sky-top: #0d1a26;
+  --sim-water: #45c6d8;
+  --sim-water-deep: #0b4a55;
+  --sim-ground: #2e2620;
+  --sim-ground-edge: #a08a70;
+  --sim-wall: #5b6066;
+  --sim-line: #9fb5b8;
+  --sim-right: #ffb870;
+  --sim-left: #8fe3a0;
+  --sim-still: #e6f6f8;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--on-surface);
+  font:
+    400 14px/20px 'Fira Sans',
+    sans-serif;
+}
+.icon {
+  font-family: 'Material Symbols Outlined';
+  font-size: 24px;
+  line-height: 1;
+  user-select: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s);
+  height: 40px;
+  padding: 0 var(--l);
+  border-radius: 20px;
+  font-weight: 500;
+}
+.btn.filled {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.btn.tonal {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+.btn.text {
+  color: var(--primary);
+  padding: 0 12px;
+}
+.btn.outlined {
+  border: 1px solid var(--outline);
+  color: var(--primary);
+}
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  color: var(--on-surface-variant);
+}
+.icon-btn:hover,
+.btn.text:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.icon-btn.on {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+.fab {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  box-shadow: 0 2px 6px #0008;
+}
+.fab .icon {
+  font-size: 32px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s);
+  height: 32px;
+  padding: 0 var(--s) 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--outline-variant);
+  background: color-mix(in srgb, var(--surface-container) 80%, transparent);
+  font-weight: 500;
+}
+.chip .icon {
+  font-size: 18px;
+}
+.surface {
+  background: var(--surface-container);
+  border-radius: 16px;
+}
+.label {
+  color: var(--on-surface-variant);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* segmented button */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--outline);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.seg button {
+  height: 36px;
+  padding: 0 14px;
+  font-weight: 500;
+  font-size: 13px;
+}
+.seg button + button {
+  border-left: 1px solid var(--outline);
+}
+.seg button.on {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+/* form fields */
+.field {
+  display: grid;
+  gap: var(--xs);
+}
+select,
+input[type='number'] {
+  font: inherit;
+  color: var(--on-surface);
+  background: transparent;
+  height: 40px;
+  border: 1px solid var(--outline);
+  border-radius: 4px;
+  padding: 0 12px;
+}
+select option {
+  background: var(--surface-container-high);
+}
+input[type='range'] {
+  accent-color: var(--primary);
+  width: 100%;
+}
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s);
+}
+input[type='checkbox'] {
+  accent-color: var(--primary);
+  width: 18px;
+  height: 18px;
+}
+
+/* settings panel */
+.settings {
+  display: grid;
+  gap: var(--m);
+  padding: var(--m);
+}
+.settings .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s) var(--m);
+}
+.settings details summary {
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--xs);
+}
+.settings details[open] summary .icon {
+  transform: rotate(90deg);
+}
+.settings details > .settings {
+  padding: var(--m) 0 0;
+}
+
+/* scenario cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--m);
+}
+.card {
+  text-align: left;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: 12px;
+  background: var(--surface-container-high);
+  overflow: hidden;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px #0009;
+}
+.card.selected {
+  outline: 2px solid var(--primary);
+}
+.card canvas,
+.card .thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  background: var(--surface-container-highest);
+}
+.card .thumb {
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+}
+.card .thumb .icon {
+  font-size: 40px;
+}
+.card .body {
+  padding: 12px var(--m) var(--m);
+  display: grid;
+  gap: var(--xs);
+  align-content: start;
+}
+.card .body p {
+  margin: 0;
+  color: var(--on-surface-variant);
+}
+
+/* dialog */
+dialog {
+  border: none;
+  border-radius: 28px;
+  padding: var(--l);
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  width: min(560px, calc(100vw - 32px));
+}
+dialog::backdrop {
+  background: #000a;
+}
+dialog h2 {
+  margin: 0 0 var(--m);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+dialog .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--m);
+}
+dialog .grid .wide {
+  grid-column: 1 / -1;
+}
+dialog .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s);
+  margin-top: var(--l);
+}
+@media (max-width: 480px) {
+  dialog .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* snackbar */
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: var(--l);
+  transform: translate(-50%, 200%);
+  background: var(--on-surface);
+  color: var(--surface);
+  padding: 14px var(--m);
+  border-radius: 4px;
+  transition: transform 0.2s;
+  z-index: 100;
+  max-width: calc(100vw - 32px);
+}
+.snackbar.show {
+  transform: translate(-50%, 0);
+}
+.mock-switcher {
+  position: fixed;
+  right: var(--s);
+  bottom: var(--s);
+  z-index: 50;
+  font-size: 12px;
+  opacity: 0.6;
+}
+.mock-switcher a {
+  color: var(--primary);
+  margin-left: var(--s);
+}
+a.btn,
+a.icon-btn {
+  text-decoration: none;
+}
+dialog .form {
+  border-top: 1px solid var(--outline-variant);
+}
+dialog .settings {
+  padding-left: 0;
+  padding-right: 0;
+}

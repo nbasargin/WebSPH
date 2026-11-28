@@ -17,22 +17,40 @@ Simple to use and to showcase: pick a scenario with one click, hit play. Full co
 
 - Start configuration: particle count, distribution, ground (and initial boundary, h). Fixed once the simulation exists;
   changed only in the custom builder before starting, or by URL. Presets use a fixed particle count.
-- Runtime settings: play/pause, max time, time stepping, integrator (expert: h, boundary, rendering options).
+- Runtime settings, in a collapsible panel:
+  - basic: smoothing length, boundary, stop at
+  - advanced (collapsed): time stepping (mode Fixed / Stable / Fast, one slider in seconds – "Value" for fixed,
+    "Limit to" with checkbox for the dynamic modes, same row layout in all modes – and the next time step, both with
+    4 decimals), integrator
+- While the settings are hidden, the scenario description is shown in their place.
+- The custom builder shows the start configuration (particles, initial water, ground) above the same settings form.
+- One smoothing length for simulation and visualization, constant particle size: no rendering settings.
+- New UI presets are defined separately from the thesis scenarios (which stay unchanged for `/original` and the
+  reference tests). Fluid separation uses h = 0.05 instead of 0.025 (thesis: rendered with 0.085) to avoid very thin peaks.
 - Reset restores the start state and time, keeps the runtime settings (as in the thesis UI).
 
 ## Layout
 
+Chosen from mockups: variant A ("immersive").
+
 - Full-screen canvas; controls as overlays that never cover the water: only the sky above the domain
   and the ground area below it.
-- Always visible: play/pause, reset, scenario selection, copy link. Collapsible panel: max time, time stepping, integrator.
+- Top bar in the sky: scenario chip (opens the selection), copy link, link to the thesis UI.
+- Ground area: reset, play/pause (FAB), simulation time, FPS, settings toggle; settings panel below.
 - Narrow / portrait screens: domain gets a taller aspect ratio (to try), controls move below the canvas, page scrolls.
 - Desktop first; on mobile at least "pick a preset, play" must work well.
 
 ## Scenario selection
 
+- Opaque full-page sheet (no simulation shining through), open on landing without `?scenario`.
 - Cards with thumbnail and short explanation, one click starts. "Custom" is one of the cards and opens the builder
   (particle count, distribution, ground, boundary, h, integrator, time stepping).
 - Thumbnails: placeholders first, static screenshots later (no live previews).
+
+## Analytical validation
+
+Wet dam break shows the analytical solution as a line over the water, as in the thesis UI
+(`simulation/validation/analytical-dam-break.ts`; only valid for the wet dam break setup).
 
 ## Boundary visualization
 
@@ -47,8 +65,9 @@ The view shows ~10% of the domain width beyond each side (the ghost zone alone, 
 
 ## Look
 
-Angular Material 3 matching `homepage`: dark scheme, cyan palette, Fira Sans. Simulation colors adapted to the theme.
-Light theme only if cheap.
+Angular Material 3 matching `homepage`: dark scheme, cyan palette, Fira Sans. Simulation colors adapted to the theme,
+sky (dark blue) and ground (dark brown) clearly distinct. Light theme only if cheap.
+No speed coloring of particles; a better direction visualization is an idea: [`ideas/flow-visualization.md`](ideas/flow-visualization.md).
 
 ## Architecture
 
@@ -59,8 +78,8 @@ Light theme only if cheap.
 
 ## Workflow
 
-1. 2–3 standalone HTML mockups with the real simulation (local scratchpad files), compared on desktop and mobile
-   (browser dev tools); decide the layout and boundary visualization.
+1. ✅ Standalone HTML mockups with the real simulation, compared on desktop and mobile. The final one is kept in
+   [`mockups/`](mockups/) as reference for the Angular implementation.
 2. Implementation on branch `new-ui` in small reviewable slices:
    routing + Material theme + scoped thesis styles → canvas + play/pause → scenario cards + URL presets →
    collapsible controls + copy link → custom builder → boundary visualization → thumbnails.
